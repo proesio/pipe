@@ -2,7 +2,7 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 27-01-2019
+ * Fecha última modificación: 10-04-2019
  * Versión: 1.0
  * Sitio web: https://pipe.proes.co
  *
@@ -47,7 +47,9 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+	const BD_CONTROLADOR='';
 	const BD_HOST='';
+	const BD_PUERTO='';
 	const BD_USUARIO='';
 	const BD_CONTRASENA='';
 	const BD_BASEDATOS='';
