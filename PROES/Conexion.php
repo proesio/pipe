@@ -47,11 +47,36 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
-	const BD_CONTROLADOR='mysql';
-	const BD_HOST='';
-	const BD_PUERTO='';
-	const BD_USUARIO='root';
-	const BD_CONTRASENA='';
-	const BD_BASEDATOS='pmaap';	
-	require_once "Conexion.php";
-	require_once "PIPE.php";
+	namespace PROES;
+	class Conexion{
+		public static $cnx=null;
+		public function __construct(){
+			Conexion::$cnx=$this->conexion();
+		}
+		private function conexion(){
+			try{
+				if(defined('BD_CONTROLADOR') and defined('BD_HOST') and defined('BD_PUERTO') and defined('BD_USUARIO') and defined('BD_CONTRASENA') and defined('BD_BASEDATOS')){
+					if(!empty(BD_HOST)) $BD_HOST='host='.BD_HOST.';';
+					if(empty(BD_HOST)) $BD_HOST='';
+					if(!empty(BD_PUERTO)) $BD_PUERTO='port='.BD_PUERTO.';';
+					if(empty(BD_PUERTO)) $BD_PUERTO='';
+					if(!empty(BD_BASEDATOS)) $BD_BASEDATOS='dbname='.BD_BASEDATOS.';';
+					if(empty(BD_BASEDATOS)) $BD_BASEDATOS='';
+					if(BD_CONTROLADOR=='mysql' or BD_CONTROLADOR=='pgsql'  or BD_CONTROLADOR=='sqlite' or BD_CONTROLADOR=='oci'){
+						if(BD_CONTROLADOR=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
+						return new \PDO(BD_CONTROLADOR.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,BD_USUARIO,BD_CONTRASENA);
+					}
+					else{
+						exit('BD_CONTROLADOR <b>'.BD_CONTROLADOR.'</b> desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci.');
+					}
+				}
+				else{
+					exit('Las siguientes constantes deben estar definidas en el archivo <b>PIPE_CONEXION_BD.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS');
+				}
+			}
+			catch(\PDOException $e){
+				$this->mostrarErrorSQL('',$e->getMessage());
+			}
+		}
+	}
+	new Conexion();

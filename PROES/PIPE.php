@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 10-04-2019
- * Versión: 1.0
+ * Fecha última modificación: 26-04-2019
+ * Versión: 1.0.1
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,8 +48,8 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE. 
  */
 	namespace PROES;
+	use PROES\Conexion;
 	class PIPE{
-		private $cnx;
 		private $_distinto='';
 		private $_campos='';
 		private $_tabla='';
@@ -70,7 +70,6 @@
 		const ARREGLO='arreglo';
 		const JSON='json';
 		public function __construct($datosTabla){
-			$this->cnx=$this->conexion();
 			$this->_distinto=$datosTabla['distinto'];
 			$this->_campos=$datosTabla['campos'];
 			$this->_tabla=$datosTabla['tabla'];
@@ -102,14 +101,14 @@
 			return new PIPE($datosTabla);
 		}
 		public function alias($alias){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 				if(get_class_vars($clase[count($clase)-1])['tabla']!=null) $tabla=get_class_vars($clase[count($clase)-1])['tabla'];
 				$pipe=PIPE::tabla($tabla);
 			}
-			$tabla="$pipe->_tabla as $alias";
+			$tabla=$pipe->_tabla.' as $alias';
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
 				'campos'=>$pipe->_campos,
@@ -126,7 +125,7 @@
 			return new PIPE($datosTabla);
 		}
 		public function todo($campos='',$tipo=PIPE::OBJETO){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -136,7 +135,7 @@
 			if(is_array($campos)){
 				$camposUsuario='';
 				foreach($campos as $campo){
-					$camposUsuario=$camposUsuario.$campo.",";
+					$camposUsuario=$camposUsuario.$campo.',';
 				}
 				$camposUsuario=substr($camposUsuario,0,-1);
 				return $pipe->seleccionar($camposUsuario)->obtener($tipo);
@@ -149,7 +148,7 @@
 			}
 		}		
 		public function distinto(){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -172,7 +171,7 @@
 			return new PIPE($datosTabla);
 		}
 		public function seleccionar($campos=['*']){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -180,9 +179,9 @@
 				$pipe=PIPE::tabla($tabla);
 			}
 			$campos=is_array($campos) ? $campos : func_get_args();
-			$_campos="";
+			$_campos='';
 			foreach($campos as $campo){
-				$_campos=$_campos.$campo.",";
+				$_campos=$_campos.$campo.',';
 			}
 			$_campos=$pipe->traducirConsultaSQL(substr($_campos,0,-1));
 			$datosTabla=array(
@@ -201,7 +200,7 @@
 			return new PIPE($datosTabla);
 		}
 		public function unir($tablaUnion,$llaveForanea,$union,$llavePrimaria=''){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -210,9 +209,9 @@
 			}
 			if($llavePrimaria==''){
 				$llavePrimaria=$union;
-				$union="=";
+				$union='=';
 			}		
-			$union=$pipe->_unir." inner join $tablaUnion on $llaveForanea $union $llavePrimaria";
+			$union=$pipe->_unir.' inner join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
 			$union=$pipe->traducirConsultaSQL($union);
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
@@ -230,7 +229,7 @@
 			return new PIPE($datosTabla);
 		}
 		public function unirDerecha($tablaUnion,$llaveForanea,$union,$llavePrimaria=''){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -239,9 +238,9 @@
 			}
 			if($llavePrimaria==''){
 				$llavePrimaria=$union;
-				$union="=";
+				$union='=';
 			}
-			$union=$pipe->_unir." right join $tablaUnion on $llaveForanea $union $llavePrimaria";
+			$union=$pipe->_unir.' right join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
 			$union=$pipe->traducirConsultaSQL($union);
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
@@ -259,7 +258,7 @@
 			return new PIPE($datosTabla);
 		}
 		public function unirIzquierda($tablaUnion,$llaveForanea,$union,$llavePrimaria=''){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -268,9 +267,9 @@
 			}
 			if($llavePrimaria==''){
 				$llavePrimaria=$union;
-				$union="=";
+				$union='=';
 			}
-			$union=$pipe->_unir." left join $tablaUnion on $llaveForanea $union $llavePrimaria";
+			$union=$pipe->_unir.' left join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
 			$union=$pipe->traducirConsultaSQL($union);
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
@@ -288,7 +287,7 @@
 			return new PIPE($datosTabla);
 		}
 		public function donde($condicion,$datos=''){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -299,7 +298,7 @@
 				if(get_class_vars($clase[count($clase)-1])['zonaHoraria']!='UTC') $zonaHoraria=get_class_vars($clase[count($clase)-1])['zonaHoraria'];
 				$pipe=PIPE::tabla($tabla);
 			}
-			$condicion=$pipe->traducirConsultaSQL("where $condicion");
+			$condicion=$pipe->traducirConsultaSQL('where '.$condicion);
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
 				'campos'=>$pipe->_campos,
@@ -325,14 +324,14 @@
 			}	
 		}
 		public function agruparPor($grupo){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 				if(get_class_vars($clase[count($clase)-1])['tabla']!=null) $tabla=get_class_vars($clase[count($clase)-1])['tabla'];
 				$pipe=PIPE::tabla($tabla);
 			}
-			$grupo=$pipe->traducirConsultaSQL("group by $grupo");
+			$grupo=$pipe->traducirConsultaSQL('group by '.$grupo);
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
 				'campos'=>$pipe->_campos,
@@ -349,14 +348,14 @@
 			return new PIPE($datosTabla);
 		}
 		public function teniendo($condicion){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 				if(get_class_vars($clase[count($clase)-1])['tabla']!=null) $tabla=get_class_vars($clase[count($clase)-1])['tabla'];
 				$pipe=PIPE::tabla($tabla);
 			}
-			$condicion=$pipe->traducirConsultaSQL("having $condicion");
+			$condicion=$pipe->traducirConsultaSQL('having '.$condicion);
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
 				'campos'=>$pipe->_campos,
@@ -373,14 +372,14 @@
 			return new PIPE($datosTabla);
 		}
 		public function ordenarPor($ordenar,$tipo='asc'){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 				if(get_class_vars($clase[count($clase)-1])['tabla']!=null) $tabla=get_class_vars($clase[count($clase)-1])['tabla'];
 				$pipe=PIPE::tabla($tabla);
 			}
-			$ordenar=$pipe->traducirConsultaSQL("order by $ordenar $tipo");
+			$ordenar=$pipe->traducirConsultaSQL('order by '.$ordenar.' '.$tipo);
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
 				'campos'=>$pipe->_campos,
@@ -397,15 +396,15 @@
 			return new PIPE($datosTabla);
 		}
 		public function limite($inicio,$final=''){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 				if(get_class_vars($clase[count($clase)-1])['tabla']!=null) $tabla=get_class_vars($clase[count($clase)-1])['tabla'];
 				$pipe=PIPE::tabla($tabla);
 			}
-			$limite="limit $inicio";
-			if($final!='') $limite="limit $inicio,$final";		
+			$limite='limit '.$inicio;
+			if($final!='') $limite='limit '.$inicio.','.$final;		
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
 				'campos'=>$pipe->_campos,
@@ -422,7 +421,7 @@
 			return new PIPE($datosTabla);
 		}
 		public function primero($limite=1,$tipo=PIPE::OBJETO){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -436,17 +435,17 @@
 			return $pipe->limite($limite)->obtener($tipo);
 		}
 		public function ultimo($llavePrimaria='id',$limite=1,$tipo=PIPE::OBJETO){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				if($llavePrimaria==PIPE::OBJETO or $llavePrimaria==PIPE::ARREGLO or $llavePrimaria==PIPE::JSON){
 					$tipo=$llavePrimaria;
-					$llavePrimaria="id";
+					$llavePrimaria='id';
 				}
 				else if(is_numeric($llavePrimaria)){
 					if($limite==PIPE::OBJETO or $limite==PIPE::ARREGLO or $limite==PIPE::JSON) $tipo=$limite;
 					$limite=$llavePrimaria;
-					$llavePrimaria="id";
+					$llavePrimaria='id';
 				}
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 				if(get_class_vars($clase[count($clase)-1])['tabla']!=null) $tabla=get_class_vars($clase[count($clase)-1])['tabla'];
@@ -460,7 +459,7 @@
 			return $pipe->ordenarPor($llavePrimaria,'desc')->limite($limite)->obtener($tipo);
 		}
 		public function contar(){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -475,7 +474,7 @@
 		//Fin palabras reservadas de una consulta sql.
 		//Inicio instrucciones insertar, actualizar, eliminar y vaciar.
 		public static function instanciar(){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 				$llavePrimaria='id';
@@ -493,58 +492,59 @@
 					return $pipe;
 			}
 			else{
-				die("El método <b>instanciar()</b> solo puede ser usado por <b>clases (modelos)</b> que hacen referencia a una tabla en la base de datos.");
+				exit('El método <b>instanciar()</b> solo puede ser usado por <b>clases (modelos)</b> que hacen referencia a una tabla en la base de datos.');
 			}
 		}
 		public function insertar($valores=''){
-			$creado_en="creado_en";
-			$actualizado_en="actualizado_en";
+			$creado_en='creado_en';
+			$actualizado_en='actualizado_en';
 			if(BD_CONTROLADOR=='oci') $creado_en=strtoupper($creado_en);
 			if(BD_CONTROLADOR=='oci') $actualizado_en=strtoupper($actualizado_en);
 			$campos=$this->obtenerCamposTabla();
+			$cantCampos=count($campos);
 			if($valores==''){
 				if($this->registroTiempo==true){
 					$this->$creado_en=$this->obtenerFechaHoraActual($this->zonaHoraria);
 					$this->$actualizado_en=$this->obtenerFechaHoraActual($this->zonaHoraria);
 				}
 				else{
-					$this->$creado_en="null";
-					$this->$actualizado_en="null";
+					$this->$creado_en='null';
+					$this->$actualizado_en='null';
 				}
-				$atributos="";
-				$valores="";
-				for($i=0; $i<count($campos); $i++){
+				$atributos='';
+				$valores='';
+				for($i=0; $i<$cantCampos; $i++){
 					$atributo=$campos[$i];
 					if($atributo=='');
-					$atributos=$atributos.$atributo.",";
+					$atributos=$atributos.$atributo.',';
 					if(is_string($this->$atributo) and $this->$atributo!=='null' and $this->$atributo!=='default' and strpos($this->$atributo,'nextval')>-1===false) $this->$atributo="'".$this->$atributo."'";
-					if(isset($this->$atributo)) $valores=$valores.$this->$atributo.",";
+					if(isset($this->$atributo)) $valores=$valores.$this->$atributo.',';
 				}
 				$atributos=substr($atributos,0,-1);
 				$valores=substr($valores,0,-1);
-					return $this->procesarConsultaSQL("insert into $this->_tabla ($atributos) values ($valores)");
+					return $this->procesarConsultaSQL('insert into '.$this->_tabla.' ('.$atributos.') values ('.$valores.')');
 			}
 			else{
 				$atributos='';
 				$datos='';
 				foreach($valores as $campo=>$valor){
-					$atributos=$atributos.$campo.",";
+					$atributos=$atributos.$campo.',';
 					if(is_string($valor) and $valor!=='null' and $valor!=='default' and strpos($valor,'nextval')>-1===false) $valor="'".$valor."'";
-					if(isset($valor)) $datos=$datos.$valor.",";
+					if(isset($valor)) $datos=$datos.$valor.',';
 				}
 				$j=0;
-				for($i=0; $i<count($campos); $i++){
+				for($i=0; $i<$cantCampos; $i++){
 					if($campos[$i]==$creado_en or $campos[$i]==$actualizado_en) $j++;
 				}
 				$atributos=substr($atributos,0,-1);
 				$datos=substr($datos,0,-1);
-				if($this->registroTiempo==true and $j==2) $atributos=$atributos.",$creado_en,$actualizado_en";
+				if($this->registroTiempo==true and $j==2) $atributos=$atributos.','.$creado_en.','.$actualizado_en;
 				if($this->registroTiempo==true and $j==2) $datos=$datos.",'".$this->obtenerFechaHoraActual($this->zonaHoraria)."','".$this->obtenerFechaHoraActual($this->zonaHoraria)."'";
-					return $this->procesarConsultaSQL("insert into $this->_tabla ($atributos) values ($datos)");
+					return $this->procesarConsultaSQL('insert into '.$this->_tabla.' ('.$atributos.') values ('.$datos.')');
 			}
 		}
 		public function encontrar($valor='',$llavePrimaria='id'){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -561,13 +561,14 @@
 				$pipe->zonaHoraria=$zonaHoraria;
 			}
 			if(is_string($valor) and strlen($valor)>0) $valor="'$valor'";
-			$consulta=$pipe->cnx->query("select * from $pipe->_tabla where $llavePrimaria=$valor");
+			$consulta=Conexion::$cnx->query('select * from '.$pipe->_tabla.' where '.$llavePrimaria.'='.$valor);
 			if($consulta){
 				$pipe->_llavePrimaria37812_=$llavePrimaria;
 				$pipe->_valor37812_=$valor;
 				$datosArreglo=$consulta->fetch();
 				$campos=$pipe->obtenerCamposTabla();
-				for($j=0; $j<count($campos); $j++){
+				$cantCampos=count($campos);
+				for($j=0; $j<$cantCampos; $j++){
 					//Creamos los atributos de los campos de la base de datos en el objeto $pipe.
 					$atributo=$campos[$j];
 					$valor=$datosArreglo[$atributo];
@@ -576,67 +577,68 @@
 				return $pipe;
 			}
 			else{
-				$pipe->mostrarErrorSQL($pipe->cnx->errorInfo()[1],$pipe->cnx->errorInfo()[2]);
+				$pipe->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 			}
 		}
 		public function actualizar($valores=''){
-			$actualizado_en="actualizado_en";
+			$actualizado_en='actualizado_en';
 			if(BD_CONTROLADOR=='oci') $actualizado_en=strtoupper($actualizado_en);
 			$campos=$this->obtenerCamposTabla();
+			$cantCampos=count($campos);
 			if($valores==''){
-				$consulta=$this->cnx->query("select * from $this->_tabla where $this->_llavePrimaria37812_='$this->_valor37812_'");
+				$consulta=Conexion::$cnx->query('select * from '.$this->_tabla.' where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
 				if($consulta){
 					$j=0;
-					for($i=0; $i<count($campos); $i++){
+					for($i=0; $i<$cantCampos; $i++){
 						$atributo=$campos[$i];
 						$valores=$valores."$atributo='".$this->$atributo."',";
 						if($this->registroTiempo==true and $atributo==$actualizado_en) $j=1;
 					}
 					$valores=substr($valores,0,-1);
-					$resultado=$this->procesarConsultaSQL("update $this->_tabla set $valores where $this->_llavePrimaria37812_='$this->_valor37812_'");
-					if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL("update $this->_tabla set $actualizado_en='".$this->obtenerFechaHoraActual($this->zonaHoraria)."' where $this->_llavePrimaria37812_='$this->_valor37812_'");
+					$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$valores.' where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
+					if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en.'="'.$this->obtenerFechaHoraActual($this->zonaHoraria).'" where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
 						return $resultado;
 				}
 				else{
-					$this->mostrarErrorSQL($this->cnx->errorInfo()[1],$this->cnx->errorInfo()[2]);
+					$this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 				}
 			}
 			else{
 				if(is_array($this->_datos)){
-					$consulta=$this->cnx->prepare("select * from $this->_tabla $this->_condiciones");
+					$consulta=Conexion::$cnx->prepare('select * from '.$this->_tabla.' '.$this->_condiciones);
 					if(!$consulta->execute($this->_datos)) $this->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
 				}
 				else{
-					$consulta=$this->cnx->query("select * from $this->_tabla $this->_condiciones");
-					if(!$consulta) $this->mostrarErrorSQL($this->cnx->errorInfo()[1],$this->cnx->errorInfo()[2]);
+					$consulta=Conexion::$cnx->query('select * from '.$this->_tabla.' '.$this->_condiciones);
+					if(!$consulta) $this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 				}
 				$datos='';
 				foreach($valores as $campo=>$valor){
 					$datos=$datos."$campo='$valor',";
 				}
 				$j=0;
-				for($i=0; $i<count($campos); $i++){
+				for($i=0; $i<$cantCampos; $i++){
 					if($this->registroTiempo==true and $campos[$i]==$actualizado_en) $j=1;
 				}
 				$datos=substr($datos,0,-1);
-				$resultado=$this->procesarConsultaSQL("update $this->_tabla set $datos $this->_condiciones",$this->_datos);
-				if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL("update $this->_tabla set $actualizado_en='".$this->obtenerFechaHoraActual($this->zonaHoraria)."' $this->_condiciones",$this->_datos);
+				$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$datos.' '.$this->_condiciones,$this->_datos);
+				if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en.'="'.$this->obtenerFechaHoraActual($this->zonaHoraria).'" '.$this->_condiciones,$this->_datos);
 					return $resultado;
 			}
 		}
 		public function eliminar(){
 			if(empty($this->_condiciones) and !isset($this->_llavePrimaria37812_) and !isset($this->_valor37812_)){
-				return $this->procesarConsultaSQL("delete from $this->_tabla");
+				return $this->procesarConsultaSQL('delete from '.$this->_tabla);
 			}
 			else if(empty($this->_condiciones)){
-				return $this->procesarConsultaSQL("delete from $this->_tabla where $this->_llavePrimaria37812_='$this->_valor37812_'");
+				return $this->procesarConsultaSQL('delete from '.$this->_tabla.' where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
 			}
 			else if(!empty($this->_condiciones)){
-				return $this->procesarConsultaSQL("delete from $this->_tabla $this->_condiciones",$this->_datos);
+				return $this->procesarConsultaSQL('delete from '.$this->_tabla.' '.$this->_condiciones,$this->_datos);
 			}
 		}
 		public function vaciar($sentencia=''){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE') $pipe=$this;
 			if($clase[count($clase)-1]!='PIPE'){
 				$tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
@@ -644,25 +646,23 @@
 				$pipe=PIPE::tabla($tabla);
 			}
 			if(BD_CONTROLADOR=='sqlite'){
-				$consulta=$pipe->cnx->exec("delete from $pipe->_tabla");
-				$consulta1=$pipe->cnx->exec("update sqlite_sequence set seq=0 where name='$pipe->_tabla'");
+				$consulta=Conexion::$cnx->exec('delete from '.$pipe->_tabla);
+				$consulta1=Conexion::$cnx->exec('update sqlite_sequence set seq=0 where name="'.$pipe->_tabla.'"');
 				if($consulta===false or $consulta1===false){
-					$pipe->mostrarErrorSQL($pipe->cnx->errorInfo()[1],$pipe->cnx->errorInfo()[2]);	
+					$pipe->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);	
 				}
 				else{
-					$pipe->cnx=null;
 					return 1;
 				}
 			}
 			else{
 				$sentencia=$pipe->traducirConsultaSQL($sentencia);
-				if(is_string($sentencia) and $sentencia!='') $pipe->cnx->exec($sentencia);
-				$consulta=$pipe->cnx->exec("truncate table $pipe->_tabla");
+				if(is_string($sentencia) and $sentencia!='') Conexion::$cnx->exec($sentencia);
+				$consulta=Conexion::$cnx->exec('truncate table '.$pipe->_tabla);
 				if($consulta===false){
-					$pipe->mostrarErrorSQL($pipe->cnx->errorInfo()[1],$pipe->cnx->errorInfo()[2]);
+					$pipe->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 				}
 				else{
-					$pipe->cnx=null;
 					return 1;
 				}
 			}
@@ -670,7 +670,7 @@
 		//Fin instrucciones insertar, actualizar, eliminar y vaciar.
 		//Inicio autenticación de usuarios
 		public function autenticar($credenciales,$tipo=PIPE::OBJETO){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			if($clase[count($clase)-1]=='PIPE'){
 				$pipe=$this;
 				$tabla=$this->_tabla;
@@ -683,18 +683,18 @@
 			$valores=[];
 			$i=0;
 			foreach($credenciales as $campo=>$valor){
-				$condicion=$condicion."$campo=? and ";
+				$condicion=$condicion.$campo.'=? and ';
 				$valores[$i]=$valor;
 				$i++;
 			}
 			$condicion=substr($condicion,0,-5);
-			$autenticado=$pipe->procesarConsultaSQL("select * from $tabla where $condicion",$valores,$tipo);
+			$autenticado=$pipe->procesarConsultaSQL('select * from '.$tabla.' where '.$condicion,$valores,$tipo);
 			if($autenticado) return $autenticado[0];
 			if(!$autenticado) return false;
 		}
 		//Fin autenticación de usuarios
 		public static function consulta($consulta,$datos='',$tipo=PIPE::OBJETO){	
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			$tabla=null;
 			if($clase[count($clase)-1]!='PIPE') $tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 			$datosTabla=array(
@@ -714,7 +714,7 @@
 				return $pipe->procesarConsultaSQL($consulta,$datos,$tipo,false);
 		}			
 		public static function consultaNativa($consulta,$datos='',$tipo=PIPE::OBJETO){
-			$clase=explode("\\",get_called_class());
+			$clase=explode('\\',get_called_class());
 			$tabla=null;
 			if($clase[count($clase)-1]!='PIPE') $tabla=PIPE::convertirModeloTabla($clase[count($clase)-1]);
 			$datosTabla=array(
@@ -734,31 +734,6 @@
 				return $pipe->procesarConsultaSQL($consulta,$datos,$tipo);
 		}
 		//Inicio métodos privados.
-		private function conexion(){
-			try{
-				if(defined("BD_CONTROLADOR") and defined("BD_HOST") and defined("BD_PUERTO") and defined("BD_USUARIO") and defined("BD_CONTRASENA") and defined("BD_BASEDATOS")){
-					if(!empty(BD_HOST)) $BD_HOST="host=".BD_HOST.";";
-					if(empty(BD_HOST)) $BD_HOST="";
-					if(!empty(BD_PUERTO)) $BD_PUERTO="port=".BD_PUERTO.";";
-					if(empty(BD_PUERTO)) $BD_PUERTO="";
-					if(!empty(BD_BASEDATOS)) $BD_BASEDATOS="dbname=".BD_BASEDATOS.";";
-					if(empty(BD_BASEDATOS)) $BD_BASEDATOS="";
-					if(BD_CONTROLADOR=='mysql' or BD_CONTROLADOR=='pgsql'  or BD_CONTROLADOR=='sqlite' or BD_CONTROLADOR=='oci'){
-						if(BD_CONTROLADOR=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
-						return new \PDO(BD_CONTROLADOR.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,BD_USUARIO,BD_CONTRASENA);
-					}
-					else{
-						die("BD_CONTROLADOR <b>".BD_CONTROLADOR."</b> desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci.");
-					}
-				}
-				else{
-					die("Las siguientes constantes deben estar definidas en el archivo <b>PIPE_CONEXION_BD.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS");
-				}
-			}
-			catch(\PDOException $e){
-				$this->mostrarErrorSQL("",$e->getMessage());
-			}
-		}
 		private static function convertirModeloTabla($modelo){
 			$alfabeto=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 			$letras=str_split($modelo);
@@ -769,33 +744,34 @@
 				foreach($letras as $letra){
 					if($letra==$alfa){
 						$buscar[$i]=$letra;						
-						$remplazar[$i]="_$letra";
+						$remplazar[$i]='_'.$letra;
 						$i++;							
 					}
 				}
 			}
-			return strtolower(substr(str_replace($buscar,$remplazar,$modelo),1)."s");
+			return strtolower(substr(str_replace($buscar,$remplazar,$modelo),1).'s');
 		}
 		private function obtenerDatosConsultaSQL($tipo=PIPE::OBJETO,$consultaUsuario='',$datos=''){
-			if($consultaUsuario=='') $consultaUsuario="select $this->_distinto $this->_campos from $this->_tabla $this->_unir $this->_unirDerecha $this->_unirIzquierda $this->_condiciones $this->_agrupar $this->_teniendo $this->_ordenar $this->_limite";
+			if($consultaUsuario=='') $consultaUsuario='select '.$this->_distinto.' '.$this->_campos.' from '.$this->_tabla.' '.$this->_unir.' '.$this->_unirDerecha.' '.$this->_unirIzquierda.' '.$this->_condiciones.' '.$this->_agrupar.' '.$this->_teniendo.' '.$this->_ordenar.' '.$this->_limite;
 			if(is_array($this->_datos)) $datos=$this->_datos;
 			if(is_array($datos)){
-				$consulta=$this->cnx->prepare($consultaUsuario);
-				if($consulta->execute($datos)) $datosArreglo=$consulta->fetchAll();
+				$consulta=Conexion::$cnx->prepare($consultaUsuario);
+				if($consulta->execute($datos)) $datosArreglo=$consulta->fetchAll(\PDO::FETCH_ASSOC);
 				if(!$consulta->execute($datos)) $this->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
 			}
 			else{
 				if($datos==PIPE::OBJETO) $tipo=$datos;
 				if($datos==PIPE::ARREGLO) $tipo=$datos;
 				if($datos==PIPE::JSON) $tipo=$datos;
-				$consulta=$this->cnx->query($consultaUsuario);
-				if($consulta) $datosArreglo=$consulta->fetchAll();
-				if(!$consulta) $this->mostrarErrorSQL($this->cnx->errorInfo()[1],$this->cnx->errorInfo()[2]);
+				$consulta=Conexion::$cnx->query($consultaUsuario);
+				if($consulta) $datosArreglo=$consulta->fetchAll(\PDO::FETCH_ASSOC);
+				if(!$consulta) $this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 			}
 			$campos=$this->obtenerCamposConsultaSQL($datosArreglo);
-			if(count($datosArreglo)!=0 and count($campos)!=$consulta->columnCount()) die("Error: ambiguedad de campos en la consulta SQL. Verifique la pertenencia de los campos a su respectiva tabla y asigne un alias a cada campo donde el nombre sea igual en otra tabla.");
+			$cantDatosArreglo=count($datosArreglo);
+			if($cantDatosArreglo!=0 and count($campos)!=$consulta->columnCount()) exit('Error: ambiguedad de campos en la consulta SQL. Verifique la pertenencia de los campos a su respectiva tabla y asigne un alias a cada campo donde el nombre sea igual en otra tabla.');
 			$datosConsulta=[];
-			for($i=0; $i<count($datosArreglo); $i++){
+			for($i=0; $i<$cantDatosArreglo; $i++){
 				if($tipo==PIPE::OBJETO) $registro=new \stdClass();
 				if($tipo==PIPE::ARREGLO or $tipo==PIPE::JSON) $registro=[];
 				for($j=0; $j<$consulta->columnCount(); $j++){
@@ -807,40 +783,30 @@
 				if($tipo==PIPE::JSON) $registro=json_encode($registro);
 				$datosConsulta[$i]=$registro;
 			}
-			$this->cnx=null;
 			return $datosConsulta;
 		}
 		private function obtenerCamposConsultaSQL($datosArreglo){
-			$i=0;
-			$campos=[];
-			foreach($datosArreglo as $datos){
-				foreach($datos as $campo=>$valor){
-					if(is_string($campo)){
-						$campos[$i]=$campo;
-						$i++;
-					}
-				}
-				break;
-			}
+			$campos=null;
+			if(!empty($datosArreglo)) $campos=array_keys($datosArreglo[0]);
 			return $campos;
 		}
 		private function obtenerCamposTabla(){
 			switch(BD_CONTROLADOR){
-				case "mysql":
-					$consulta=$this->cnx->query("describe $this->_tabla");
-					$atributo="Field";
+				case 'mysql':
+					$consulta=Conexion::$cnx->query('describe '.$this->_tabla);
+					$atributo='Field';
 				break;
-				case "pgsql":
-					$consulta=$this->cnx->query("select column_name from information_schema.columns where table_schema='public' and table_name='$this->_tabla'");
-					$atributo="column_name";
+				case 'pgsql':
+					$consulta=Conexion::$cnx->query('select column_name from information_schema.columns where table_schema="public" and table_name="'.$this->_tabla.'"');
+					$atributo='column_name';
 				break;
-				case "sqlite":
-					$consulta=$this->cnx->query("pragma table_info($this->_tabla)");
-					$atributo="name";
+				case 'sqlite':
+					$consulta=Conexion::$cnx->query('pragma table_info('.$this->_tabla.')');
+					$atributo='name';
 				break;
-				case "oci":
-					$consulta=$this->cnx->query("select column_name,data_length, data_type from all_tab_columns where table_name='".strtoupper($this->_tabla)."'");
-					$atributo="COLUMN_NAME";
+				case 'oci':
+					$consulta=Conexion::$cnx->query('select column_name,data_length, data_type from all_tab_columns where table_name="'.strtoupper($this->_tabla).'"');
+					$atributo='COLUMN_NAME';
 				break;
 			}
 			$i=0;
@@ -858,16 +824,15 @@
 			}
 			else{
 				if(is_array($datos)){
-					$consulta=$this->cnx->prepare($consulta);
+					$consulta=Conexion::$cnx->prepare($consulta);
 					if($consulta->execute($datos)) return $consulta->rowCount();
 					if(!$consulta->execute($datos)) $this->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
 				}
 				else{
-					$resultado=$consulta=$this->cnx->exec($consulta);
+					$resultado=$consulta=Conexion::$cnx->exec($consulta);
 					if($resultado==true or $resultado===0) return $resultado;
-					if($resultado==false) $this->mostrarErrorSQL($this->cnx->errorInfo()[1],$this->cnx->errorInfo()[2]);
+					if($resultado==false) $this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 				}
-				$this->cnx=null;
 			}
 		}
 		private function validarCadenaIndependiente($buscar,$cadena,$IF='',$sensible=true){
@@ -884,7 +849,7 @@
 				return trim($F);
 			}
 			else{
-				if(trim($I)=="" and trim($F)==""){
+				if(trim($I)=='' and trim($F)==''){
 					return true;
 				}
 				else{
@@ -911,7 +876,7 @@
 					*/
 					$I=$this->validarCadenaIndependiente($viejo,$cadena,'I',$sensible);
 					$F=$this->validarCadenaIndependiente($viejo,$cadena,'F',$sensible);
-					if($I!="" or $F!=""){
+					if($I!='' or $F!=''){
 						/*
 						En caso de que la palabra encontrada no este independiente
 						se procede a remplazarla por *# para que pueda continuar buscando y remplazando.
@@ -936,7 +901,7 @@
 					*/
 					$I=$this->validarCadenaIndependiente($viejo,$cadena,'I',$sensible);
 					$F=$this->validarCadenaIndependiente($viejo,$cadena,'F',$sensible);
-					if($I!="" or $F!=""){
+					if($I!='' or $F!=''){
 						/*
 						En caso de que la palabra encontrada no este independiente
 						se procede a remplazarla por *# para que pueda continuar buscando y remplazando.
@@ -964,10 +929,11 @@
 		private function traducirConsultaSQL($consulta){
 			//Palabras reservadas para la consulta en español.
 			$consultaUsuario=$consulta;
-			$consulta=" $consulta ";
+			$consulta=' '.$consulta.' ';
 			$consulta=str_ireplace('seleccionar',' seleccionar ',$consulta);
 			$palabras=explode(' ',$consulta);
-			for($i=0; $i<count($palabras); $i++){
+			$cantPalabras=count($palabras);
+			for($i=0; $i<$cantPalabras; $i++){
 				if($this->validarCadenaIndependiente('seleccionar'," $palabras[$i] ",false) and strlen($palabras[$i])>0) $palabras[$i]=str_ireplace('seleccionar',' select ',$palabras[$i]);
 				if($this->validarCadenaIndependiente('distinto'," $palabras[$i] ",false) and strlen($palabras[$i])>0) $palabras[$i]=str_ireplace('distinto',' distinct ',$palabras[$i]);	
 				if($this->validarCadenaIndependiente('todo'," $palabras[$i] ",false) and strlen($palabras[$i])>0) $palabras[$i]=str_ireplace('todo',' * ',$palabras[$i]);
@@ -1044,7 +1010,8 @@
 				}		
 			}
 			//Remplazamos lo que esta dentro de comillas traducido por lo que ingreso el usuario entre comillas.
-			for($i=0; $i<count($partesTraducido); $i++){
+			$cantPartesTraducido=count($partesTraducido);
+			for($i=0; $i<$cantPartesTraducido; $i++){
 				if(strpos($consultaTraducida,"'".$partesTraducido[$i])."'">-1) $consultaTraducida=str_replace("'".$partesTraducido[$i]."'",$partesUsuario[$i],$consultaTraducida);
 				if(strpos($consultaTraducida,'"'.$partesTraducido[$i]).'"'>-1) $consultaTraducida=str_replace('"'.$partesTraducido[$i].'"',$partesUsuario[$i],$consultaTraducida);
 			}
@@ -1053,56 +1020,56 @@
 		private function traducirErrorSQL($error){
 			//Texto largo
 			$error=$this->remplazarCadenaIndependiente('You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near','tienes un error en tu sintaxis sql; consulte el manual que corresponde a la versión de su servidor MariaDB para conocer la sintaxis correcta para usar cerca de',$error);
-			$error=$this->remplazarCadenaIndependiente("No function matches the given name and argument types. You might need to add explicit type casts.",'Ninguna función coincide con los tipos de nombre y argumento dados. Es posible que necesite agregar conversiones de tipo explícito.',$error);
+			$error=$this->remplazarCadenaIndependiente('No function matches the given name and argument types. You might need to add explicit type casts.','Ninguna función coincide con los tipos de nombre y argumento dados. Es posible que necesite agregar conversiones de tipo explícito.',$error);
 			$error=$this->remplazarCadenaIndependiente("is specified twice, both as a target for 'UPDATE' and as a separate source for data","se especifica dos veces, como objetivo para 'ACTUALIZAR' y como fuente separada para datos",$error);
 			$error=$this->remplazarCadenaIndependiente('Cannot delete or update a parent row: a foreign key constraint fails','No se puede actualizar el valor de una llave primaria ni eliminar el registro donde el campo primario este ligado a una llave foránea',$error);
 			$error=$this->remplazarCadenaIndependiente('Cannot add or update a child row: a foreign key constraint fails','No se puede agregar o actualizar una fila secundaria: error en la llave foránea',$error);
 			$error=$this->remplazarCadenaIndependiente('invalid user.table.column, table.column, or column specification','user.table.column, table.column o especificación de columna no válida',$error);
-			$error=$this->remplazarCadenaIndependiente("unique/primary keys in table referenced by enabled foreign keys",'llaves únicas / primarias en la tabla referenciada por llaves foráneas habilitadas',$error);
+			$error=$this->remplazarCadenaIndependiente('unique/primary keys in table referenced by enabled foreign keys','llaves únicas / primarias en la tabla referenciada por llaves foráneas habilitadas',$error);
 			$error=$this->remplazarCadenaIndependiente('Cannot truncate a table referenced in a foreign key constraint','No se puede vaciar una tabla a la que se hace referencia en una restricción de llave foránea',$error);
 			$error=$this->remplazarCadenaIndependiente('cannot truncate a table referenced in a foreign key constraint','no se puede vaciar una tabla a la que se hace referencia en una llave foránea',$error);
-			$error=$this->remplazarCadenaIndependiente("a non-numeric character was found where a numeric was expected",'se encontró un carácter no numérico donde se esperaba un número',$error);
+			$error=$this->remplazarCadenaIndependiente('a non-numeric character was found where a numeric was expected','se encontró un carácter no numérico donde se esperaba un número',$error);
 			$error=$this->remplazarCadenaIndependiente('the numeric value does not match the length of the format item','el valor numérico no coincide con la longitud del elemento de formato',$error);
-			$error=$this->remplazarCadenaIndependiente("could not connect to server: Connection refused",'no se pudo conectar al servidor: conexión rechazada',$error);
-			$error=$this->remplazarCadenaIndependiente("duplicate key value violates unique constraint",'el valor de la llave duplicada viola la restricción única',$error);
+			$error=$this->remplazarCadenaIndependiente('could not connect to server: Connection refused','no se pudo conectar al servidor: conexión rechazada',$error);
+			$error=$this->remplazarCadenaIndependiente('duplicate key value violates unique constraint','el valor de la llave duplicada viola la restricción única',$error);
 			$error=$this->remplazarCadenaIndependiente("Column count doesn't match value count at row",'El conteo de columnas no coincide con el conteo de valores en la fila',$error);
-			$error=$this->remplazarCadenaIndependiente("input value not long enough for date format",'el valor de entrada no es lo suficientemente largo para el formato de fecha',$error);
+			$error=$this->remplazarCadenaIndependiente('input value not long enough for date format','el valor de entrada no es lo suficientemente largo para el formato de fecha',$error);
 			$error=$this->remplazarCadenaIndependiente('Perhaps you meant to reference the column','Tal vez deseaste hacer referencia a la columna',$error);
 			$error=$this->remplazarCadenaIndependiente('has more target columns than expressions','tiene más columnas de destino que expresiones',$error);
 			$error=$this->remplazarCadenaIndependiente('has more expressions than target columns','tiene más expresiones que columnas de destino',$error);
-			$error=$this->remplazarCadenaIndependiente("invalid input syntax for type timestamp:",'sintaxis de entrada no válida para el registro de tiempo de tipo:',$error);	
-			$error=$this->remplazarCadenaIndependiente("invalid username/password; logon denied",'usuario/contraseña invalida; inicio de sesión denegado',$error);
+			$error=$this->remplazarCadenaIndependiente('invalid input syntax for type timestamp:','sintaxis de entrada no válida para el registro de tiempo de tipo:',$error);	
+			$error=$this->remplazarCadenaIndependiente('invalid username/password; logon denied','usuario/contraseña invalida; inicio de sesión denegado',$error);
 			$error=$this->remplazarCadenaIndependiente('FROM keyword not found where expected','palabra clave FROM no se encuentra donde se esperaba',$error);
 			$error=$this->remplazarCadenaIndependiente('missing FROM-cláusula entry for','falta la entrada de FROM-cláusula para',$error);
-			$error=$this->remplazarCadenaIndependiente("violates foreign key constraint",'viola la restricción de llave foránea',$error);
-			$error=$this->remplazarCadenaIndependiente("is still referenced from table",'todavía está referenciado en la tabla',$error);
-			$error=$this->remplazarCadenaIndependiente("SQL command not properly ended",'El comando SQL no ha finalizado correctamente',$error);
-			$error=$this->remplazarCadenaIndependiente("could not translate host name",'no se pudo traducir el nombre del host',$error);
-			$error=$this->remplazarCadenaIndependiente("violated - child record found",'violado - registro hijo encontrado',$error);
+			$error=$this->remplazarCadenaIndependiente('violates foreign key constraint','viola la restricción de llave foránea',$error);
+			$error=$this->remplazarCadenaIndependiente('is still referenced from table','todavía está referenciado en la tabla',$error);
+			$error=$this->remplazarCadenaIndependiente('SQL command not properly ended','El comando SQL no ha finalizado correctamente',$error);
+			$error=$this->remplazarCadenaIndependiente('could not translate host name','no se pudo traducir el nombre del host',$error);
+			$error=$this->remplazarCadenaIndependiente('violated - child record found','violado - registro hijo encontrado',$error);
 			$error=$this->remplazarCadenaIndependiente('syntax error at end of input','tienes un error en tu sintaxis sql al final de la entrada',$error);
 			$error=$this->remplazarCadenaIndependiente('day of month must be between','el día del mes debe estar entre',$error);
-			$error=$this->remplazarCadenaIndependiente("column ambiguously defined",'columna ambiguamente definida',$error);
-			$error=$this->remplazarCadenaIndependiente("update or delete on table",'actualizar o eliminar en la tabla',$error);
-			$error=$this->remplazarCadenaIndependiente("UNIQUE constraint failed:",'La restricción ÚNICA ha fallado:',$error);
+			$error=$this->remplazarCadenaIndependiente('column ambiguously defined','columna ambiguamente definida',$error);
+			$error=$this->remplazarCadenaIndependiente('update or delete on table','actualizar o eliminar en la tabla',$error);
+			$error=$this->remplazarCadenaIndependiente('UNIQUE constraint failed:','La restricción ÚNICA ha fallado:',$error);
 			$error=$this->remplazarCadenaIndependiente('at the same time, or use','al mismo tiempo, o usar',$error);
 			$error=$this->remplazarCadenaIndependiente('syntax error at or near','tienes un error en tu sintaxis sql cerca de',$error);
 			$error=$this->remplazarCadenaIndependiente('Not unique table/alias:','Tabla/Alias no únicos:',$error);
-			$error=$this->remplazarCadenaIndependiente("minutes must be between",'los minutos deben estar entre',$error);
-			$error=$this->remplazarCadenaIndependiente("seconds must be between",'los segundos deben estar entre',$error);
-			$error=$this->remplazarCadenaIndependiente("cannot insert NULL into",'no se puede insertar NULO en',$error);
+			$error=$this->remplazarCadenaIndependiente('minutes must be between','los minutos deben estar entre',$error);
+			$error=$this->remplazarCadenaIndependiente('seconds must be between','los segundos deben estar entre',$error);
+			$error=$this->remplazarCadenaIndependiente('cannot insert NULL into','no se puede insertar NULO en',$error);
 			$error=$this->remplazarCadenaIndependiente('Access denied for user','Acceso denegado para el usuario',$error);
-			$error=$this->remplazarCadenaIndependiente("ambiguous column name:",'nombre de columna ambiguo:',$error);
+			$error=$this->remplazarCadenaIndependiente('ambiguous column name:','nombre de columna ambiguo:',$error);
 			$error=$this->remplazarCadenaIndependiente('could not find driver','No se pudo encontrar el controlador',$error);
-			$error=$this->remplazarCadenaIndependiente("invalid SQL statement",'sentencia SQL inválida',$error);
-			$error=$this->remplazarCadenaIndependiente("and last day of month",'y el último día del mes',$error);
-			$error=$this->remplazarCadenaIndependiente("hour must be between",'la hora debe estar entre',$error);
-			$error=$this->remplazarCadenaIndependiente("has no column named",'no tiene una columna llamada',$error);
-			$error=$this->remplazarCadenaIndependiente("no such function:",'no existe dicha función:',$error);
-			$error=$this->remplazarCadenaIndependiente("not a valid month",'no es un mes válido',$error);
+			$error=$this->remplazarCadenaIndependiente('invalid SQL statement','sentencia SQL inválida',$error);
+			$error=$this->remplazarCadenaIndependiente('and last day of month','y el último día del mes',$error);
+			$error=$this->remplazarCadenaIndependiente('hour must be between','la hora debe estar entre',$error);
+			$error=$this->remplazarCadenaIndependiente('has no column named','no tiene una columna llamada',$error);
+			$error=$this->remplazarCadenaIndependiente('no such function:','no existe dicha función:',$error);
+			$error=$this->remplazarCadenaIndependiente('not a valid month','no es un mes válido',$error);
 			$error=$this->remplazarCadenaIndependiente('Query was empty','La consulta esta vacía',$error);
-			$error=$this->remplazarCadenaIndependiente("no such column:",'no existe dicha columna:',$error);
-			$error=$this->remplazarCadenaIndependiente("does not exist",'no existe',$error);
-			$error=$this->remplazarCadenaIndependiente("no such table:",'no existe dicha tabla:',$error);
+			$error=$this->remplazarCadenaIndependiente('no such column:','no existe dicha columna:',$error);
+			$error=$this->remplazarCadenaIndependiente('does not exist','no existe',$error);
+			$error=$this->remplazarCadenaIndependiente('no such table:','no existe dicha tabla:',$error);
 			//Texto con 2 palabras
 			$error=$this->remplazarCadenaIndependiente('Undeclared variable:','Variable no declarada:',$error);
 			$error=$this->remplazarCadenaIndependiente('integrity constraint','restricción de integridad',$error);
@@ -1152,11 +1119,11 @@
 			return ucfirst(trim($error));
 		}
 		private function mostrarErrorSQL($codigoError,$infoError){
-			die('
+			exit('
 			<div style="background-color:pink; padding:10px; border:1px solid maroon; border-radius:5px; margin-bottom:10px;">
 				<b>Error de SQL | Espa&ntilde;ol</b>
 				<hr style="border:1px solid red;">
-				#'.$codigoError." - ".$this->traducirErrorSQL(" ".$infoError).'
+				#'.$codigoError.' - '.$this->traducirErrorSQL(' '.$infoError).'
 			</div>
 			<div style="background-color:#f1948a; padding:10px; border:1px solid maroon; border-radius:5px;">
 				<b>SQL Error | English</b>
