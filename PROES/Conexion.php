@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 26-04-2019
- * Versión: 1.0.1
+ * Fecha última modificación: 16-05-2019
+ * Versión: 1.1.0
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
    
- * Traducción de la licencia MIT
+ * Traducción al español de la licencia MIT
    
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
 
@@ -62,12 +62,16 @@
 					if(empty(BD_PUERTO)) $BD_PUERTO='';
 					if(!empty(BD_BASEDATOS)) $BD_BASEDATOS='dbname='.BD_BASEDATOS.';';
 					if(empty(BD_BASEDATOS)) $BD_BASEDATOS='';
-					if(BD_CONTROLADOR=='mysql' or BD_CONTROLADOR=='pgsql'  or BD_CONTROLADOR=='sqlite' or BD_CONTROLADOR=='oci'){
+					if(BD_CONTROLADOR=='mysql' or BD_CONTROLADOR=='pgsql'  or BD_CONTROLADOR=='sqlite' or BD_CONTROLADOR=='oci' or BD_CONTROLADOR=='sqlsrv'){
 						if(BD_CONTROLADOR=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
+						if(BD_CONTROLADOR=='sqlsrv'){
+							$BD_HOST='server='.BD_HOST.';';
+							$BD_BASEDATOS='database='.BD_BASEDATOS.';';
+						}
 						return new \PDO(BD_CONTROLADOR.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,BD_USUARIO,BD_CONTRASENA);
 					}
 					else{
-						exit('BD_CONTROLADOR <b>'.BD_CONTROLADOR.'</b> desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci.');
+						exit('BD_CONTROLADOR <b>'.BD_CONTROLADOR.'</b> desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci, sqlsrv.');
 					}
 				}
 				else{
@@ -75,7 +79,7 @@
 				}
 			}
 			catch(\PDOException $e){
-				$this->mostrarErrorSQL('',$e->getMessage());
+				exit($e->getMessage());
 			}
 		}
 	}

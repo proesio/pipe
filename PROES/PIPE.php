@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 26-04-2019
- * Versión: 1.0.1
+ * Fecha última modificación: 16-05-2019
+ * Versión: 1.1.0
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
    
- * Traducción de la licencia MIT
+ * Traducción al español de la licencia MIT
    
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
 
@@ -45,7 +45,7 @@
  * PARTICULAR E INCUMPLIMIENTO. EN NINGÚN CASO LOS AUTORES O PROPIETARIOS DE LOS DERECHOS DE AUTOR
  * SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑOS U OTRAS RESPONSABILIDADES, YA SEA EN UNA ACCIÓN
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
- * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE. 
+ * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 	namespace PROES;
 	use PROES\Conexion;
@@ -108,7 +108,7 @@
 				if(get_class_vars($clase[count($clase)-1])['tabla']!=null) $tabla=get_class_vars($clase[count($clase)-1])['tabla'];
 				$pipe=PIPE::tabla($tabla);
 			}
-			$tabla=$pipe->_tabla.' as $alias';
+			$tabla=$pipe->_tabla.' as '.$alias;
 			$datosTabla=array(
 				'distinto'=>$pipe->_distinto,
 				'campos'=>$pipe->_campos,
@@ -515,7 +515,6 @@
 				$valores='';
 				for($i=0; $i<$cantCampos; $i++){
 					$atributo=$campos[$i];
-					if($atributo=='');
 					$atributos=$atributos.$atributo.',';
 					if(is_string($this->$atributo) and $this->$atributo!=='null' and $this->$atributo!=='default' and strpos($this->$atributo,'nextval')>-1===false) $this->$atributo="'".$this->$atributo."'";
 					if(isset($this->$atributo)) $valores=$valores.$this->$atributo.',';
@@ -536,10 +535,14 @@
 				for($i=0; $i<$cantCampos; $i++){
 					if($campos[$i]==$creado_en or $campos[$i]==$actualizado_en) $j++;
 				}
-				$atributos=substr($atributos,0,-1);
-				$datos=substr($datos,0,-1);
-				if($this->registroTiempo==true and $j==2) $atributos=$atributos.','.$creado_en.','.$actualizado_en;
-				if($this->registroTiempo==true and $j==2) $datos=$datos.",'".$this->obtenerFechaHoraActual($this->zonaHoraria)."','".$this->obtenerFechaHoraActual($this->zonaHoraria)."'";
+				$atributo_tiempo='';
+				$valor_tiempo='';
+				if($this->registroTiempo==true and $j==2){
+					$atributo_tiempo=','.$creado_en.','.$actualizado_en;
+					$valor_tiempo=','."'".$this->obtenerFechaHoraActual($this->zonaHoraria)."'".','."'".$this->obtenerFechaHoraActual($this->zonaHoraria)."'";
+				}
+				$atributos=substr($atributos,0,-1).$atributo_tiempo;
+				$datos=substr($datos,0,-1).$valor_tiempo;
 					return $this->procesarConsultaSQL('insert into '.$this->_tabla.' ('.$atributos.') values ('.$datos.')');
 			}
 		}
@@ -560,18 +563,20 @@
 				$pipe->registroTiempo=$registroTiempo;
 				$pipe->zonaHoraria=$zonaHoraria;
 			}
-			if(is_string($valor) and strlen($valor)>0) $valor="'$valor'";
+			if(is_string($valor) and strlen($valor)>0) $valor="'".$valor."'";
 			$consulta=Conexion::$cnx->query('select * from '.$pipe->_tabla.' where '.$llavePrimaria.'='.$valor);
 			if($consulta){
 				$pipe->_llavePrimaria37812_=$llavePrimaria;
 				$pipe->_valor37812_=$valor;
 				$datosArreglo=$consulta->fetch();
+				if(empty($datosArreglo)) exit('No existe registro cuyo valor de la llave primaria <b>'.$llavePrimaria.'</b> sea <b>'.$valor.'</b>');
 				$campos=$pipe->obtenerCamposTabla();
 				$cantCampos=count($campos);
 				for($j=0; $j<$cantCampos; $j++){
 					//Creamos los atributos de los campos de la base de datos en el objeto $pipe.
 					$atributo=$campos[$j];
 					$valor=$datosArreglo[$atributo];
+					if(is_numeric($valor)) $valor=intval($valor);
 					$pipe->$atributo=$valor;
 				}
 				return $pipe;
@@ -586,17 +591,23 @@
 			$campos=$this->obtenerCamposTabla();
 			$cantCampos=count($campos);
 			if($valores==''){
-				$consulta=Conexion::$cnx->query('select * from '.$this->_tabla.' where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
+				$consulta=Conexion::$cnx->query('select * from '.$this->_tabla.' where '.$this->_llavePrimaria37812_.'='.$this->_valor37812_);
 				if($consulta){
 					$j=0;
 					for($i=0; $i<$cantCampos; $i++){
 						$atributo=$campos[$i];
-						$valores=$valores."$atributo='".$this->$atributo."',";
+						if(($atributo=='creado_en' or $atributo=='CREADO_EN' or $atributo==$actualizado_en) and empty($this->$atributo)){
+							$valores=$valores.$atributo."=null,";
+						}
+						else{
+							if(is_string($this->$atributo)) $this->$atributo="'".$this->$atributo."'";
+							$valores=$valores.$atributo.'='.$this->$atributo.',';
+						}
 						if($this->registroTiempo==true and $atributo==$actualizado_en) $j=1;
 					}
 					$valores=substr($valores,0,-1);
-					$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$valores.' where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
-					if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en.'="'.$this->obtenerFechaHoraActual($this->zonaHoraria).'" where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
+					$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$valores.' where '.$this->_llavePrimaria37812_.'='.$this->_valor37812_);
+					if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual($this->zonaHoraria)."' where ".$this->_llavePrimaria37812_.'='.$this->_valor37812_);
 						return $resultado;
 				}
 				else{
@@ -614,7 +625,8 @@
 				}
 				$datos='';
 				foreach($valores as $campo=>$valor){
-					$datos=$datos."$campo='$valor',";
+					if(is_string($valor)) $valor="'".$valor."'";
+					$datos=$datos.$campo.'='.$valor.',';
 				}
 				$j=0;
 				for($i=0; $i<$cantCampos; $i++){
@@ -622,7 +634,7 @@
 				}
 				$datos=substr($datos,0,-1);
 				$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$datos.' '.$this->_condiciones,$this->_datos);
-				if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en.'="'.$this->obtenerFechaHoraActual($this->zonaHoraria).'" '.$this->_condiciones,$this->_datos);
+				if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual($this->zonaHoraria)."' ".$this->_condiciones,$this->_datos);
 					return $resultado;
 			}
 		}
@@ -631,7 +643,7 @@
 				return $this->procesarConsultaSQL('delete from '.$this->_tabla);
 			}
 			else if(empty($this->_condiciones)){
-				return $this->procesarConsultaSQL('delete from '.$this->_tabla.' where '.$this->_llavePrimaria37812_.'="'.$this->_valor37812_.'"');
+				return $this->procesarConsultaSQL('delete from '.$this->_tabla.' where '.$this->_llavePrimaria37812_.'='.$this->_valor37812_);
 			}
 			else if(!empty($this->_condiciones)){
 				return $this->procesarConsultaSQL('delete from '.$this->_tabla.' '.$this->_condiciones,$this->_datos);
@@ -647,7 +659,7 @@
 			}
 			if(BD_CONTROLADOR=='sqlite'){
 				$consulta=Conexion::$cnx->exec('delete from '.$pipe->_tabla);
-				$consulta1=Conexion::$cnx->exec('update sqlite_sequence set seq=0 where name="'.$pipe->_tabla.'"');
+				$consulta1=Conexion::$cnx->exec('update sqlite_sequence set seq=0 where name='."'".$pipe->_tabla."'".'');
 				if($consulta===false or $consulta1===false){
 					$pipe->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);	
 				}
@@ -797,7 +809,7 @@
 					$atributo='Field';
 				break;
 				case 'pgsql':
-					$consulta=Conexion::$cnx->query('select column_name from information_schema.columns where table_schema="public" and table_name="'.$this->_tabla.'"');
+					$consulta=Conexion::$cnx->query('select column_name from information_schema.columns where table_schema='."'public'".' and table_name='."'".$this->_tabla."'".'');
 					$atributo='column_name';
 				break;
 				case 'sqlite':
@@ -805,8 +817,12 @@
 					$atributo='name';
 				break;
 				case 'oci':
-					$consulta=Conexion::$cnx->query('select column_name,data_length, data_type from all_tab_columns where table_name="'.strtoupper($this->_tabla).'"');
+					$consulta=Conexion::$cnx->query('select column_name,data_length, data_type from all_tab_columns where table_name='."'".strtoupper($this->_tabla)."'".'');
 					$atributo='COLUMN_NAME';
+				break;
+				case 'sqlsrv':
+					$consulta=Conexion::$cnx->query('select column_name from information_schema.columns where table_name='."'".$this->_tabla."'".'');
+					$atributo='column_name';
 				break;
 			}
 			$i=0;
@@ -1030,6 +1046,7 @@
 			$error=$this->remplazarCadenaIndependiente('cannot truncate a table referenced in a foreign key constraint','no se puede vaciar una tabla a la que se hace referencia en una llave foránea',$error);
 			$error=$this->remplazarCadenaIndependiente('a non-numeric character was found where a numeric was expected','se encontró un carácter no numérico donde se esperaba un número',$error);
 			$error=$this->remplazarCadenaIndependiente('the numeric value does not match the length of the format item','el valor numérico no coincide con la longitud del elemento de formato',$error);
+			$error=$this->remplazarCadenaIndependiente('argument of WHERE must be type boolean, not type','argumento de WHERE debe ser de tipo booleano, no de tipo',$error);
 			$error=$this->remplazarCadenaIndependiente('could not connect to server: Connection refused','no se pudo conectar al servidor: conexión rechazada',$error);
 			$error=$this->remplazarCadenaIndependiente('duplicate key value violates unique constraint','el valor de la llave duplicada viola la restricción única',$error);
 			$error=$this->remplazarCadenaIndependiente("Column count doesn't match value count at row",'El conteo de columnas no coincide con el conteo de valores en la fila',$error);
@@ -1051,6 +1068,7 @@
 			$error=$this->remplazarCadenaIndependiente('column ambiguously defined','columna ambiguamente definida',$error);
 			$error=$this->remplazarCadenaIndependiente('update or delete on table','actualizar o eliminar en la tabla',$error);
 			$error=$this->remplazarCadenaIndependiente('UNIQUE constraint failed:','La restricción ÚNICA ha fallado:',$error);
+			$error=$this->remplazarCadenaIndependiente('clause is required before','cláusula es requerido antes de',$error);
 			$error=$this->remplazarCadenaIndependiente('at the same time, or use','al mismo tiempo, o usar',$error);
 			$error=$this->remplazarCadenaIndependiente('syntax error at or near','tienes un error en tu sintaxis sql cerca de',$error);
 			$error=$this->remplazarCadenaIndependiente('Not unique table/alias:','Tabla/Alias no únicos:',$error);
@@ -1102,6 +1120,7 @@
 			$error=$this->remplazarCadenaIndependiente('column','la columna',$error,false);
 			$error=$this->remplazarCadenaIndependiente('values','valores',$error);
 			$error=$this->remplazarCadenaIndependiente('HINT:','PISTA:',$error);
+			$error=$this->remplazarCadenaIndependiente('value','valor',$error);
 			$error=$this->remplazarCadenaIndependiente('table','la tabla',$error,false);
 			$error=$this->remplazarCadenaIndependiente('LINE','LÍNEA',$error);
 			$error=$this->remplazarCadenaIndependiente('role','rol',$error);
@@ -1116,6 +1135,7 @@
 			$error=$this->remplazarCadenaIndependiente('to','a',$error);
 			$error=$this->remplazarCadenaIndependiente('on','en',$error);
 			$error=$this->remplazarCadenaIndependiente('or','o',$error);
+			$error=$this->remplazarCadenaIndependiente('a','un',$error);
 			return ucfirst(trim($error));
 		}
 		private function mostrarErrorSQL($codigoError,$infoError){

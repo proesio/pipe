@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 26-04-2019
- * Versión: 1.0.1
+ * Fecha última modificación: 16-05-2019
+ * Versión: 1.1.0
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
    
- * Traducción de la licencia MIT
+ * Traducción al español de la licencia MIT
    
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
 
@@ -47,11 +47,11 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
-	const BD_CONTROLADOR='mysql';
+	const BD_CONTROLADOR='';
 	const BD_HOST='';
 	const BD_PUERTO='';
-	const BD_USUARIO='root';
+	const BD_USUARIO='';
 	const BD_CONTRASENA='';
-	const BD_BASEDATOS='pmaap';	
+	const BD_BASEDATOS='';
 	require_once "Conexion.php";
 	require_once "PIPE.php";
