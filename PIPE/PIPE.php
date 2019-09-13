@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 16-05-2019
- * Versión: 1.1.0
+ * Fecha última modificación: 08-09-2019
+ * Versión: 2.7.15
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -47,11 +47,11 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
-	const BD_CONTROLADOR='';
-	const BD_HOST='';
-	const BD_PUERTO='';
-	const BD_USUARIO='';
-	const BD_CONTRASENA='';
-	const BD_BASEDATOS='';
-	require_once "Conexion.php";
-	require_once "PIPE.php";
+require_once 'Config/basedatos.php';
+require_once 'Config/idioma.php';
+require_once 'Clases/Mensaje.php';
+require_once 'Clases/Conexion.php';
+require_once 'Clases/ConstructorConsulta.php';
+require_once 'Clases/PIPE.php';
+require_once 'Clases/Modelo.php';
+require_once 'Clases/Archivo.php';

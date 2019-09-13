@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 16-05-2019
- * Versión: 1.1.0
+ * Fecha última modificación: 08-09-2019
+ * Versión: 2.7.15
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -47,40 +47,15 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
-	namespace PROES;
-	class Conexion{
-		public static $cnx=null;
-		public function __construct(){
-			Conexion::$cnx=$this->conexion();
-		}
-		private function conexion(){
-			try{
-				if(defined('BD_CONTROLADOR') and defined('BD_HOST') and defined('BD_PUERTO') and defined('BD_USUARIO') and defined('BD_CONTRASENA') and defined('BD_BASEDATOS')){
-					if(!empty(BD_HOST)) $BD_HOST='host='.BD_HOST.';';
-					if(empty(BD_HOST)) $BD_HOST='';
-					if(!empty(BD_PUERTO)) $BD_PUERTO='port='.BD_PUERTO.';';
-					if(empty(BD_PUERTO)) $BD_PUERTO='';
-					if(!empty(BD_BASEDATOS)) $BD_BASEDATOS='dbname='.BD_BASEDATOS.';';
-					if(empty(BD_BASEDATOS)) $BD_BASEDATOS='';
-					if(BD_CONTROLADOR=='mysql' or BD_CONTROLADOR=='pgsql'  or BD_CONTROLADOR=='sqlite' or BD_CONTROLADOR=='oci' or BD_CONTROLADOR=='sqlsrv'){
-						if(BD_CONTROLADOR=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
-						if(BD_CONTROLADOR=='sqlsrv'){
-							$BD_HOST='server='.BD_HOST.';';
-							$BD_BASEDATOS='database='.BD_BASEDATOS.';';
-						}
-						return new \PDO(BD_CONTROLADOR.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,BD_USUARIO,BD_CONTRASENA);
-					}
-					else{
-						exit('BD_CONTROLADOR <b>'.BD_CONTROLADOR.'</b> desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci, sqlsrv.');
-					}
-				}
-				else{
-					exit('Las siguientes constantes deben estar definidas en el archivo <b>PIPE_CONEXION_BD.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS');
-				}
-			}
-			catch(\PDOException $e){
-				exit($e->getMessage());
-			}
-		}
-	}
-	new Conexion();
+return [
+	'INSTANCIAR_NO_PERMITIDO'=>'El método <b>instanciar()</b> solo puede ser usado por <b>clases (modelos)</b> que hacen referencia a una tabla en la base de datos.',
+	'INSERTAR_OBTENER_ID_NO_SOPORTADO'=>'El método <b>insertarObtenerId()</b> no soporta el controlador <b>oci</b>.',
+	'AMBIGUEDAD_DE_CAMPOS'=>'Ambiguedad de campos en la consulta SQL. Verifique la pertenencia de los campos a su respectiva tabla y asigne un alias a cada campo donde el nombre sea igual en otra tabla.',
+	'CONTROLADOR_DESCONOCIDO'=>' desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci, sqlsrv.',
+	'CONSTANTES_REQUERIDAS'=>'Las siguientes constantes deben estar definidas en el archivo de configuración <b>Config/basedatos.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS',
+	'CONSULTA_NO_PERMITIDO'=>'El método <b>consulta()</b> solo puede ser usado directamente por el constructor de consultas <b>PIPE</b>.',
+	'CONSULTA_NATIVA_NO_PERMITIDO'=>'El método <b>consultaNativa()</b> solo puede ser usado directamente por el constructor de consultas <b>PIPE</b>.',
+	'TABLA_NO_DEFINIDA'=>'Debe definir una tabla de la base de datos para usar el método ',
+	'MODELO_NO_ENCONTRADO'=>'El siguiente modelo no fue encontrado en <em>PIPE/Modelos/</em>: ',
+	'TIPO_DATO_DESCONOCIDO'=>'El siguiente tipo de dato es desconocido: '
+];
