@@ -3,7 +3,7 @@
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
  * Fecha última modificación: 08-09-2019
- * Versión: 2.7.15
+ * Versión: 2.8.0
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -69,7 +69,7 @@ class Conexion{
      */
 	private function conexion(){
 		try{
-			if(defined('BD_CONTROLADOR') and defined('BD_HOST') and defined('BD_PUERTO') and defined('BD_USUARIO') and defined('BD_CONTRASENA') and defined('BD_BASEDATOS')){
+			if(defined('BD_CONTROLADOR') and defined('BD_HOST') and defined('BD_PUERTO') and defined('BD_USUARIO') and defined('BD_CONTRASENA') and defined('BD_BASEDATOS') and defined('BD_CODIFICACION')){
 				if(!empty(BD_HOST)) $BD_HOST='host='.BD_HOST.';';
 				if(empty(BD_HOST)) $BD_HOST='';
 				if(!empty(BD_PUERTO)) $BD_PUERTO='port='.BD_PUERTO.';';
@@ -82,7 +82,9 @@ class Conexion{
 						$BD_HOST='server='.BD_HOST.';';
 						$BD_BASEDATOS='database='.BD_BASEDATOS.';';
 					}
-					return new \PDO(BD_CONTROLADOR.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,BD_USUARIO,BD_CONTRASENA);
+					$cnx=new \PDO(BD_CONTROLADOR.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,BD_USUARIO,BD_CONTRASENA);
+					if(!empty(BD_CODIFICACION)) $cnx->exec('set names '.BD_CODIFICACION);
+					return $cnx;
 				}
 				else{
 					exit('BD_CONTROLADOR <b>'.BD_CONTROLADOR.'</b>'.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']);

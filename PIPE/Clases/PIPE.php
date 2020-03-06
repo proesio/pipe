@@ -3,7 +3,7 @@
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
  * Fecha última modificación: 08-09-2019
- * Versión: 2.7.15
+ * Versión: 2.8.0
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -58,7 +58,7 @@ class PIPE extends ConstructorConsulta{
      * Versión actual del ORM PIPE.
      * @tipo string
      */
-	const VERSION='2.7.15';
+	const VERSION='2.8.0';
 	/*
      * Indica el retorno de resultados de una consulta SQL como un objeto.
      * @tipo string

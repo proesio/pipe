@@ -3,7 +3,7 @@
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
  * Fecha última modificación: 08-09-2019
- * Versión: 2.7.15
+ * Versión: 2.8.0
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -52,7 +52,7 @@ return [
 	'INSERTAR_OBTENER_ID_NO_SOPORTADO'=>'El método <b>insertarObtenerId()</b> no soporta el controlador <b>oci</b>.',
 	'AMBIGUEDAD_DE_CAMPOS'=>'Ambiguedad de campos en la consulta SQL. Verifique la pertenencia de los campos a su respectiva tabla y asigne un alias a cada campo donde el nombre sea igual en otra tabla.',
 	'CONTROLADOR_DESCONOCIDO'=>' desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci, sqlsrv.',
-	'CONSTANTES_REQUERIDAS'=>'Las siguientes constantes deben estar definidas en el archivo de configuración <b>Config/basedatos.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS',
+	'CONSTANTES_REQUERIDAS'=>'Las siguientes constantes deben estar definidas en el archivo de configuración <b>Config/basedatos.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS<br>BD_CODIFICACION',
 	'CONSULTA_NO_PERMITIDO'=>'El método <b>consulta()</b> solo puede ser usado directamente por el constructor de consultas <b>PIPE</b>.',
 	'CONSULTA_NATIVA_NO_PERMITIDO'=>'El método <b>consultaNativa()</b> solo puede ser usado directamente por el constructor de consultas <b>PIPE</b>.',
 	'TABLA_NO_DEFINIDA'=>'Debe definir una tabla de la base de datos para usar el método ',

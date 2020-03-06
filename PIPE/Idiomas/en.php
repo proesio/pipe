@@ -3,7 +3,7 @@
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
  * Fecha última modificación: 08-09-2019
- * Versión: 2.7.15
+ * Versión: 2.8.0
  * Sitio web: https://pipe.proes.co
  *
  * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -52,7 +52,7 @@ return [
 	'INSERTAR_OBTENER_ID_NO_SOPORTADO'=>'The <b>insertarObtenerId()</b> method does not support the <b>oci</b> driver.',
 	'AMBIGUEDAD_DE_CAMPOS'=>'Ambiguity of fields in the SQL query. Verify the membership of the fields to their respective table and assign an alias to each field where the name is the same in another table.',
 	'CONTROLADOR_DESCONOCIDO'=>' unknown.<br><br>Supported drivers: mysql, pgsql, sqlite, oci, sqlsrv.',
-	'CONSTANTES_REQUERIDAS'=>'The following constants must be defined in the configuration file <b>Config/database.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS',
+	'CONSTANTES_REQUERIDAS'=>'The following constants must be defined in the configuration file <b>Config/database.php</b><br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_CONTRASENA<br>BD_BASEDATOS<br>BD_CODIFICACION',
 	'CONSULTA_NO_PERMITIDO'=>'The <b>consulta()</b> method can only be used directly by the <b>PIPE</b> query builder.',
 	'CONSULTA_NATIVA_NO_PERMITIDO'=>'The <b>consultaNativa()</b> method can only be used directly by the <b>PIPE</b> query builder.',
 	'TABLA_NO_DEFINIDA'=>'You must define a table in the database to use the method ',
