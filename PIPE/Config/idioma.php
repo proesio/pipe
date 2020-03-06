@@ -2,7 +2,7 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 08-09-2019
+ * Fecha última modificación: 06-03-2020
  * Versión: 2.8.0
  * Sitio web: https://pipe.proes.co
  *
