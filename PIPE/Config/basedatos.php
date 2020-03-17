@@ -4,9 +4,9 @@
  * Fecha inicio de creación: 13-09-2018
  * Fecha última modificación: 06-03-2020
  * Versión: 2.8.0
- * Sitio web: https://pipe.proes.co
+ * Sitio web: https://proes.tk/pipe
  *
- * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
+ * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,18 +28,15 @@
    
  * Traducción de la licencia MIT
    
- * Copyright (C) 2018 - 2019 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
-
+ * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  * Se concede permiso por la presente, libre de cargos, a cualquier persona
  * que obtenga una copia de este software y de los archivos de documentación asociados 
  * (el "Software"), a utilizar el Software sin restricción, incluyendo sin limitación 
  * los derechos a usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar, 
  * y/o vender copias del Software, y a permitir a las personas a las que se les proporcione 
  * el Software a hacer lo mismo, sujeto a las siguientes condiciones:
-
  * El aviso de copyright anterior y este aviso de permiso se incluirán 
  * en todas las copias o partes sustanciales del Software.
-
  * EL SOFTWARE SE PROPORCIONA "COMO ESTÁ", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA,
  * INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIALIZACIÓN, IDONEIDAD PARA UN PROPÓSITO
  * PARTICULAR E INCUMPLIMIENTO. EN NINGÚN CASO LOS AUTORES O PROPIETARIOS DE LOS DERECHOS DE AUTOR
