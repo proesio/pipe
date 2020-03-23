@@ -20,8 +20,6 @@
         }
     ],
 	"autoload": {
-        "psr-4": {
-            "files":["PIPE.php"]
-        }
+        "files":["PIPE.php"]
     }
 }
