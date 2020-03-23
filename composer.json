@@ -19,6 +19,9 @@
 			"role": "Desarrollador"
         }
     ],
+	"require": {
+        "php": "^5.6"
+    },
 	"autoload": {
         "files":["PIPE.php"]
     }
