@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 06-03-2020
- * Versión: 2.8.0
+ * Fecha última modificación: 22-03-2020
+ * Versión: 3.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -26,17 +26,20 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
    
- * Traducción de la licencia MIT
+ * Traducción al español de la licencia MIT
    
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
+
  * Se concede permiso por la presente, libre de cargos, a cualquier persona
  * que obtenga una copia de este software y de los archivos de documentación asociados 
  * (el "Software"), a utilizar el Software sin restricción, incluyendo sin limitación 
  * los derechos a usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar, 
  * y/o vender copias del Software, y a permitir a las personas a las que se les proporcione 
  * el Software a hacer lo mismo, sujeto a las siguientes condiciones:
+
  * El aviso de copyright anterior y este aviso de permiso se incluirán 
  * en todas las copias o partes sustanciales del Software.
+
  * EL SOFTWARE SE PROPORCIONA "COMO ESTÁ", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA,
  * INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIALIZACIÓN, IDONEIDAD PARA UN PROPÓSITO
  * PARTICULAR E INCUMPLIMIENTO. EN NINGÚN CASO LOS AUTORES O PROPIETARIOS DE LOS DERECHOS DE AUTOR
@@ -44,10 +47,31 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
-const BD_CONTROLADOR='mysql';
-const BD_HOST='localhost';
-const BD_PUERTO='3306';
-const BD_USUARIO='';
-const BD_CONTRASENA='';
-const BD_BASEDATOS='';
-const BD_CODIFICACION='utf8';
+namespace PIPE\Clases;
+class PIPE extends ConstructorConsulta{
+	/*
+     * Autor del ORM PIPE.
+     * @tipo string
+     */
+	const AUTOR='Juan Felipe Valencia Murillo';
+	/*
+     * Versión actual del ORM PIPE.
+     * @tipo string
+     */
+	const VERSION='3.0.0';
+	/*
+     * Indica el retorno de resultados de una consulta SQL como un objeto.
+     * @tipo string
+     */
+	const OBJETO='objeto';
+	/*
+     * Indica el retorno de resultados de una consulta SQL como un arreglo.
+     * @tipo string
+     */
+	const ARREGLO='arreglo';
+	/*
+     * Indica el retorno de resultados de una consulta SQL como una cadena de json.
+     * @tipo string
+     */
+	const JSON='json';
+}

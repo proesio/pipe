@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 06-03-2020
- * Versión: 2.8.0
+ * Fecha última modificación: 22-03-2020
+ * Versión: 3.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -130,11 +130,6 @@ class ConstructorConsulta{
      */
 	protected $registroTiempo=true;
 	/*
-     * Indica la zona horaria para la obtención del registro del tiempo.
-     * @tipo string
-     */
-	protected $zonaHoraria='UTC';
-	/*
      * Indica que el modelo tiene una relación de Uno a Uno.
      * @tipo array
      */
@@ -170,7 +165,7 @@ class ConstructorConsulta{
      */
 	const JSON='json';
 	/*
-     * Crea una nueva instancia del Constructor de Consultas.
+     * Crea una nueva instancia de la clase ConstructorConsulta.
      *
      * @parametro array $datosTabla
      * @retorno void
@@ -189,6 +184,7 @@ class ConstructorConsulta{
 		$this->_limite=$datosTabla['limite'];
 		if(array_key_exists('datos',$datosTabla)) $this->_datos=$datosTabla['datos'];
 	}
+	//Inicio métodos públicos.
 	//Inicio palabras reservadas representadas en métodos para construir una consulta SQL.
 	/*
      * Establece el nombre de la tabla en el Constructor de Consultas.
@@ -502,7 +498,6 @@ class ConstructorConsulta{
 			$atributosClase=ConstructorConsulta::obtenerAtributosClase($clase);
 			$tabla=$atributosClase['tabla'];
 			$registroTiempo=$atributosClase['registroTiempo'];
-			$zonaHoraria=$atributosClase['zonaHoraria'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 		}
 		$condicion=$pipe->traducirConsultaSQL('where '.$condicion);
@@ -526,7 +521,6 @@ class ConstructorConsulta{
 		else{
 			$pipe=new ConstructorConsulta($datosTabla);
 			$pipe->registroTiempo=$registroTiempo;
-			$pipe->zonaHoraria=$zonaHoraria;
 			return $pipe;
 		}	
 	}
@@ -784,8 +778,7 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 		}
-		$conteo='conteo';
-		if(BD_CONTROLADOR=='oci') $conteo='CONTEO';
+		$conteo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'CONTEO' : 'conteo';
 		return intval($pipe->procesarConsultaSQL('select count('.$campo.') as conteo from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$conteo);
 	}
 	/*
@@ -808,8 +801,7 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 		}
-		$maximo='maximo';
-		if(BD_CONTROLADOR=='oci') $maximo='MAXIMO';
+		$maximo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'MAXIMO' : 'maximo';
 		return $pipe->procesarConsultaSQL('select max('.$campo.') as maximo from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$maximo;
 	}
 	/*
@@ -832,8 +824,7 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 		}
-		$minimo='minimo';
-		if(BD_CONTROLADOR=='oci') $minimo='MINIMO';
+		$minimo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'MINIMO' : 'minimo';
 		return $pipe->procesarConsultaSQL('select min('.$campo.') as minimo from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$minimo;
 	}
 	/*
@@ -856,8 +847,7 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 		}
-		$promedio='promedio';
-		if(BD_CONTROLADOR=='oci') $promedio='PROMEDIO';
+		$promedio=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'PROMEDIO' : 'promedio';
 		return $pipe->procesarConsultaSQL('select avg('.$campo.') as promedio from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$promedio;
 	}
 	/*
@@ -880,8 +870,7 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 		}
-		$suma='suma';
-		if(BD_CONTROLADOR=='oci') $suma='SUMA';
+		$suma=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'SUMA' : 'suma';
 		return $pipe->procesarConsultaSQL('select sum('.$campo.') as suma from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$suma;
 	}
 	/*
@@ -1019,12 +1008,10 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$llavePrimaria=$atributosClase['llavePrimaria'];
 			$registroTiempo=$atributosClase['registroTiempo'];
-			$zonaHoraria=$atributosClase['zonaHoraria'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 			$pipe->tabla=$tabla;
 			$pipe->llavePrimaria=$llavePrimaria;
 			$pipe->registroTiempo=$registroTiempo;
-			$pipe->zonaHoraria=$zonaHoraria;
 				return $pipe;
 		}
 		else{
@@ -1038,10 +1025,8 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function insertar($valores=[]){
-		$creado_en='creado_en';
-		$actualizado_en='actualizado_en';
-		if(BD_CONTROLADOR=='oci') $creado_en=strtoupper($creado_en);
-		if(BD_CONTROLADOR=='oci') $actualizado_en=strtoupper($actualizado_en);
+		$creado_en=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'CREADO_EN' : 'creado_en';
+		$actualizado_en=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'ACTUALIZADO_EN' : 'actualizado_en';
 		$camposTabla=$this->obtenerCamposTabla();
 		$cantCamposTabla=count($camposTabla);
 		if(is_array($valores) and !empty($valores)){
@@ -1053,10 +1038,10 @@ class ConstructorConsulta{
 			$valor_tiempo='';
 			if($this->registroTiempo==true and $j==2){
 				$atributo_tiempo=','.$creado_en.','.$actualizado_en;
-				$valor_tiempo=','."'".$this->obtenerFechaHoraActual($this->zonaHoraria)."'".','."'".$this->obtenerFechaHoraActual($this->zonaHoraria)."'";
+				$valor_tiempo=','."'".$this->obtenerFechaHoraActual()."'".','."'".$this->obtenerFechaHoraActual()."'";
 			}
 			$registros=func_get_args();
-			if(BD_CONTROLADOR=='oci' and count($registros)>1){
+			if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' and count($registros)>1){
 				$valores=[];
 				$inserciones=0;
 				foreach($registros as $registro){
@@ -1110,8 +1095,8 @@ class ConstructorConsulta{
 		}
 		else{
 			if($this->registroTiempo==true){
-				$this->$creado_en=$this->obtenerFechaHoraActual($this->zonaHoraria);
-				$this->$actualizado_en=$this->obtenerFechaHoraActual($this->zonaHoraria);
+				$this->$creado_en=$this->obtenerFechaHoraActual();
+				$this->$actualizado_en=$this->obtenerFechaHoraActual();
 			}
 			else{
 				$this->$creado_en=null;
@@ -1144,7 +1129,7 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function insertarObtenerId($valores){
-		if(BD_CONTROLADOR=='oci') exit(Mensaje::$mensajes['INSERTAR_OBTENER_ID_NO_SOPORTADO']);
+		if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci') exit(Mensaje::$mensajes['INSERTAR_OBTENER_ID_NO_SOPORTADO']);
 		$this->insertar($valores);
 		return intval(Conexion::$cnx->lastInsertId());
 	}
@@ -1169,7 +1154,6 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$llavePrimaria=$atributosClase['llavePrimaria'];
 			$registroTiempo=$atributosClase['registroTiempo'];
-			$zonaHoraria=$atributosClase['zonaHoraria'];
 			$tieneUno=$atributosClase['tieneUno'];
 			$tieneMuchos=$atributosClase['tieneMuchos'];
 			$perteneceAUno=$atributosClase['perteneceAUno'];
@@ -1178,7 +1162,6 @@ class ConstructorConsulta{
 			$pipe->tabla=$tabla;
 			$pipe->llavePrimaria=$llavePrimaria;
 			$pipe->registroTiempo=$registroTiempo;
-			$pipe->zonaHoraria=$zonaHoraria;
 			$pipe->tieneUno=$tieneUno;
 			$pipe->tieneMuchos=$tieneMuchos;
 			$pipe->perteneceAUno=$perteneceAUno;
@@ -1248,8 +1231,7 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function actualizar($valores=[]){
-		$actualizado_en='actualizado_en';
-		if(BD_CONTROLADOR=='oci') $actualizado_en=strtoupper($actualizado_en);
+		$actualizado_en=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'ACTUALIZADO_EN' : 'actualizado_en';
 		$camposTabla=$this->obtenerCamposTabla();
 		$cantCamposTabla=count($camposTabla);
 		if(is_array($valores) and !empty($valores)){
@@ -1265,7 +1247,7 @@ class ConstructorConsulta{
 			}
 			$parametros=substr($parametros,0,-1);
 			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' '.$this->_condiciones,$this->_datos);
-			if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual($this->zonaHoraria)."' ".$this->_condiciones,$this->_datos);
+			if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual()."' ".$this->_condiciones,$this->_datos);
 				return $resultado;
 		}
 		else{
@@ -1284,7 +1266,7 @@ class ConstructorConsulta{
 			}
 			$parametros=substr($parametros,0,-1);
 			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' where '.$this->_llavePrimaria37812_.'=?',[$this->_valor37812_]);
-			if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual($this->zonaHoraria)."' where ".$this->_llavePrimaria37812_.'='.$this->_valor37812_);
+			if($resultado>0 and $this->registroTiempo==true and $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual()."' where ".$this->_llavePrimaria37812_.'='.$this->_valor37812_);
 				return $resultado;
 		}
 	}
@@ -1342,7 +1324,7 @@ class ConstructorConsulta{
 			$tabla=$atributosClase['tabla'];
 			$pipe=ConstructorConsulta::tabla($tabla);
 		}
-		if(BD_CONTROLADOR=='sqlite'){
+		if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='sqlite'){
 			$consulta=Conexion::$cnx->exec('delete from '.$pipe->_tabla);
 			$consulta1=Conexion::$cnx->exec('update sqlite_sequence set seq=0 where name='."'".$pipe->_tabla."'".'');
 			if($consulta===false or $consulta1===false){
@@ -1457,17 +1439,37 @@ class ConstructorConsulta{
 			exit(Mensaje::$mensajes['CONSULTA_NATIVA_NO_PERMITIDO']);
 		}
 	}
-	//Inicio métodos privados.
+	//Fin métodos públicos.
+	//Inicio métodos protegidos.
 	/*
      * Obtiene el nombre de la clase instanciada que ha hecho la invocación.
      *
      * @parametro string $nombreCompleto
      * @retorno string
      */
-	private static function obtenerClaseLlamada($nombreCompleto){
+	protected static function obtenerClaseLlamada($nombreCompleto){
 		$partesClase=explode('\\',$nombreCompleto);
 		return $partesClase[count($partesClase)-1];
 	}
+	/*
+     * Obtiene los atributos de la clase (modelo) instanciada.
+     *
+     * @parametro string $clase
+     * @retorno array
+     */
+	protected static function obtenerAtributosClase($clase){
+		$atributosClase=get_class_vars($clase);
+		$atributos['tabla']=$atributosClase['tabla']!='' ? $atributosClase['tabla'] : ConstructorConsulta::convertirModeloTabla($clase);
+		$atributos['llavePrimaria']=$atributosClase['llavePrimaria']!='id' ? $atributosClase['llavePrimaria'] : 'id';
+		$atributos['registroTiempo']=$atributosClase['registroTiempo']!==true ? $atributosClase['registroTiempo'] : true;
+		$atributos['tieneUno']=$atributosClase['tieneUno']!=[] ? $atributosClase['tieneUno'] : [];
+		$atributos['tieneMuchos']=$atributosClase['tieneMuchos']!=[] ? $atributosClase['tieneMuchos'] : [];
+		$atributos['perteneceAUno']=$atributosClase['perteneceAUno']!=[] ? $atributosClase['perteneceAUno'] : [];
+		$atributos['perteneceAMuchos']=$atributosClase['perteneceAMuchos']!=[] ? $atributosClase['perteneceAMuchos'] : [];
+		return $atributos;
+	}
+	//Fin métodos protegidos.
+	//Inicio métodos privados.
 	/*
      * Convierte el nombre del modelo (clase) en el nombre de la tabla de la base de datos.
      *
@@ -1490,24 +1492,6 @@ class ConstructorConsulta{
 			}
 		}
 		return strtolower(substr(str_replace($buscar,$remplazar,$modelo),1).'s');
-	}
-	/*
-     * Obtiene los atributos de la clase (modelo) instanciada.
-     *
-     * @parametro string $clase
-     * @retorno array
-     */
-	private static function obtenerAtributosClase($clase){
-		$atributosClase=get_class_vars($clase);
-		$atributos['tabla']=$atributosClase['tabla']!='' ? $atributosClase['tabla'] : ConstructorConsulta::convertirModeloTabla($clase);
-		$atributos['llavePrimaria']=$atributosClase['llavePrimaria']!='id' ? $atributosClase['llavePrimaria'] : 'id';
-		$atributos['registroTiempo']=$atributosClase['registroTiempo']!==true ? $atributosClase['registroTiempo'] : true;
-		$atributos['zonaHoraria']=$atributosClase['zonaHoraria']!='UTC' ? $atributosClase['zonaHoraria'] : 'UTC';
-		$atributos['tieneUno']=$atributosClase['tieneUno']!=[] ? $atributosClase['tieneUno'] : [];
-		$atributos['tieneMuchos']=$atributosClase['tieneMuchos']!=[] ? $atributosClase['tieneMuchos'] : [];
-		$atributos['perteneceAUno']=$atributosClase['perteneceAUno']!=[] ? $atributosClase['perteneceAUno'] : [];
-		$atributos['perteneceAMuchos']=$atributosClase['perteneceAMuchos']!=[] ? $atributosClase['perteneceAMuchos'] : [];
-		return $atributos;
 	}
 	/*
      * Obtiene el nombre del método invocado.
@@ -1566,12 +1550,8 @@ class ConstructorConsulta{
      * @retorno array|null
      */
 	private function obtenerCamposConsultaSQL($datosArreglo){
-		if(!empty($datosArreglo)){
-			return array_keys($datosArreglo[0]);
-		}
-		else{
-			return null;
-		}
+		if(!empty($datosArreglo)) return array_keys($datosArreglo[0]);
+		return null;
 	}
 	/*
      * Obtiene todos los campos de la tabla en la base de datos.
@@ -1579,7 +1559,7 @@ class ConstructorConsulta{
      * @retorno array
      */
 	private function obtenerCamposTabla(){
-		switch(BD_CONTROLADOR){
+		switch(Configuracion::obtenerVariable('BD_CONTROLADOR')){
 			case 'mysql':
 				$consulta=Conexion::$cnx->query('describe '.$this->_tabla);
 				$atributo='Field';
@@ -1601,11 +1581,8 @@ class ConstructorConsulta{
 				$atributo='column_name';
 			break;
 		}
-		$i=0;
-		$campos=[];
 		foreach($consulta->fetchAll() as $datos){
-			$campos[$i]=$datos[$atributo];
-			$i++;
+			$campos[]=$datos[$atributo];
 		}
 		return $campos;
 	}
@@ -1658,7 +1635,8 @@ class ConstructorConsulta{
 				else{
 					$valorllavePrincipal=$pipe->_valor37812_;
 				}
-				$datos=$pipe->tabla($tablaUnion)->limite(1)->donde($llaveForanea.'=?',[$valorllavePrincipal])->obtener()[0];
+				$datos=$pipe->tabla($tablaUnion)->limite(1)->donde($llaveForanea.'=?',[$valorllavePrincipal]);
+				$datos=$datos->existe() ? $datos->obtener()[0] : null;
 				$pipe->_datosModeloRelacion[$atributo]=$datos;
 			}
 		}
@@ -1697,7 +1675,8 @@ class ConstructorConsulta{
 				else{
 					$valorllavePrincipal=$valorForanea;
 				}
-				$datos=$pipe->tabla($tablaUnion)->donde($llavePrimariaUnion.'=?',[$valorllavePrincipal])->obtener()[0];
+				$datos=$pipe->tabla($tablaUnion)->donde($llavePrimariaUnion.'=?',[$valorllavePrincipal]);
+				$datos=$datos->existe() ? $datos->obtener()[0] : null;
 				$pipe->_datosModeloRelacion[$atributo]=$datos;
 			}
 		}
@@ -1775,12 +1754,9 @@ class ConstructorConsulta{
      * @retorno string
      */
 	private function remplazarPrimeraCadena($viejo,$nuevo,$cadena,$sensible=true){
-		if($sensible==true){
-			if(strpos($cadena,$viejo)==true) $cadena=substr_replace($cadena,$nuevo,strpos($cadena,$viejo),strlen($viejo));
-		}
-		else if($sensible==false){
-			if(stripos($cadena,$viejo)==true) $cadena=substr_replace($cadena,$nuevo,stripos($cadena,$viejo),strlen($viejo));
-		}
+		$condicion=$sensible===true ? strpos($cadena,$viejo)>-1 : stripos($cadena,$viejo)>-1;
+		$posicionInicial=$sensible===true ? strpos($cadena,$viejo) : stripos($cadena,$viejo);
+		if($condicion) $cadena=substr_replace($cadena,$nuevo,$posicionInicial,strlen($viejo));
 		//$cadena=preg_replace('/'.preg_quote($viejo,'/').'/',$nuevo,$cadena,1);
 		return $cadena;
 	}
@@ -1794,55 +1770,30 @@ class ConstructorConsulta{
      * @retorno string
      */
 	private function remplazarCadenaIndependiente($viejo,$nuevo,$cadena,$sensible=true){
-		if($sensible==true){
-			while(strpos($cadena,$viejo)>-1){
+		$condicion=$sensible===true ? strpos($cadena,$viejo)>-1 : stripos($cadena,$viejo)>-1;
+		while($condicion){
+			$condicion=$sensible===true ? strpos($cadena,$viejo)>-1 : stripos($cadena,$viejo)>-1;
+			/*
+			Buscamos elementos al inicio y al final de la busqueda ($viejo) recibida
+			para definir si lo encontrado en la $cadena es una palabra independiente o está dentro de otra.
+			*/
+			$I=$this->validarCadenaIndependiente($viejo,$cadena,'I',$sensible);
+			$F=$this->validarCadenaIndependiente($viejo,$cadena,'F',$sensible);
+			if($I!='' or $F!=''){
 				/*
-				Buscamos elementos al inicio y al final de la busqueda ($viejo) recibida
-				para definir si lo encontrado en la $cadena es una palabra independiente o está dentro de otra.
+				En caso de que la palabra encontrada no este independiente
+				se procede a remplazarla por *# para que pueda continuar buscando y remplazando.
 				*/
-				$I=$this->validarCadenaIndependiente($viejo,$cadena,'I',$sensible);
-				$F=$this->validarCadenaIndependiente($viejo,$cadena,'F',$sensible);
-				if($I!='' or $F!=''){
-					/*
-					En caso de que la palabra encontrada no este independiente
-					se procede a remplazarla por *# para que pueda continuar buscando y remplazando.
-					*/
-					$cadena=$this->remplazarPrimeraCadena($viejo,'*#',$cadena,$sensible);
-				}
-				else{
-					/*
-					En caso de que la palabra encontrada este independiente
-					se procede a reemplazarla por *#*# para que pueda continuar buscando y remplazando.
-					*/
-					$cadena=$this->remplazarPrimeraCadena($viejo,'*#*#',$cadena,$sensible);
-					//$cadena=preg_replace('/'.preg_quote($viejo,'/').'/',$nuevo,$cadena,1);
-				}
+				$cadena=$this->remplazarPrimeraCadena($viejo,'*#',$cadena,$sensible);
 			}
-		}
-		else if($sensible==false){
-			while(stripos($cadena,$viejo)>-1){
+			else{
 				/*
-				Buscamos elementos al inicio y al final de la busqueda ($viejo) recibida
-				para definir si lo encontrado en la $cadena es una palabra independiente o está dentro de otra.
+				En caso de que la palabra encontrada este independiente
+				se procede a reemplazarla por *#*# para que pueda continuar buscando y remplazando.
 				*/
-				$I=$this->validarCadenaIndependiente($viejo,$cadena,'I',$sensible);
-				$F=$this->validarCadenaIndependiente($viejo,$cadena,'F',$sensible);
-				if($I!='' or $F!=''){
-					/*
-					En caso de que la palabra encontrada no este independiente
-					se procede a remplazarla por *# para que pueda continuar buscando y remplazando.
-					*/
-					$cadena=$this->remplazarPrimeraCadena($viejo,'*#',$cadena,$sensible);
-				}
-				else{
-					/*
-					En caso de que la palabra encontrada este independiente
-					se procede a reemplazarla por *#*# para que pueda continuar buscando y remplazando.
-					*/
-					$cadena=$this->remplazarPrimeraCadena($viejo,'*#*#',$cadena,$sensible);
-					//$cadena=preg_replace('/'.preg_quote($viejo,'/').'/',$nuevo,$cadena,1);
-				}
-			}	
+				$cadena=$this->remplazarPrimeraCadena($viejo,'*#*#',$cadena,$sensible);
+				//$cadena=preg_replace('/'.preg_quote($viejo,'/').'/',$nuevo,$cadena,1);
+			}
 		}
 		/*
 		Volvemos a poner los *# por los catacteres $viejo
@@ -1853,7 +1804,7 @@ class ConstructorConsulta{
 		return $cadena;
 	}
 	/*
-     * Traduce a consulta SQL nativa una consulta SQL en español.
+     * Traduce una consulta SQL en español a una consulta SQL nativa.
      *
      * @parametro string $consulta
      * @retorno string
@@ -2073,10 +2024,14 @@ class ConstructorConsulta{
      * @retorno html
      */
 	private function mostrarErrorSQL($codigoError,$infoError){
-		$titulo='SQL error';
-		if(IDIOMA=='es'){
-			$titulo='Error de SQL';
-			$infoError=$this->traducirErrorSQL(' '.$infoError);
+		switch(Configuracion::obtenerVariable('IDIOMA')){
+			case 'es':
+				$titulo='Error de SQL';
+				$infoError=$this->traducirErrorSQL(' '.$infoError);
+			break;
+			case 'en':
+				$titulo='SQL error';
+			break;
 		}
 		exit('
 		<div style="background-color:pink; padding:10px; border:1px solid maroon; border-radius:5px;">
@@ -2089,13 +2044,13 @@ class ConstructorConsulta{
 	/*
      * Obtiene la fecha y la hora actual según la zona horaria.
      *
-     * @parametro string $zonaHoraria
      * @retorno string
      */
-	private function obtenerFechaHoraActual($zonaHoraria){
-		date_default_timezone_set($zonaHoraria);
-		$tiempo=date('Y-m-d H:i:s');
-		if(BD_CONTROLADOR=='oci') $tiempo=date('d-m-Y h:i:s');
+	private function obtenerFechaHoraActual(){
+		$zonaHoraria=Configuracion::obtenerVariable('ZONA_HORARIA');
+		$zonaHoraria=$zonaHoraria ? $zonaHoraria : 'UTC';
+		$dateTime=new \DateTime($zonaHoraria);
+		$tiempo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? $dateTime->format('d-m-Y h:i:s') : $dateTime->format('Y-m-d H:i:s');
 		return $tiempo;
 	}
 	//Fin métodos privados.

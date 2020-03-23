@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 06-03-2020
- * Versión: 2.8.0
+ * Fecha última modificación: 22-03-2020
+ * Versión: 3.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,55 +48,43 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 namespace PIPE\Clases;
-class Conexion{
+class Configuracion{
 	/*
-     * Instancia de PDO
-     * @tipo \PDO
+     * Configuración del ORM PIPE.
+     * @tipo array
      */
-	public static $cnx=null;
+	private static $config=[];
 	/*
-     * Crea una nueva instancia de la conexión.
+     * Inicializa la configuración del ORM PIPE.
+     *
+	 * @parametro array $config
+     * @retorno void
+     */
+	public static function inicializar($config=[]){
+		Configuracion::$config=$config;
+		Configuracion::incluirArchivos();
+	}
+	/*
+     * Obtiene una variable de la configuración del ORM PIPE.
+     *
+	 * @parametro string $variable
+     * @retorno string|null
+     */
+	public static function obtenerVariable($variable){
+		$valor=array_key_exists($variable,Configuracion::$config) && !empty(Configuracion::$config[$variable]) ? Configuracion::$config[$variable] : null;
+		return $valor;
+	}
+	/*
+     * Incluye los archivos del ORM PIPE.
      *
      * @retorno void
      */
-	public function __construct(){
-		Conexion::$cnx=$this->conexion();
-	}
-	/*
-     * Obtiene la conexión de la base de datos.
-     *
-     * @retorno \PDO
-     */
-	private function conexion(){
-		try{
-			if(defined('BD_CONTROLADOR') and defined('BD_HOST') and defined('BD_PUERTO') and defined('BD_USUARIO') and defined('BD_CONTRASENA') and defined('BD_BASEDATOS') and defined('BD_CODIFICACION')){
-				if(!empty(BD_HOST)) $BD_HOST='host='.BD_HOST.';';
-				if(empty(BD_HOST)) $BD_HOST='';
-				if(!empty(BD_PUERTO)) $BD_PUERTO='port='.BD_PUERTO.';';
-				if(empty(BD_PUERTO)) $BD_PUERTO='';
-				if(!empty(BD_BASEDATOS)) $BD_BASEDATOS='dbname='.BD_BASEDATOS.';';
-				if(empty(BD_BASEDATOS)) $BD_BASEDATOS='';
-				if(BD_CONTROLADOR=='mysql' or BD_CONTROLADOR=='pgsql'  or BD_CONTROLADOR=='sqlite' or BD_CONTROLADOR=='oci' or BD_CONTROLADOR=='sqlsrv'){
-					if(BD_CONTROLADOR=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
-					if(BD_CONTROLADOR=='sqlsrv'){
-						$BD_HOST='server='.BD_HOST.';';
-						$BD_BASEDATOS='database='.BD_BASEDATOS.';';
-					}
-					$cnx=new \PDO(BD_CONTROLADOR.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,BD_USUARIO,BD_CONTRASENA);
-					if(!empty(BD_CODIFICACION)) $cnx->exec('set names '.BD_CODIFICACION);
-					return $cnx;
-				}
-				else{
-					exit('BD_CONTROLADOR <b>'.BD_CONTROLADOR.'</b>'.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']);
-				}
-			}
-			else{
-				exit(Mensaje::$mensajes['CONSTANTES_REQUERIDAS']);
-			}
-		}
-		catch(\PDOException $e){
-			exit($e->getMessage());
-		}
+	private static function incluirArchivos(){
+		require 'Mensaje.php';
+		require 'Conexion.php';
+		require 'ConstructorConsulta.php';
+		require 'PIPE.php';
+		require 'Modelo.php';
+		require 'Archivo.php';
 	}
 }
-new Conexion();

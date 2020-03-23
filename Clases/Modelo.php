@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 06-03-2020
- * Versión: 2.8.0
+ * Fecha última modificación: 22-03-2020
+ * Versión: 3.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -47,11 +47,85 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
-require_once 'Config/basedatos.php';
-require_once 'Config/idioma.php';
-require_once 'Clases/Mensaje.php';
-require_once 'Clases/Conexion.php';
-require_once 'Clases/ConstructorConsulta.php';
-require_once 'Clases/PIPE.php';
-require_once 'Clases/Modelo.php';
-require_once 'Clases/Archivo.php';
+namespace PIPE\Clases;
+class Modelo extends ConstructorConsulta{
+	/*
+     * Crea un nuevo registro en la base de datos.
+     *
+     * @retorno object|array
+     */
+	public static function crear(){
+		$clase=Modelo::obtenerClaseLlamada(get_called_class());
+		$atributosClase=Modelo::obtenerAtributosClase($clase);
+		$pipe=Modelo::tabla($atributosClase['tabla']);
+		$pipe->todo();
+		$registros=func_get_args();
+		$inserciones=null;
+		foreach($registros as $registro){
+			$id=$pipe->insertarObtenerId($registro);
+			$inserciones[]=clone $pipe->encontrar($id);
+		}
+		if(isset($inserciones)) $inserciones=count($inserciones)==1 ? $inserciones[0] : $inserciones;
+		return $inserciones;
+	}
+	/*
+     * Edita un registro en la base de datos.
+     *
+     * @parametro array|int|string $ids
+     * @parametro array $valores
+     * @retorno object|array
+     */
+	public static function editar($ids=[],$valores=[]){
+		$clase=Modelo::obtenerClaseLlamada(get_called_class());
+		$atributosClase=Modelo::obtenerAtributosClase($clase);
+		$pipe=Modelo::tabla($atributosClase['tabla']);
+		$llavePrimaria=$atributosClase['llavePrimaria'];
+		if(is_array($ids) && !empty($ids)){
+			foreach($ids as $id){
+				$objeto=$pipe->donde($llavePrimaria.'=?',[$id]);
+				if($objeto->existe()){
+					if(is_array($valores) && !empty($valores)) $objeto->actualizar($valores);
+					$actualizaciones[]=clone $pipe->encontrar($id);
+				}
+				else{
+					$actualizaciones[]=null;
+				}
+			}
+		}
+		else{
+			if(is_array($ids)) return null;
+			$objeto=$pipe->donde($llavePrimaria.'=?',[$ids]);
+			$actualizaciones=null;
+			if($objeto->existe()){
+				if(is_array($valores) && !empty($valores)) $objeto->actualizar($valores);
+				$actualizaciones=$pipe->encontrar($ids);
+			}
+		}
+		return $actualizaciones;
+	}
+	/*
+     * Destruye un registro en la base de datos.
+     *
+     * @parametro array|int|string $ids
+     * @retorno object|array
+     */
+	public static function destruir($ids=[]){
+		$clase=Modelo::obtenerClaseLlamada(get_called_class());
+		$atributosClase=Modelo::obtenerAtributosClase($clase);
+		$pipe=Modelo::tabla($atributosClase['tabla']);
+		if(is_array($ids) && !empty($ids)){
+			foreach($ids as $id){
+				$objeto=$pipe->encontrar($id);
+				$eliminaciones[]=$objeto ? clone $objeto : $objeto;
+				$pipe->eliminar();
+			}
+		}
+		else{
+			if(is_array($ids)) return null;
+			$objeto=$pipe->encontrar($ids);
+			$eliminaciones=$objeto;
+			$pipe->eliminar();
+		}
+		return $eliminaciones;
+	}
+}

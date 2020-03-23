@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 06-03-2020
- * Versión: 2.8.0
+ * Fecha última modificación: 22-03-2020
+ * Versión: 3.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,42 +48,59 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 namespace PIPE\Clases;
-class Mensaje{
+class Conexion{
 	/*
-     * Mensajes según el idioma establecido.
-     * @tipo array
+     * Instancia de PDO
+     * @tipo \PDO
      */
-	public static $mensajes=[];
+	public static $cnx=null;
 	/*
-     * Crea una nueva instancia del mensaje.
+     * Crea una nueva instancia de la clase Conexion.
      *
      * @retorno void
      */
 	public function __construct(){
-		$this->obtenerMensajes();
+		Conexion::$cnx=$this->conexion();
 	}
 	/*
-     * Asigna los mensajes según el idioma establecido.
+     * Obtiene la conexión de la base de datos.
      *
-     * @retorno void
+     * @retorno \PDO
      */
-	public function obtenerMensajes(){
-		if(defined('IDIOMA')){
-			switch(IDIOMA){
-				case 'es':
-					Mensaje::$mensajes=require_once './PIPE/Idiomas/es.php';
-				break;
-				case 'en':
-					Mensaje::$mensajes=require_once './PIPE/Idiomas/en.php';
-				break;
-				default:
-					exit('IDIOMA <b>'.IDIOMA.'</b> desconocido.<br><br>Idiomas admitidos: es, en.');
-				break;
+	private function conexion(){
+		try{
+			$controlador=Configuracion::obtenerVariable('BD_CONTROLADOR');
+			$host=Configuracion::obtenerVariable('BD_HOST');
+			$puerto=Configuracion::obtenerVariable('BD_PUERTO');
+			$usuario=Configuracion::obtenerVariable('BD_USUARIO');
+			$contrasena=Configuracion::obtenerVariable('BD_CONTRASENA');
+			$basedatos=Configuracion::obtenerVariable('BD_BASEDATOS');
+			$codificacion=Configuracion::obtenerVariable('BD_CODIFICACION');
+			if($controlador and $host and $puerto and $usuario and $basedatos and $codificacion){
+				$BD_HOST=empty($host) ? '' : 'host='.$host.';';
+				$BD_PUERTO=empty($puerto) ? '' : 'port='.$puerto.';';
+				$BD_BASEDATOS=empty($basedatos) ? '' : 'dbname='.$basedatos.';';
+				if($controlador=='mysql' or $controlador=='pgsql'  or $controlador=='sqlite' or $controlador=='oci' or $controlador=='sqlsrv'){
+					if($controlador=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
+					if($controlador=='sqlsrv'){
+						$BD_HOST='server='.$host.';';
+						$BD_BASEDATOS='database='.$basedatos.';';
+					}
+					$cnx=new \PDO($controlador.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,$usuario,$contrasena);
+					if(!empty($codificacion)) $cnx->exec('set names '.$codificacion);
+					return $cnx;
+				}
+				else{
+					exit('BD_CONTROLADOR <b>'.$controlador.'</b>'.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']);
+				}
+			}
+			else{
+				exit(Mensaje::$mensajes['CONSTANTES_REQUERIDAS']);
 			}
 		}
-		else{
-			exit('La constante <b>IDIOMA</b> debe estar definida en el archivo de configuración <b>Config/idioma.php</b>.');
+		catch(\PDOException $e){
+			exit($e->getMessage());
 		}
 	}
 }
-new Mensaje();
+new Conexion();

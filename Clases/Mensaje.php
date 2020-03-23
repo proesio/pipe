@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 06-03-2020
- * Versión: 2.8.0
+ * Fecha última modificación: 22-03-2020
+ * Versión: 3.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,27 +48,43 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 namespace PIPE\Clases;
-class Archivo{
+class Mensaje{
 	/*
-     * Crea una nueva instancia del Archivo.
+     * Mensajes según el idioma establecido.
+     * @tipo array
+     */
+	public static $mensajes=[];
+	/*
+     * Crea una nueva instancia de la clase Mensaje.
      *
      * @retorno void
      */
 	public function __construct(){
-		$this->importarModelos();
+		$this->obtenerMensajes();
 	}
 	/*
-     * Importa los modelos ubicados en el directorio 'PIPE/Modelos/'.
+     * Asigna los mensajes según el idioma establecido.
      *
      * @retorno void
      */
-	public function importarModelos(){
-		if($carpeta=opendir('./PIPE/Modelos')){
-			while(($archivo=readdir($carpeta))!==false){
-				if(substr($archivo,-3)=='php') require_once './PIPE/Modelos/'.$archivo;
+	public function obtenerMensajes(){
+		$idioma=Configuracion::obtenerVariable('IDIOMA');
+		if($idioma){
+			switch($idioma){
+				case 'es':
+					Mensaje::$mensajes=require_once __DIR__.'/../Idiomas/es.php';
+				break;
+				case 'en':
+					Mensaje::$mensajes=require_once __DIR__.'/../Idiomas/en.php';
+				break;
+				default:
+					exit('IDIOMA <b>'.$idioma.'</b> desconocido.<br><br>Idiomas admitidos: es, en.');
+				break;
 			}
-			closedir($carpeta);
+		}
+		else{
+			exit('La constante <b>IDIOMA</b> debe ser inicializada en el método <b>Configuracion::inicializar()</b>.');
 		}
 	}
 }
-new Archivo();
+new Mensaje();
