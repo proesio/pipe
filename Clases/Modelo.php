@@ -55,9 +55,8 @@ class Modelo extends ConstructorConsulta{
      * @retorno object|array
      */
 	public static function crear(){
-		$clase=Modelo::obtenerClaseLlamada(get_called_class());
-		$atributosClase=Modelo::obtenerAtributosClase($clase);
-		$pipe=Modelo::tabla($atributosClase['tabla']);
+		$contextoThis=isset($this) ? $this : null;
+		$pipe=Modelo::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		$pipe->todo();
 		$registros=func_get_args();
 		$inserciones=null;
@@ -76,13 +75,11 @@ class Modelo extends ConstructorConsulta{
      * @retorno object|array
      */
 	public static function editar($ids=[],$valores=[]){
-		$clase=Modelo::obtenerClaseLlamada(get_called_class());
-		$atributosClase=Modelo::obtenerAtributosClase($clase);
-		$pipe=Modelo::tabla($atributosClase['tabla']);
-		$llavePrimaria=$atributosClase['llavePrimaria'];
+		$contextoThis=isset($this) ? $this : null;
+		$pipe=Modelo::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if(is_array($ids) && !empty($ids)){
 			foreach($ids as $id){
-				$objeto=$pipe->donde($llavePrimaria.'=?',[$id]);
+				$objeto=$pipe->donde($pipe->llavePrimaria.'=?',[$id]);
 				if($objeto->existe()){
 					if(is_array($valores) && !empty($valores)) $objeto->actualizar($valores);
 					$actualizaciones[]=clone $pipe->encontrar($id);
@@ -94,7 +91,7 @@ class Modelo extends ConstructorConsulta{
 		}
 		else{
 			if(is_array($ids)) return null;
-			$objeto=$pipe->donde($llavePrimaria.'=?',[$ids]);
+			$objeto=$pipe->donde($pipe->llavePrimaria.'=?',[$ids]);
 			$actualizaciones=null;
 			if($objeto->existe()){
 				if(is_array($valores) && !empty($valores)) $objeto->actualizar($valores);
@@ -110,9 +107,8 @@ class Modelo extends ConstructorConsulta{
      * @retorno object|array
      */
 	public static function destruir($ids=[]){
-		$clase=Modelo::obtenerClaseLlamada(get_called_class());
-		$atributosClase=Modelo::obtenerAtributosClase($clase);
-		$pipe=Modelo::tabla($atributosClase['tabla']);
+		$contextoThis=isset($this) ? $this : null;
+		$pipe=Modelo::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if(is_array($ids) && !empty($ids)){
 			foreach($ids as $id){
 				$objeto=$pipe->encontrar($id);

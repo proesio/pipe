@@ -76,11 +76,11 @@ class Conexion{
 			$contrasena=Configuracion::obtenerVariable('BD_CONTRASENA');
 			$basedatos=Configuracion::obtenerVariable('BD_BASEDATOS');
 			$codificacion=Configuracion::obtenerVariable('BD_CODIFICACION');
-			if($controlador and $host and $puerto and $usuario and $basedatos and $codificacion){
+			if($controlador && $host && $puerto && $usuario && $basedatos && $codificacion){
 				$BD_HOST=empty($host) ? '' : 'host='.$host.';';
 				$BD_PUERTO=empty($puerto) ? '' : 'port='.$puerto.';';
 				$BD_BASEDATOS=empty($basedatos) ? '' : 'dbname='.$basedatos.';';
-				if($controlador=='mysql' or $controlador=='pgsql'  or $controlador=='sqlite' or $controlador=='oci' or $controlador=='sqlsrv'){
+				if($controlador=='mysql' || $controlador=='pgsql'  || $controlador=='sqlite' || $controlador=='oci' || $controlador=='sqlsrv'){
 					if($controlador=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
 					if($controlador=='sqlsrv'){
 						$BD_HOST='server='.$host.';';
