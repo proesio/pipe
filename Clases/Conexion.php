@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 22-03-2020
- * Versión: 3.0.0
+ * Fecha última modificación: 29-03-2020
+ * Versión: 3.1.3
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
