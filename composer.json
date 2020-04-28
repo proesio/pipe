@@ -10,17 +10,17 @@
         "database"
     ],
 	"license": "MIT",
-	"homepage": "https://proes.tk/pipe",
+	"homepage": "https://proes.tk/pipe/",
 	"authors":[
         {
             "name": "Juan Felipe Valencia Murillo",
 			"email": "juanfe0245@gmail.com",
-            "homepage": "https://proes.tk/pipe/#!/desarrollador",
+            "homepage": "https://proes.tk/pipe/desarrollador/",
 			"role": "Desarrollador"
         }
     ],
 	"require": {
-        "php": ">=5.6"
+        "php": ">=7.2.0"
     },
 	"autoload": {
         "files":["PIPE.php"]

@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 29-03-2020
- * Versión: 3.1.3
+ * Fecha última modificación: 28-04-2020
+ * Versión: 4.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,15 +48,12 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 return [
-	'INSTANCIAR_NO_PERMITIDO'=>'The <b>instanciar()</b> method can only be used by <b>classes (models)</b> that refer to a table in the database.',
-	'INSERTAR_OBTENER_ID_NO_SOPORTADO'=>'The <b>insertarObtenerId()</b> method does not support the <b>oci</b> driver.',
 	'AMBIGUEDAD_DE_CAMPOS'=>'Ambiguity of fields in the SQL query. Verify the membership of the fields to their respective table and assign an alias to each field where the name is the same in another table.',
-	'CONTROLADOR_DESCONOCIDO'=>' unknown.<br><br>Supported drivers: mysql, pgsql, sqlite, oci, sqlsrv.',
-	'CONSTANTES_REQUERIDAS'=>'The following constants must be initialized in the <b>Configuracion::inicializar()</b> method.<br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_BASEDATOS<br>BD_CODIFICACION',
-	'CONSULTA_NO_PERMITIDO'=>'The <b>consulta()</b> method can only be used directly by the <b>PIPE</b> query builder.',
-	'CONSULTA_NATIVA_NO_PERMITIDO'=>'The <b>consultaNativa()</b> method can only be used directly by the <b>PIPE</b> query builder.',
-	'TABLA_NO_DEFINIDA'=>'You must define a table in the database to use the method ',
-	'MODELO_NO_ENCONTRADO'=>'The following model was not found in <em>PIPE/Modelos/</em>: ',
+	'CONTROLADOR_DESCONOCIDO'=>' unknown.<br><br>Supported drivers: mysql, pgsql, sqlite, and sqlsrv.',
+	'MODELO_NO_ENCONTRADO'=>'The following model was not found: ',
 	'TIPO_DATO_DESCONOCIDO'=>'The following type of data is unknown: ',
-	'RUTA_MODELOS_NO_ENCONTRADA'=>'The following model path was not found: '
+	'RUTA_MODELOS_NO_ENCONTRADA'=>'The following model path was not found: ',
+	'PROPIEDAD_NO_DEFINIDA'=>'The following property must be defined: ',
+	'LIMITE_NO_SOPORTADO'=>'The <b>sqlsrv</b> driver does not support <b>limit()</b> method, instead use the <b>tomar()</b> method.',
+	'RETORNO_SQL_NO_SOPORTADO'=>'Unsupported <b>SQL</b> return type.'
 ];

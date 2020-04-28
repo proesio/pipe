@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 29-03-2020
- * Versión: 3.1.3
+ * Fecha última modificación: 28-04-2020
+ * Versión: 4.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,15 +48,12 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 return [
-	'INSTANCIAR_NO_PERMITIDO'=>'El método <b>instanciar()</b> solo puede ser usado por <b>clases (modelos)</b> que hacen referencia a una tabla en la base de datos.',
-	'INSERTAR_OBTENER_ID_NO_SOPORTADO'=>'El método <b>insertarObtenerId()</b> no soporta el controlador <b>oci</b>.',
 	'AMBIGUEDAD_DE_CAMPOS'=>'Ambiguedad de campos en la consulta SQL. Verifique la pertenencia de los campos a su respectiva tabla y asigne un alias a cada campo donde el nombre sea igual en otra tabla.',
-	'CONTROLADOR_DESCONOCIDO'=>' desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite, oci, sqlsrv.',
-	'CONSTANTES_REQUERIDAS'=>'Las siguientes constantes deben ser inicializadas en el método <b>Configuracion::inicializar()</b>.<br><br>BD_CONTROLADOR<br>BD_HOST<br>BD_PUERTO<br>BD_USUARIO<br>BD_BASEDATOS<br>BD_CODIFICACION',
-	'CONSULTA_NO_PERMITIDO'=>'El método <b>consulta()</b> solo puede ser usado directamente por el constructor de consultas <b>PIPE</b>.',
-	'CONSULTA_NATIVA_NO_PERMITIDO'=>'El método <b>consultaNativa()</b> solo puede ser usado directamente por el constructor de consultas <b>PIPE</b>.',
-	'TABLA_NO_DEFINIDA'=>'Debe definir una tabla de la base de datos para usar el método ',
-	'MODELO_NO_ENCONTRADO'=>'El siguiente modelo no fue encontrado en <em>PIPE/Modelos/</em>: ',
+	'CONTROLADOR_DESCONOCIDO'=>' desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite y sqlsrv.',
+	'MODELO_NO_ENCONTRADO'=>'El siguiente modelo no fue encontrado: ',
 	'TIPO_DATO_DESCONOCIDO'=>'El siguiente tipo de dato es desconocido: ',
-	'RUTA_MODELOS_NO_ENCONTRADA'=>'La siguiente ruta de modelos no fue encontrada: '
+	'RUTA_MODELOS_NO_ENCONTRADA'=>'La siguiente ruta de modelos no fue encontrada: ',
+	'PROPIEDAD_NO_DEFINIDA'=>'La siguiente propiedad debe estar definida: ',
+	'LIMITE_NO_SOPORTADO'=>'El controlador <b>sqlsrv</b> no soporta el método <b>limite()</b>, en su lugar use el método <b>tomar()</b>.',
+	'RETORNO_SQL_NO_SOPORTADO'=>'Tipo de retorno <b>SQL</b> no soportado.'
 ];

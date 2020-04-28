@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 29-03-2020
- * Versión: 3.1.3
+ * Fecha última modificación: 28-04-2020
+ * Versión: 4.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -58,7 +58,7 @@ class ConstructorConsulta{
      * Campos seleccionados en la consulta SQL.
      * @tipo string
      */
-	private $_campos='';
+	private $_campos='*';
 	/*
      * Nombre de la tabla en la base de datos.
      * @tipo string
@@ -115,50 +115,65 @@ class ConstructorConsulta{
      */
 	private $_datosModeloRelacion=[];
 	/*
-     * Nombre de la tabla en representación de un modelo.
+     * Nombre de la clase que extiende del Modelo.
      * @tipo string
      */
-	protected $tabla='';
+	private $clase='';
 	/*
      * Llave primaria de la tabla en representación de un modelo.
      * @tipo string
      */
-	protected $llavePrimaria='id';
+	private $llavePrimaria='id';
 	/*
      * Indica si se almacena el registro del tiempo en los campos especificados.
      * @tipo boolean
      */
-	protected $registroTiempo=true;
+	private $registroTiempo=true;
 	/*
      * Nombre del campo donde se registra el tiempo de la creación del registro.
      * @tipo string
      */
-	protected $creadoEn='creado_en';
+	private $creadoEn='creado_en';
 	/*
      * Nombre del campo donde se registra el tiempo de la actualización del registro.
      * @tipo string
      */
-	protected $actualizadoEn='actualizado_en';
+	private $actualizadoEn='actualizado_en';
 	/*
      * Indica que el modelo tiene una relación de Uno a Uno.
      * @tipo array
      */
-	protected $tieneUno=[];
+	private $tieneUno=[];
 	/*
      * Indica que el modelo tiene una relación de Uno a Muchos.
      * @tipo array
      */
-	protected $tieneMuchos=[];
+	private $tieneMuchos=[];
 	/*
      * Indica la relación inversa de las relaciones Uno a Uno y Uno a Muchos.
      * @tipo array
      */
-	protected $perteneceAUno=[];
+	private $perteneceAUno=[];
 	/*
      * Indica que el modelo tiene una relación de Muchos a Muchos.
      * @tipo array
      */
-	protected $perteneceAMuchos=[];
+	private $perteneceAMuchos=[];
+	/*
+     * Indica los campos que pueden ser insertados.
+     * @tipo array
+     */
+	private $insertables=[];
+	/*
+     * Indica los campos que pueden ser actualizados.
+     * @tipo array
+     */
+	private $actualizables=[];
+	/*
+     * Indica los campos que no se mostrarán en la consulta SQL.
+     * @tipo array
+     */
+	private $ocultos=[];
 	/*
      * Indica el retorno de resultados de una consulta SQL como un objeto.
      * @tipo string
@@ -175,29 +190,33 @@ class ConstructorConsulta{
      */
 	const JSON='json';
 	/*
+     * Indica el retorno de la consulta SQL generada.
+     * @tipo string
+     */
+	const SQL='sql';
+	/*
      * Crea una nueva instancia de la clase ConstructorConsulta.
      *
-     * @parametro array $datosTabla
+     * @parametro array $atributosClase
      * @retorno void
      */
-	public function __construct($datosTabla){
-		$this->_campos=$datosTabla['campos'];
-		$this->_tabla=$datosTabla['tabla'];
+	public function __construct($atributosClase=[]){
+		$this->_tabla=$atributosClase['tabla'] ?? $this->_tabla;
+		$this->clase=$atributosClase['clase'] ?? $this->clase;
+		$this->llavePrimaria=$atributosClase['llavePrimaria'] ?? $this->llavePrimaria;
+		$this->registroTiempo=$atributosClase['registroTiempo'] ?? $this->registroTiempo;
+		$this->creadoEn=$atributosClase['creadoEn'] ?? $this->creadoEn;
+		$this->actualizadoEn=$atributosClase['actualizadoEn'] ?? $this->actualizadoEn;
+		$this->tieneUno=$atributosClase['tieneUno'] ?? $this->tieneUno;
+		$this->tieneMuchos=$atributosClase['tieneMuchos'] ?? $this->tieneMuchos;
+		$this->perteneceAUno=$atributosClase['perteneceAUno'] ?? $this->perteneceAUno;
+		$this->perteneceAMuchos=$atributosClase['perteneceAMuchos'] ?? $this->perteneceAMuchos;
+		$this->insertables=$atributosClase['insertables'] ?? $this->insertables;
+		$this->actualizables=$atributosClase['actualizables'] ?? $this->actualizables;
+		$this->ocultos=$atributosClase['ocultos'] ?? $this->ocultos;
 	}
 	//Inicio métodos públicos.
 	//Inicio palabras reservadas representadas en métodos para construir una consulta SQL.
-	/*
-     * Establece el nombre de la tabla en el Constructor de Consultas.
-     *
-     * @parametro string $tabla
-     * @retorno \PIPE\Clases\ConstructorConsulta
-     */
-	public static function tabla($tabla){
-		return new ConstructorConsulta([
-			'tabla'=>$tabla,
-			'campos'=>'*'
-		]);
-	}
 	/*
      * Establece un alias al nombre de la tabla.
      *
@@ -205,46 +224,39 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function alias($alias){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$pipe->_tabla=$pipe->_tabla.' as '.$alias;
-		return $pipe;
+		$this->_tabla=$this->_tabla.' as '.$alias;
+		return $this;
 	}
 	/*
      * Obtiene todos los datos de la tabla seleccionada.
      *
      * @parametro array|string $campos
      * @parametro string $tipo
-     * @retorno array|json
+     * @retorno array|json|string
      */
-	public function todo($campos=[],$tipo=ConstructorConsulta::OBJETO){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
+	public function todo($campos=[],$tipo=self::OBJETO){
 		if(is_array($campos) && !empty($campos)){
-			return $pipe->seleccionar($campos)->obtener($tipo);
+			return $this->seleccionar($campos)->obtener($tipo);
 		}
 		else{
-			if($campos==ConstructorConsulta::OBJETO || $campos==ConstructorConsulta::ARREGLO || $campos==ConstructorConsulta::JSON) $tipo=$campos;
-			return $pipe->obtener($tipo);
+			if($campos==self::OBJETO || $campos==self::ARREGLO || $campos==self::JSON || $campos==self::SQL) $tipo=$campos;
+			return $this->obtener($tipo);
 		}
 	}
 	/*
      * Establece los campos que serán seleccionados.
      *
      * @parametro array|mixto $campos
-     * @parametro string $tipo
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function seleccionar($campos=['*']){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		$campos=is_array($campos) ? $campos : func_get_args();
 		$_campos='';
 		foreach($campos as $campo){
 			$_campos=$_campos.$campo.',';
 		}
-		$pipe->_campos=$pipe->traducirConsultaSQL(substr($_campos,0,-1));
-		return $pipe;
+		$this->_campos=$this->traducirConsultaSQL(substr($_campos,0,-1));
+		return $this;
 	}
 	/*
      * Elimina duplicados del conjunto de resultados.
@@ -252,10 +264,8 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function distinto(){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$pipe->_distinto='distinct';
-		return $pipe;
+		$this->_distinto='distinct';
+		return $this;
 	}
 	/*
      * Combina registros de una o más tablas relacionadas.
@@ -267,14 +277,12 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function unir($tablaUnion,$llaveForanea,$union,$llavePrimaria=''){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if($llavePrimaria==''){
 			$llavePrimaria=$union;
 			$union='=';
 		}		
-		$pipe->_unir=$pipe->_unir.' inner join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
-		return $pipe;
+		$this->_unir=$this->_unir.' inner join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
+		return $this;
 	}
 	/*
      * Combina registros de una o más tablas relacionadas obteniendo todos los registros de la tabla de la derecha.
@@ -286,14 +294,12 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function unirDerecha($tablaUnion,$llaveForanea,$union,$llavePrimaria=''){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if($llavePrimaria==''){
 			$llavePrimaria=$union;
 			$union='=';
 		}
-		$pipe->_unirDerecha=$pipe->_unirDerecha.' right join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
-		return $pipe;
+		$this->_unirDerecha=$this->_unirDerecha.' right join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
+		return $this;
 	}
 	/*
      * Combina registros de una o más tablas relacionadas obteniendo todos los registros de la tabla de la izquierda.
@@ -305,14 +311,12 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function unirIzquierda($tablaUnion,$llaveForanea,$union,$llavePrimaria=''){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if($llavePrimaria==''){
 			$llavePrimaria=$union;
 			$union='=';
 		}
-		$pipe->_unirIzquierda=$pipe->_unirIzquierda.' left join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
-		return $pipe;
+		$this->_unirIzquierda=$this->_unirIzquierda.' left join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
+		return $this;
 	}
 	/*
      * Establece una condición en la consulta SQL.
@@ -322,11 +326,9 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function donde($condicion,$datos=[]){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$pipe->_condiciones=$pipe->traducirConsultaSQL('where '.$condicion);
-		$pipe->_datos=$datos;
-		return $pipe;
+		$this->_condiciones=$this->traducirConsultaSQL('where '.$condicion);
+		$this->_datos=$datos;
+		return $this;
 	}
 	/*
      * Agrupa registros que tienen los mismos valores.
@@ -335,10 +337,8 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function agruparPor($grupos){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if(is_string($grupos)){
-			$grupo=$pipe->traducirConsultaSQL('group by '.$grupos);
+			$grupo=$this->traducirConsultaSQL('group by '.$grupos);
 		}
 		else if(is_array($grupos)){
 			$agrupaciones='';
@@ -346,10 +346,10 @@ class ConstructorConsulta{
 				$agrupaciones=$agrupaciones.$grupo.',';
 			}
 			$agrupaciones=substr($agrupaciones,0,-1);
-			$grupo=$pipe->traducirConsultaSQL('group by '.$agrupaciones);
+			$grupo=$this->traducirConsultaSQL('group by '.$agrupaciones);
 		}
-		$pipe->_agrupar=$grupo;
-		return $pipe;
+		$this->_agrupar=$grupo;
+		return $this;
 	}
 	/*
      * Establece una condición a una función de agregación.
@@ -358,10 +358,8 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function teniendo($condicion){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$pipe->_teniendo=$pipe->traducirConsultaSQL('having '.$condicion);
-		return $pipe;
+		$this->_teniendo=$this->traducirConsultaSQL('having '.$condicion);
+		return $this;
 	}
 	/*
      * Ordena el resultado de la consulta SQL.
@@ -371,10 +369,8 @@ class ConstructorConsulta{
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
 	public function ordenarPor($ordenar,$tipo='asc'){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if(is_string($ordenar)){
-			$ordenar=$pipe->traducirConsultaSQL('order by '.$ordenar.' '.$tipo);
+			$ordenar=$this->traducirConsultaSQL('order by '.$ordenar.' '.$tipo);
 		}
 		else if(is_array($ordenar)){
 			$ordenaciones='';
@@ -382,43 +378,72 @@ class ConstructorConsulta{
 				$ordenaciones=$ordenaciones.$orden.',';
 			}
 			$ordenaciones=substr($ordenaciones,0,-1);
-			$ordenar=$pipe->traducirConsultaSQL('order by '.$ordenaciones.' '.$tipo);
+			$ordenar=$this->traducirConsultaSQL('order by '.$ordenaciones.' '.$tipo);
 		}
-		$pipe->_ordenar=$ordenar;
-		return $pipe;
+		$this->_ordenar=$ordenar;
+		return $this;
 	}
 	/*
      * Limita el número de registros retornados en la consulta SQL.
      *
      * @parametro int $inicio
-     * @parametro int $final
+     * @parametro int|string $cantidad
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
-	public function limite($inicio,$final=''){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
+	public function limite($inicio,$cantidad=''){
+		if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='sqlsrv')
+			exit(Mensaje::$mensajes['LIMITE_NO_SOPORTADO']);
 		$limite='limit '.$inicio;
-		if($final!='') $limite='limit '.$inicio.','.$final;
-		$pipe->_limite=$limite;
-		return $pipe;
+		if($cantidad!=='') $limite='limit '.$inicio.','.$cantidad;
+		$this->_limite=$limite;
+		return $this;
+	}
+	/*
+     * Obtiene una cantidad específca de registros retornados.
+     *
+     * @parametro int $inicio
+     * @parametro int|string $cantidad
+     * @retorno array|json
+     */
+	public function tomar($inicio,$cantidad='',$tipo=self::OBJETO){
+		if($cantidad==self::SQL || $tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		if($cantidad===''){
+			$cantidad=$inicio;
+			$inicio=0;		
+		}
+		else if($cantidad==self::OBJETO || $cantidad==self::ARREGLO || $cantidad==self::JSON){
+			$tipo=$cantidad;
+			$cantidad=$inicio;
+			$inicio=0;
+		}
+		$contador=0;
+		$datos=[];
+		$datosConsulta=$this->obtener();
+		foreach($datosConsulta as $clave=>$valor){
+			if($clave>=$inicio && $contador<$cantidad){
+				$datos[]=$tipo==self::ARREGLO ? (array) $valor : $valor;
+				$contador++;
+			}
+		}
+		if($tipo==self::JSON) $datos=json_encode($datos);
+		return $datos;
 	}
 	//Fin palabras reservadas representadas en métodos para construir una consulta SQL.
-	//Inicio consultas básicas por medio de métodos().
+	//Inicio consultas básicas por medio de métodos.
 	/*
      * Obtiene los primeros registros retornados en la consulta SQL.
      *
      * @parametro int|string $limite
      * @parametro string $tipo
-     * @retorno array
+     * @retorno array|json
      */
-	public function primero($limite=1,$tipo=ConstructorConsulta::OBJETO){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		if($limite==ConstructorConsulta::OBJETO || $limite==ConstructorConsulta::ARREGLO || $limite==ConstructorConsulta::JSON){
+	public function primero($limite=1,$tipo=self::OBJETO){
+		if($limite==self::SQL || $tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		if($limite==self::OBJETO || $limite==self::ARREGLO || $limite==self::JSON){
 			$tipo=$limite;
 			$limite=1;
 		}
-		return $pipe->limite($limite)->obtener($tipo);
+		return $this->tomar($limite,$tipo);
 	}
 	/*
      * Obtiene los últimos registros retornados en la consulta SQL.
@@ -426,27 +451,27 @@ class ConstructorConsulta{
      * @parametro string|int $llavePrimaria
      * @parametro int|string $limite
      * @parametro string $tipo
-     * @retorno array
+     * @retorno array|json
      */
-	public function ultimo($llavePrimaria='id',$limite=1,$tipo=ConstructorConsulta::OBJETO){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		if($llavePrimaria==ConstructorConsulta::OBJETO || $llavePrimaria==ConstructorConsulta::ARREGLO || $llavePrimaria==ConstructorConsulta::JSON){
+	public function ultimo($llavePrimaria='id',$limite=1,$tipo=self::OBJETO){
+		if($llavePrimaria==self::SQL || $limite==self::SQL || $tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		if($llavePrimaria==self::OBJETO || $llavePrimaria==self::ARREGLO || $llavePrimaria==self::JSON){
 			$tipo=$llavePrimaria;
 			$llavePrimaria='id';
 		}
 		else if(is_numeric($llavePrimaria)){
-			if($limite==ConstructorConsulta::OBJETO || $limite==ConstructorConsulta::ARREGLO || $limite==ConstructorConsulta::JSON) $tipo=$limite;
+			if($limite==self::OBJETO || $limite==self::ARREGLO || $limite==self::JSON) $tipo=$limite;
 			$limite=$llavePrimaria;
 			$llavePrimaria='id';
 		}
 		else{
-			if($limite==ConstructorConsulta::OBJETO || $limite==ConstructorConsulta::ARREGLO || $limite==ConstructorConsulta::JSON){
+			if($limite==self::OBJETO || $limite==self::ARREGLO || $limite==self::JSON){
 				$tipo=$limite;
 				$limite=1;
 			}
 		}
-		return $pipe->ordenarPor($llavePrimaria,'desc')->limite($limite)->obtener($tipo);
+		if($this->llavePrimaria!='id') $llavePrimaria=$this->llavePrimaria;
+		return $this->ordenarPor($llavePrimaria,'desc')->tomar($limite,$tipo);
 	}
 	/*
      * Obtiene la cantidad general o específica de registros retornados.
@@ -455,10 +480,7 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function contar($campo='*'){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$conteo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'CONTEO' : 'conteo';
-		return intval($pipe->procesarConsultaSQL('select count('.$campo.') as conteo from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$conteo);
+		return intval($this->procesarConsultaSQL('select count('.$campo.') as conteo from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->conteo);
 	}
 	/*
      * Obtiene el valor máximo del campo especificado.
@@ -467,10 +489,7 @@ class ConstructorConsulta{
      * @retorno mixto
      */
 	public function maximo($campo){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$maximo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'MAXIMO' : 'maximo';
-		return $pipe->procesarConsultaSQL('select max('.$campo.') as maximo from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$maximo;
+		return $this->procesarConsultaSQL('select max('.$campo.') as maximo from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->maximo;
 	}
 	/*
      * Obtiene el valor mímino del campo especificado.
@@ -479,10 +498,7 @@ class ConstructorConsulta{
      * @retorno mixto
      */
 	public function minimo($campo){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$minimo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'MINIMO' : 'minimo';
-		return $pipe->procesarConsultaSQL('select min('.$campo.') as minimo from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$minimo;
+		return $this->procesarConsultaSQL('select min('.$campo.') as minimo from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->minimo;
 	}
 	/*
      * Obtiene el valor promedio del campo especificado.
@@ -491,10 +507,7 @@ class ConstructorConsulta{
      * @retorno mixto
      */
 	public function promedio($campo){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$promedio=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'PROMEDIO' : 'promedio';
-		return $pipe->procesarConsultaSQL('select avg('.$campo.') as promedio from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$promedio;
+		return $this->procesarConsultaSQL('select avg('.$campo.') as promedio from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->promedio;
 	}
 	/*
      * Obtiene la suma del campo especificado.
@@ -503,10 +516,7 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function suma($campo){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$suma=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? 'SUMA' : 'suma';
-		return $pipe->procesarConsultaSQL('select sum('.$campo.') as suma from '.$pipe->_tabla.' '.$pipe->_condiciones,$pipe->_datos)[0]->$suma;
+		return $this->procesarConsultaSQL('select sum('.$campo.') as suma from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->suma;
 	}
 	/*
      * Verifica que la consulta SQL ha retornado un resultado.
@@ -514,10 +524,8 @@ class ConstructorConsulta{
      * @retorno boolean
      */
 	public function existe(){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		if($pipe->obtener()) return true;
-		return false;
+		$existe=$this->obtener() ? true : false;
+		return $existe;
 	}
 	/*
      * Verifica que la consulta SQL no ha retornado un resultado.
@@ -525,10 +533,8 @@ class ConstructorConsulta{
      * @retorno boolean
      */
 	public function noExiste(){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		if(!$pipe->obtener()) return true;
-		return false;
+		$noExiste=$this->obtener() ? false : true;
+		return $noExiste;
 	}
 	/*
      * Incrementa el valor del campo especificado.
@@ -538,9 +544,8 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function incrementar($campo,$incremento=1){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		return $pipe->procesarConsultaSQL('update '.$pipe->_tabla.' set '.$campo.'='.$campo.'+'.$incremento.' '.$pipe->_condiciones,$pipe->_datos);
+		$incremento=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$campo.'='.$campo.'+'.$incremento.' '.$this->_condiciones,$this->_datos);
+		return $incremento;
 	}
 	/*
      * Decrementa el valor del campo especificado.
@@ -550,68 +555,35 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function decrementar($campo,$decremento=1){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		return $pipe->procesarConsultaSQL('update '.$pipe->_tabla.' set '.$campo.'='.$campo.'-'.$decremento.' '.$pipe->_condiciones,$pipe->_datos);
-	}
-	//Fin consultas básicas por medio de métodos().
-	/*
-     * Obtiene el resultado de una consulta SQL.
-     *
-     * @parametro string $tipo
-     * @retorno array
-     */
-	public function obtener($tipo=ConstructorConsulta::OBJETO){
-		return $this->obtenerDatosConsultaSQL($tipo);
+		$decremento=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$campo.'='.$campo.'-'.$decremento.' '.$this->_condiciones,$this->_datos);
+		return $decremento;
 	}
 	/*
-     * Obtiene los datos relacionados a un modelo.
+     * Obtiene una instancia del Constructor de Consultas con los datos asociados a la llave primaria.
      *
-     * @parametro string $tipo
-     * @retorno object|array|json
+     * @parametro array|int|string $valor
+     * @parametro string $llavePrimaria
+     * @retorno \PIPE\Clases\ConstructorConsulta|array|null
      */
-	public function relaciones($tipo=ConstructorConsulta::OBJETO){
-		switch($tipo){
-			case ConstructorConsulta::OBJETO:
-				return json_decode(json_encode($this->_datosModeloRelacion));
-			break;
-			case ConstructorConsulta::ARREGLO:
-				return json_decode(json_encode($this->_datosModeloRelacion),true);
-			break;
-			case ConstructorConsulta::JSON:
-				return json_encode($this->_datosModeloRelacion);
-			break;
-			default:
-				exit(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].'<b>'.$tipo.'</b>');
-			break;
-		}
-	}
-	//Inicio instrucciones insertar, actualizar, eliminar y vaciar.
-	/*
-     * Instancia un modelo.
-     *
-     * @retorno \PIPE\Clases\ConstructorConsulta
-     */
-	public static function instanciar(){
-		$clase=ConstructorConsulta::obtenerClaseLlamada(get_called_class());
-		if($clase!='ConstructorConsulta' && $clase!='PIPE'){
-			$atributosClase=ConstructorConsulta::obtenerAtributosClase($clase);
-			$pipe=ConstructorConsulta::tabla($atributosClase['tabla']);
-			$pipe->tabla=$atributosClase['tabla'];
-			$pipe->llavePrimaria=$atributosClase['llavePrimaria'];
-			$pipe->registroTiempo=$atributosClase['registroTiempo'];
-			$pipe->creadoEn=$atributosClase['creadoEn'];
-			$pipe->actualizadoEn=$atributosClase['actualizadoEn'];
-			$pipe->tieneUno=$atributosClase['tieneUno'];
-			$pipe->tieneMuchos=$atributosClase['tieneMuchos'];
-			$pipe->perteneceAUno=$atributosClase['perteneceAUno'];
-			$pipe->perteneceAMuchos=$atributosClase['perteneceAMuchos'];
-			return $pipe;
+	public function encontrar($valor=[],$llavePrimaria='id'){
+		if($this->llavePrimaria!='id') $llavePrimaria=$this->llavePrimaria;
+		if(is_array($valor) && !empty($valor)){
+			$objetos=[];
+			foreach($valor as $id){
+				$datos=$this->donde($llavePrimaria.'=?',[$id])->obtener();
+				$objeto=$this->obtenerObjetoThis($this,$datos,$llavePrimaria,$id);
+				$objeto ? $objetos[]=clone $objeto : $objetos[]=null;
+			}
+			return $objetos;
 		}
 		else{
-			exit(Mensaje::$mensajes['INSTANCIAR_NO_PERMITIDO']);
+			$datos=$this->donde($llavePrimaria.'=?',[$valor])->obtener();
+			$objeto=$this->obtenerObjetoThis($this,$datos,$llavePrimaria,$valor);
+			return $objeto;
 		}
 	}
+	//Fin consultas básicas por medio de métodos.
+	//Inicio instrucciones insertar, actualizar, eliminar y vaciar.
 	/*
      * Inserta un nuevo registro en la base de datos.
      *
@@ -619,101 +591,22 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function insertar($valores=[]){
-		$creado_en=$this->creadoEn;
-		$actualizado_en=$this->actualizadoEn;
-		$camposTabla=$this->obtenerCamposTabla();
-		$cantCamposTabla=count($camposTabla);
+		$pipe=$this->configurarRegistroTiempo($this);
 		if(is_array($valores) && !empty($valores)){
-			$j=0;
-			for($i=0; $i<$cantCamposTabla; $i++){
-				if($camposTabla[$i]==$creado_en || $camposTabla[$i]==$actualizado_en) $j++;
+			$inserciones=0;
+			foreach(func_get_args() as $registro){
+				$campos=$pipe->obtenerCamposInsercionP($pipe,$registro);
+				$parametros=$pipe->obtenerParametrosInsercionP($pipe,$registro);
+				$valores=$pipe->obtenerValoresInsercionP($pipe,$registro);
+				$inserciones=$inserciones+$pipe->procesarConsultaSQL('insert into '.$pipe->_tabla.' ('.$campos.') values ('.$parametros.')',$valores);
 			}
-			$atributo_tiempo='';
-			$valor_tiempo='';
-			if($this->registroTiempo==true && $j==2){
-				$atributo_tiempo=','.$creado_en.','.$actualizado_en;
-				$valor_tiempo=','."'".$this->obtenerFechaHoraActual()."'".','."'".$this->obtenerFechaHoraActual()."'";
-			}
-			$registros=func_get_args();
-			if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' && count($registros)>1){
-				$valores=[];
-				$inserciones=0;
-				foreach($registros as $registro){
-					$campos='';
-					$parametros='';
-					$i=0;
-					foreach($registro as $campo=>$valor){
-						$campos=$campos.$campo.',';
-						if(!isset($valor)) $valor=null;
-						if(is_string($valor) && strpos($valor,'.nextval')>-1===true){
-							$parametros=$parametros.$valor.',';
-						}
-						else{
-							$parametros=$parametros.'?,';
-							$valores[$i]=$valor;
-						}
-						$i++;
-					}
-					$inserciones=$inserciones+$this->procesarConsultaSQL('insert into '.$this->_tabla.' ('.substr($campos,0,-1).$atributo_tiempo.') values ('.substr($parametros,0,-1).$valor_tiempo.')',array_values($valores));
-				}
-				return $inserciones;
-			}
-			else{
-				$campos='';
-				$parametros='';
-				$valores=[];
-				$i=0;
-				$j=0;
-				foreach($registros as $registro){
-					$parametros=$parametros.'(';
-					foreach($registro as $campo=>$valor){
-						if($i==0) $campos=$campos.$campo.',';
-						if(!isset($valor)) $valor=null;
-						if(is_string($valor) && ($valor==='default' || strpos($valor,'.nextval')>-1===true)){
-							$parametros=$parametros.$valor.',';
-						}
-						else{
-							$parametros=$parametros.'?,';
-							$valores[$j]=$valor;
-						}
-						$j++;
-					}
-					$i++;
-					$parametros=substr($parametros,0,-1).$valor_tiempo.'),';
-				}
-				$campos=substr($campos,0,-1).$atributo_tiempo;
-				$parametros=substr($parametros,0,-1);
-				$valores=array_values($valores);
-				return $this->procesarConsultaSQL('insert into '.$this->_tabla.' ('.$campos.') values '.$parametros,$valores);
-			}
+			return $inserciones;
 		}
 		else{
-			if($this->registroTiempo==true){
-				$this->$creado_en=$this->obtenerFechaHoraActual();
-				$this->$actualizado_en=$this->obtenerFechaHoraActual();
-			}
-			else{
-				$this->$creado_en=null;
-				$this->$actualizado_en=null;
-			}
-			$campos='';
-			$parametros='';
-			$valores=[];
-			for($i=0; $i<$cantCamposTabla; $i++){
-				$atributo=$camposTabla[$i];
-				$campos=$campos.$atributo.',';
-				if(is_string($this->$atributo) && ($this->$atributo==='default' || strpos($this->$atributo,'.nextval')>-1===true)){
-					$parametros=$parametros.$this->$atributo.',';
-				}
-				else{
-					$parametros=$parametros.'?,';
-					$valores[$i]=$this->$atributo;
-				}
-			}
-			$campos=substr($campos,0,-1);
-			$parametros=substr($parametros,0,-1);
-			$valores=array_values($valores);
-			return $this->procesarConsultaSQL('insert into '.$this->_tabla.' ('.$campos.') values ('.$parametros.')',$valores);
+			$campos=$pipe->obtenerCamposInsercion($pipe);
+			$parametros=$pipe->obtenerParametrosInsercion($pipe);
+			$valores=$pipe->obtenerValoresInsercion($pipe);
+			return $pipe->procesarConsultaSQL('insert into '.$pipe->_tabla.' ('.$campos.') values ('.$parametros.')',$valores);
 		}
 	}
 	/*
@@ -723,80 +616,8 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function insertarObtenerId($valores){
-		if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci') exit(Mensaje::$mensajes['INSERTAR_OBTENER_ID_NO_SOPORTADO']);
 		$this->insertar($valores);
 		return intval(Conexion::$cnx->lastInsertId());
-	}
-	/*
-     * Obtiene una instancia del Constructor de Consultas con los datos asociados a la llave primaria.
-     *
-     * @parametro array|int|string $valor
-     * @parametro string $llavePrimaria
-     * @retorno \PIPE\Clases\ConstructorConsulta
-     */
-	public function encontrar($valor=[],$llavePrimaria='id'){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		$pipe->clase=ConstructorConsulta::obtenerClaseLlamada(get_called_class());
-		if(is_array($valor) && !empty($valor)){
-			$objetos=[];
-			$cantValor=count($valor);
-			for($i=0; $i<$cantValor; $i++){
-				$consulta=Conexion::$cnx->prepare('select * from '.$pipe->_tabla.' where '.$llavePrimaria.'=?');
-				if($consulta->execute([$valor[$i]])){
-					$pipe->_condiciones='where '.$llavePrimaria.'=?';
-					$pipe->_datos=[$valor[$i]];
-					$pipe->_llavePrimaria37812_=$llavePrimaria;
-					$pipe->_valor37812_=$valor[$i];
-					$datosArreglo=$consulta->fetch();
-					$nulo=false;
-					if(empty($datosArreglo)) $nulo=true;
-					$campos=$pipe->obtenerCamposTabla();
-					$cantCampos=count($campos);
-					for($j=0; $j<$cantCampos; $j++){
-						//Creamos los atributos de los campos de la base de datos en el objeto $pipe.
-						$atributo=$campos[$j];
-						$valorAtributo=$pipe->convertirValorNumerico($datosArreglo[$atributo]);
-						$pipe->$atributo=$valorAtributo;
-					}
-					if($nulo==false){
-						$pipe->asignarDatosModeloRelacion($pipe);
-						$objetos[$i]=clone $pipe;
-					}
-					else{
-						$objetos[$i]=null;
-					}
-				}
-				else{
-					$pipe->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
-				}
-			}
-			return $objetos;
-		}
-		else{
-			$consulta=Conexion::$cnx->prepare('select * from '.$pipe->_tabla.' where '.$llavePrimaria.'=?');
-			if($consulta->execute([$valor])){
-				$pipe->_condiciones='where '.$llavePrimaria.'=?';
-				$pipe->_datos=[$valor];
-				$pipe->_llavePrimaria37812_=$llavePrimaria;
-				$pipe->_valor37812_=$valor;
-				$datosArreglo=$consulta->fetch();
-				if(empty($datosArreglo)) return null;
-				$campos=$pipe->obtenerCamposTabla();
-				$cantCampos=count($campos);
-				for($i=0; $i<$cantCampos; $i++){
-					//Creamos los atributos de los campos de la base de datos en el objeto $pipe.
-					$atributo=$campos[$i];
-					$valorAtributo=$pipe->convertirValorNumerico($datosArreglo[$atributo]);
-					$pipe->$atributo=$valorAtributo;
-				}
-				$pipe->asignarDatosModeloRelacion($pipe);
-				return $pipe;
-			}
-			else{
-				$pipe->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
-			}
-		}
 	}
 	/*
      * Actualiza un registro en la base de datos.
@@ -805,42 +626,19 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function actualizar($valores=[]){
-		$actualizado_en=$this->actualizadoEn;
-		$camposTabla=$this->obtenerCamposTabla();
-		$cantCamposTabla=count($camposTabla);
 		if(is_array($valores) && !empty($valores)){
-			$j=0;
-			for($i=0; $i<$cantCamposTabla; $i++){
-				if($this->registroTiempo==true && $camposTabla[$i]==$actualizado_en) $j=1;
-			}
-			$parametros='';
-			foreach($valores as $campo=>$valor){
-				if(is_string($valor)) $valor="'".$valor."'";
-				if(!isset($valor)) $valor='null';
-				$parametros=$parametros.$campo.'='.$valor.',';
-			}
-			$parametros=substr($parametros,0,-1);
+			$parametros=$this->obtenerParametrosActualizacionP($this,$valores);
+			if($parametros==false) return 0;
 			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' '.$this->_condiciones,$this->_datos);
-			if($resultado>0 && $this->registroTiempo==true && $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual()."' ".$this->_condiciones,$this->_datos);
+			if($resultado>0 && $this->registroTiempo==true && $this->verificarCamposRegistroTiempo($this))
+				$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$this->actualizadoEn."='".$this->obtenerFechaHoraActual()."' ".$this->_condiciones,$this->_datos);
 			return $resultado;
 		}
 		else{
-			$j=0;
-			$parametros='';
-			for($i=0; $i<$cantCamposTabla; $i++){
-				$campo=$camposTabla[$i];
-				if(empty($this->$campo)){
-					$parametros=$parametros.$campo."=null,";
-				}
-				else{
-					if(is_string($this->$campo)) $this->$campo="'".$this->$campo."'";
-					$parametros=$parametros.$campo.'='.$this->$campo.',';
-				}
-				if($this->registroTiempo==true && $campo==$actualizado_en) $j=1;
-			}
-			$parametros=substr($parametros,0,-1);
+			$parametros=$this->obtenerParametrosActualizacion($this);
 			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' where '.$this->_llavePrimaria37812_.'=?',[$this->_valor37812_]);
-			if($resultado>0 && $this->registroTiempo==true && $j==1) $this->procesarConsultaSQL('update '.$this->_tabla.' set '.$actualizado_en."='".$this->obtenerFechaHoraActual()."' where ".$this->_llavePrimaria37812_.'='.$this->_valor37812_);
+			if($resultado>0 && $this->registroTiempo===true && $this->verificarCamposRegistroTiempo($this))
+				$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$this->actualizadoEn.'=? where '.$this->_llavePrimaria37812_.'=?',[$this->obtenerFechaHoraActual(),$this->_valor37812_]);
 			return $resultado;
 		}
 	}
@@ -859,7 +657,7 @@ class ConstructorConsulta{
 		}
 		else{
 			if(is_array($inserciones) && !empty($inserciones)) return $this->insertar($inserciones);
-			return false;		
+			return false;
 		}
 	}
 	/*
@@ -885,24 +683,22 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function vaciar($sentencia=''){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
 		if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='sqlite'){
-			$consulta=Conexion::$cnx->exec('delete from '.$pipe->_tabla);
-			$consulta1=Conexion::$cnx->exec('update sqlite_sequence set seq=0 where name='."'".$pipe->_tabla."'".'');
+			$consulta=Conexion::$cnx->exec('delete from '.$this->_tabla);
+			$consulta1=Conexion::$cnx->exec('update sqlite_sequence set seq=0 where name='."'".$this->_tabla."'".'');
 			if($consulta===false || $consulta1===false){
-				$pipe->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);	
+				$this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);	
 			}
 			else{
 				return 1;
 			}
 		}
 		else{
-			$sentencia=$pipe->traducirConsultaSQL($sentencia);
+			$sentencia=$this->traducirConsultaSQL($sentencia);
 			if(is_string($sentencia) && $sentencia!='') Conexion::$cnx->exec($sentencia);
-			$consulta=Conexion::$cnx->exec('truncate table '.$pipe->_tabla);
+			$consulta=Conexion::$cnx->exec('truncate table '.$this->_tabla);
 			if($consulta===false){
-				$pipe->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
+				$this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 			}
 			else{
 				return 1;
@@ -910,51 +706,6 @@ class ConstructorConsulta{
 		}
 	}
 	//Fin instrucciones insertar, actualizar, eliminar y vaciar.
-	//Inicio autenticación de usuarios.
-	/*
-     * Autentica un registro en la base de datos.
-     *
-     * @parametro array $credencialesY
-     * @parametro array|string $credencialesO
-     * @parametro string $tipo
-     * @retorno object|array|json|boolean
-     */
-	public function autenticar($credencialesY,$credencialesO=[],$tipo=ConstructorConsulta::OBJETO){
-		$contextoThis=isset($this) ? $this : null;
-		$pipe=ConstructorConsulta::obtenerInstanciaPIPE(get_called_class(),debug_backtrace(),$contextoThis);
-		if(is_string($credencialesO) && ($credencialesO==ConstructorConsulta::OBJETO || $credencialesO==ConstructorConsulta::ARREGLO || $credencialesO==ConstructorConsulta::JSON)) $tipo=$credencialesO;
-		$condicion='';
-		$valores=[];
-		$i=0;
-		foreach($credencialesY as $campo=>$valor){
-			$condicion=$condicion.$campo.'=? and ';
-			$valores[$i]=$valor;
-			$i++;
-		}
-		if(is_array($credencialesO) && !empty($credencialesO)){
-			$condicion=$condicion.'(';
-			foreach($credencialesO as $campo=>$valor){
-				$condicion=$condicion.$campo.'=? or ';
-				$valores[$i]=$valor;
-				$i++;
-			}
-			$condicion=substr($condicion,0,-4);
-			$condicion=$condicion.')';
-		}
-		else{
-			$condicion=substr($condicion,0,-5);
-		}
-		$autenticado=$pipe->procesarConsultaSQL('select * from '.$pipe->_tabla.' where '.$condicion,$valores,$tipo);
-		if($tipo==ConstructorConsulta::JSON){
-			if($autenticado!='[]') return $autenticado;
-			return false;
-		}
-		else{
-			if($autenticado) return $autenticado[0];
-			return false;
-		}
-	}
-	//Fin autenticación de usuarios.
 	/*
      * Realiza una consulta SQL en español.
      *
@@ -963,15 +714,8 @@ class ConstructorConsulta{
      * @parametro string $tipo
      * @retorno array|json|int
      */
-	public static function consulta($consulta,$datos=[],$tipo=ConstructorConsulta::OBJETO){	
-		$clase=ConstructorConsulta::obtenerClaseLlamada(get_called_class());
-		if($clase=='PIPE'){
-			$pipe=ConstructorConsulta::tabla('tabla');
-			return $pipe->procesarConsultaSQL($consulta,$datos,$tipo,false);
-		}
-		else{
-			exit(Mensaje::$mensajes['CONSULTA_NO_PERMITIDO']);
-		}
+	public function consulta($consulta,$datos=[],$tipo=self::OBJETO){
+		return $this->procesarConsultaSQL($consulta,$datos,$tipo,false);
 	}
 	/*
      * Realiza una consulta SQL nativa.
@@ -981,153 +725,137 @@ class ConstructorConsulta{
      * @parametro string $tipo
      * @retorno array|json|int
      */
-	public static function consultaNativa($consulta,$datos=[],$tipo=ConstructorConsulta::OBJETO){
-		$clase=ConstructorConsulta::obtenerClaseLlamada(get_called_class());
-		if($clase=='PIPE'){
-			$pipe=ConstructorConsulta::tabla('tabla');
-			return $pipe->procesarConsultaSQL($consulta,$datos,$tipo);
-		}
-		else{
-			exit(Mensaje::$mensajes['CONSULTA_NATIVA_NO_PERMITIDO']);
+	public function consultaNativa($consulta,$datos=[],$tipo=self::OBJETO){
+		return $this->procesarConsultaSQL($consulta,$datos,$tipo);
+	}
+	/*
+     * Realiza una sentencia SQL.
+     *
+     * @parametro string $sentencia
+     * @retorno int
+     */
+	public function sentencia($sentencia){
+		$this->procesarConsultaSQL($sentencia);
+		return 1;
+	}
+	/*
+     * Obtiene el resultado de una consulta SQL.
+     *
+     * @parametro string $tipo
+     * @retorno array|json|string
+     */
+	public function obtener($tipo=self::OBJETO){
+		if($tipo==self::SQL) return $this->obtenerConsultaSQL(true);
+		return $this->obtenerDatosConsultaSQL($tipo);
+	}
+	/*
+     * Obtiene los datos relacionados a un modelo.
+     *
+     * @parametro string $tipo
+     * @retorno object|array|json
+     */
+	public function relaciones($tipo=self::OBJETO){
+		if($tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		switch($tipo){
+			case self::OBJETO:
+				return json_decode(json_encode($this->_datosModeloRelacion));
+			break;
+			case self::ARREGLO:
+				return json_decode(json_encode($this->_datosModeloRelacion),true);
+			break;
+			case self::JSON:
+				return json_encode($this->_datosModeloRelacion);
+			break;
+			default:
+				exit(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].'<b>'.$tipo.'</b>');
+			break;
 		}
 	}
 	//Fin métodos públicos.
-	//Inicio métodos protegidos.
-	/*
-     * Obtiene la instancia de PIPE según el contexto.
-     *
-     * @parametro string $claseLlamada
-     * @parametro array $depuracion
-     * @parametro PIPE\Clases\ConstructorConsulta|null $contextoThis
-     * @retorno PIPE\Clases\ConstructorConsulta
-     */
-	protected static function obtenerInstanciaPIPE($claseLlamada,$depuracion,$contextoThis){
-		$clase=ConstructorConsulta::obtenerClaseLlamada($claseLlamada);
-		if($clase=='PIPE'){
-			$metodo=ConstructorConsulta::obtenerMetodoLlamado($depuracion);
-			exit(Mensaje::$mensajes['TABLA_NO_DEFINIDA'].'<b>'.$metodo.'()</b>.');
-		}
-		else if($clase=='ConstructorConsulta'){
-			$pipe=$contextoThis;
-		}
-		else{
-			$atributosClase=ConstructorConsulta::obtenerAtributosClase($clase);
-			$pipe=ConstructorConsulta::tabla($atributosClase['tabla']);
-			$pipe->tabla=$atributosClase['tabla'];
-			$pipe->llavePrimaria=$atributosClase['llavePrimaria'];
-			$pipe->registroTiempo=$atributosClase['registroTiempo'];
-			$pipe->creadoEn=$atributosClase['creadoEn'];
-			$pipe->actualizadoEn=$atributosClase['actualizadoEn'];
-			$pipe->tieneUno=$atributosClase['tieneUno'];
-			$pipe->tieneMuchos=$atributosClase['tieneMuchos'];
-			$pipe->perteneceAUno=$atributosClase['perteneceAUno'];
-			$pipe->perteneceAMuchos=$atributosClase['perteneceAMuchos'];
-		}
-		return $pipe;
-	}
-	//Fin métodos protegidos.
 	//Inicio métodos privados.
-	/*
-     * Obtiene el nombre de la clase instanciada que ha hecho la invocación.
-     *
-     * @parametro string $nombreCompleto
-     * @retorno string
-     */
-	private static function obtenerClaseLlamada($nombreCompleto){
-		$partesClase=explode('\\',$nombreCompleto);
-		return $partesClase[count($partesClase)-1];
-	}
-	/*
-     * Obtiene el nombre del método invocado.
-     *
-     * @parametro array $depuracion
-     * @retorno string
-     */
-	private static function obtenerMetodoLlamado($depuracion){
-		return $depuracion[0]['function'];
-	}
-	/*
-     * Obtiene los atributos de la clase (modelo) instanciada.
-     *
-     * @parametro string $clase
-     * @retorno array
-     */
-	private static function obtenerAtributosClase($clase){
-		$atributosClase=get_class_vars($clase);
-		$atributos['tabla']=$atributosClase['tabla']=='' ? ConstructorConsulta::convertirModeloTabla($clase) : $atributosClase['tabla'];
-		$atributos['llavePrimaria']=$atributosClase['llavePrimaria'];
-		$atributos['registroTiempo']=$atributosClase['registroTiempo'];
-		$atributos['creadoEn']=$atributosClase['creadoEn'];
-		$atributos['actualizadoEn']=$atributosClase['actualizadoEn'];
-		$atributos['tieneUno']=$atributosClase['tieneUno'];
-		$atributos['tieneMuchos']=$atributosClase['tieneMuchos'];
-		$atributos['perteneceAUno']=$atributosClase['perteneceAUno'];
-		$atributos['perteneceAMuchos']=$atributosClase['perteneceAMuchos'];
-		return $atributos;
-	}
-	/*
-     * Convierte el nombre del modelo (clase) en el nombre de la tabla de la base de datos.
-     *
-     * @parametro string $modelo
-     * @retorno string
-     */
-	private static function convertirModeloTabla($modelo){
-		$alfabeto=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-		$letras=str_split($modelo);
-		$buscar=[];
-		$remplazar=[];
-		$i=0;
-		foreach($alfabeto as $alfa){
-			foreach($letras as $letra){
-				if($letra==$alfa){
-					$buscar[$i]=$letra;						
-					$remplazar[$i]='_'.$letra;
-					$i++;							
-				}
-			}
-		}
-		return strtolower(substr(str_replace($buscar,$remplazar,$modelo),1).'s');
-	}
 	/*
      * Procesa y obtiene los datos de una consulta SQL.
      *
      * @parametro string $tipo
      * @parametro string $consultaUsuario
      * @parametro array|string $datos
-     * @retorno array
+     * @retorno array|json
      */
-	private function obtenerDatosConsultaSQL($tipo=ConstructorConsulta::OBJETO,$consultaUsuario='',$datos=[]){
-		if($consultaUsuario=='') $consultaUsuario='select '.$this->_distinto.' '.$this->_campos.' from '.$this->_tabla.' '.$this->_unir.' '.$this->_unirDerecha.' '.$this->_unirIzquierda.' '.$this->_condiciones.' '.$this->_agrupar.' '.$this->_teniendo.' '.$this->_ordenar.' '.$this->_limite;
+	private function obtenerDatosConsultaSQL($tipo=self::OBJETO,$consultaUsuario='',$datos=[]){
+		if($tipo!=self::OBJETO && $tipo!=self::ARREGLO && $tipo!=self::JSON) exit(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].'<b>'.$tipo.'</b>');
+		if($datos==self::OBJETO || $datos==self::ARREGLO || $datos==self::JSON) $tipo=$datos;
 		if(is_array($this->_datos) && !empty($this->_datos)) $datos=$this->_datos;
+		if($consultaUsuario=='') $consultaUsuario=$this->obtenerConsultaSQL();
 		if(is_array($datos) && !empty($datos)){
 			$consulta=Conexion::$cnx->prepare($consultaUsuario);
-			if($consulta->execute($datos)) $datosArreglo=$consulta->fetchAll(\PDO::FETCH_ASSOC);
-			if(!$consulta->execute($datos)) $this->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
+			$resultado=$consulta->execute($datos);
+			if($resultado) $datosArreglo=$consulta->fetchAll(\PDO::FETCH_ASSOC);
+			if(!$resultado) $this->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
 		}
 		else{
-			if($datos==ConstructorConsulta::OBJETO || $datos==ConstructorConsulta::ARREGLO || $datos==ConstructorConsulta::JSON) $tipo=$datos;
 			$consulta=Conexion::$cnx->query($consultaUsuario);
 			if($consulta) $datosArreglo=$consulta->fetchAll(\PDO::FETCH_ASSOC);
 			if(!$consulta) $this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
 		}
 		$campos=$this->obtenerCamposConsultaSQL($datosArreglo);
-		$cantDatosArreglo=count($datosArreglo);
-		if($cantDatosArreglo!=0 && count($campos)!=$consulta->columnCount()) exit(Mensaje::$mensajes['AMBIGUEDAD_DE_CAMPOS']);
-		if($tipo!=ConstructorConsulta::OBJETO && $tipo!=ConstructorConsulta::ARREGLO && $tipo!=ConstructorConsulta::JSON) exit(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].'<b>'.$tipo.'</b>');
+		$conteoDatosArreglo=count($datosArreglo);
+		if($conteoDatosArreglo!=0 && count($campos)!=$consulta->columnCount()) exit(Mensaje::$mensajes['AMBIGUEDAD_DE_CAMPOS']);
 		$datosConsulta=[];
-		for($i=0; $i<$cantDatosArreglo; $i++){
-			if($tipo==ConstructorConsulta::OBJETO) $registro=new \stdClass();
-			if($tipo==ConstructorConsulta::ARREGLO || $tipo==ConstructorConsulta::JSON) $registro=[];
+		for($i=0; $i<$conteoDatosArreglo; $i++){
+			$registro=[];
 			for($j=0; $j<$consulta->columnCount(); $j++){
-				$atributo=$campos[$j];
-				$valor=$this->convertirValorNumerico($datosArreglo[$i][$atributo]);
-				if($tipo==ConstructorConsulta::OBJETO) $registro->$atributo=$valor;
-				if($tipo==ConstructorConsulta::ARREGLO || $tipo==ConstructorConsulta::JSON) $registro[$atributo]=$valor;
+				$valor=$this->convertirValorNumerico($datosArreglo[$i][$campos[$j]]);
+				if(!in_array($campos[$j],$this->ocultos)) $registro[$campos[$j]]=$valor;
 			}
-			$datosConsulta[$i]=$registro;
+			if(!empty((array) $registro)) $datosConsulta[$i]=$tipo==self::OBJETO ? (object) $registro : $registro;
 		}
-		if($tipo==ConstructorConsulta::JSON) $datosConsulta=json_encode($datosConsulta);
+		if($tipo==self::JSON) $datosConsulta=json_encode($datosConsulta);
 		return $datosConsulta;
+	}
+	/*
+     * Obtiene la consulta SQL generada.
+     *
+     * @parametro boolean $traducirParametros
+     * @retorno string
+     */
+	private function obtenerConsultaSQL($traducirParametros=false){
+		$sql='select '.$this->_distinto
+			.' '.$this->_campos
+			.' from '.$this->_tabla
+			.' '.$this->_unir
+			.' '.$this->_unirDerecha
+			.' '.$this->_unirIzquierda
+			.' '.$this->_condiciones
+			.' '.$this->_agrupar
+			.' '.$this->_teniendo
+			.' '.$this->_ordenar
+			.' '.$this->_limite;
+		$comandos=explode(' ',$sql);
+		return $this->obtenerSQL($comandos,$traducirParametros);
+	}
+	/*
+     * Obtiene el SQL a través de un arreglo de comandos.
+     *
+     * @parametro array $comandos
+     * @parametro boolean $traducirParametros
+     * @retorno string
+     */
+	private function obtenerSQL($comandos,$traducirParametros){
+		$sql='';
+		foreach($comandos as $comando){
+			if(!empty($comando)) $sql=$sql.$comando.' ';
+		}
+		if($traducirParametros){
+			$contador=0;
+			while(strpos($sql,'?')>-1){
+				$nuevo=$this->_datos[$contador] ?? '__PARAMETRO37812__';
+				$nuevo=is_string($nuevo) && $nuevo!='__PARAMETRO37812__' ? "'".$nuevo."'" : $nuevo;
+				$sql=$this->remplazarPrimeraCadena('?',$nuevo,$sql);
+				$contador++;
+			}
+			$sql=str_replace('__PARAMETRO37812__','?',$sql);
+		}
+		return trim($sql);
 	}
 	/*
      * Obtiene los campos seleccionados de una consulta SQL.
@@ -1142,9 +870,17 @@ class ConstructorConsulta{
 	/*
      * Obtiene todos los campos de la tabla en la base de datos.
      *
+     * @parametro array $excepciones
      * @retorno array
      */
-	private function obtenerCamposTabla(){
+	private function obtenerCamposTabla($excepciones=[]){
+		if(is_array($excepciones) && !empty($excepciones)){
+			if($this->registroTiempo===true && $this->verificarCamposRegistroTiempo($this)){
+				array_push($excepciones,$this->creadoEn);
+				array_push($excepciones,$this->actualizadoEn);
+			}
+			return $excepciones;
+		}
 		switch(Configuracion::obtenerVariable('BD_CONTROLADOR')){
 			case 'mysql':
 				$consulta=Conexion::$cnx->query('describe '.$this->_tabla);
@@ -1158,15 +894,12 @@ class ConstructorConsulta{
 				$consulta=Conexion::$cnx->query('pragma table_info('.$this->_tabla.')');
 				$atributo='name';
 			break;
-			case 'oci':
-				$consulta=Conexion::$cnx->query('select column_name,data_length, data_type from all_tab_columns where table_name='."'".strtoupper($this->_tabla)."'".'');
-				$atributo='COLUMN_NAME';
-			break;
 			case 'sqlsrv':
 				$consulta=Conexion::$cnx->query('select column_name from information_schema.columns where table_name='."'".$this->_tabla."'".'');
 				$atributo='column_name';
 			break;
 		}
+		$campos=[];
 		foreach($consulta->fetchAll() as $datos){
 			$campos[]=$datos[$atributo];
 		}
@@ -1181,7 +914,7 @@ class ConstructorConsulta{
      * @parametro boolean $nativa
      * @retorno array|json|int
      */
-	private function procesarConsultaSQL($consulta,$datos=[],$tipo=ConstructorConsulta::OBJETO,$nativa=true){
+	private function procesarConsultaSQL($consulta,$datos=[],$tipo=self::OBJETO,$nativa=true){
 		if($nativa==false) $consulta=$this->traducirConsultaSQL($consulta);
 		if((strpos($consulta,'select')>-1 && strpos($consulta,'from')>-1) && (strpos($consulta,'select')<strpos($consulta,'from'))){
 			return $this->obtenerDatosConsultaSQL($tipo,$consulta,$datos);
@@ -1196,96 +929,6 @@ class ConstructorConsulta{
 				$resultado=$consulta=Conexion::$cnx->exec($consulta);
 				if($resultado==true || $resultado===0) return $resultado;
 				if($resultado==false) $this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
-			}
-		}
-	}
-	/*
-     * Asigna los datos relacionados a un modelo.
-     *
-     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
-     * @retorno void
-     */
-	private function asignarDatosModeloRelacion(ConstructorConsulta $pipe){
-		if($pipe->tieneUno){
-			if(is_string($pipe->tieneUno)) $pipe->tieneUno=[$pipe->tieneUno=>null];
-			foreach($pipe->tieneUno as $clase=>$valores){
-				if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
-				$atributosClaseUnion=ConstructorConsulta::obtenerAtributosClase($clase);
-				$tablaUnion=$atributosClaseUnion['tabla'];
-				$atributo=substr($tablaUnion,0,-1);
-				$llaveForanea=isset($valores['llaveForanea']) ? $valores['llaveForanea'] : strtolower($pipe->clase).'_id';
-				if(isset($valores['llavePrincipal'])){
-					$llavePrincipal=$valores['llavePrincipal'];
-					$valorllavePrincipal=$pipe->tabla($pipe->tabla)->seleccionar($llavePrincipal)->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])->obtener()[0]->$llavePrincipal;
-				}
-				else{
-					$valorllavePrincipal=$pipe->_valor37812_;
-				}
-				$datos=$pipe->tabla($tablaUnion)->limite(1)->donde($llaveForanea.'=?',[$valorllavePrincipal]);
-				$datos=$datos->existe() ? $datos->obtener()[0] : null;
-				$pipe->_datosModeloRelacion[$atributo]=$datos;
-			}
-		}
-		if($pipe->tieneMuchos){
-			if(is_string($pipe->tieneMuchos)) $pipe->tieneMuchos=[$pipe->tieneMuchos=>null];
-			foreach($pipe->tieneMuchos as $clase=>$valores){
-				if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
-				$atributosClaseUnion=ConstructorConsulta::obtenerAtributosClase($clase);
-				$tablaUnion=$atributosClaseUnion['tabla'];
-				$llaveForanea=isset($valores['llaveForanea']) ? $valores['llaveForanea'] : strtolower($pipe->clase).'_id';
-				if(isset($valores['llavePrincipal'])){
-					$llavePrincipal=$valores['llavePrincipal'];
-					$valorllavePrincipal=$pipe->tabla($pipe->tabla)->seleccionar($llavePrincipal)->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])->obtener()[0]->$llavePrincipal;
-				}
-				else{
-					$valorllavePrincipal=$pipe->_valor37812_;
-				}
-				$datos=$pipe->tabla($tablaUnion)->donde($llaveForanea.'=?',[$valorllavePrincipal])->obtener();
-				$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
-			}
-		}
-		if($pipe->perteneceAUno){
-			if(is_string($pipe->perteneceAUno)) $pipe->perteneceAUno=[$pipe->perteneceAUno=>null];
-			foreach($pipe->perteneceAUno as $clase=>$valores){
-				if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
-				$atributosClaseUnion=ConstructorConsulta::obtenerAtributosClase($clase);
-				$tablaUnion=$atributosClaseUnion['tabla'];
-				$llavePrimariaUnion=$atributosClaseUnion['llavePrimaria'];
-				$atributo=substr($tablaUnion,0,-1);
-				$llaveForanea=isset($valores['llaveForanea']) ? $valores['llaveForanea'] : strtolower($clase).'_id';
-				$valorForanea=$pipe->tabla($pipe->_tabla)->seleccionar($llaveForanea)->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])->obtener()[0]->$llaveForanea;
-				if(isset($valores['llavePrincipal'])){
-					$llavePrincipal=$valores['llavePrincipal'];
-					$valorllavePrincipal=$pipe->tabla($tablaUnion)->seleccionar($llavePrincipal)->donde($llavePrimariaUnion.'=?',[$valorForanea])->obtener()[0]->$llavePrincipal;
-				}
-				else{
-					$valorllavePrincipal=$valorForanea;
-				}
-				$datos=$pipe->tabla($tablaUnion)->donde($llavePrimariaUnion.'=?',[$valorllavePrincipal]);
-				$datos=$datos->existe() ? $datos->obtener()[0] : null;
-				$pipe->_datosModeloRelacion[$atributo]=$datos;
-			}
-		}
-		if($pipe->perteneceAMuchos){
-			if(is_string($pipe->perteneceAMuchos)) $pipe->perteneceAMuchos=[$pipe->perteneceAMuchos=>null];
-			foreach($pipe->perteneceAMuchos as $clase=>$valores){
-				if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
-				$atributosClaseUnion=ConstructorConsulta::obtenerAtributosClase($clase);
-				$tablaUnion=$atributosClaseUnion['tabla'];
-				$llavePrimariaUnion=$atributosClaseUnion['llavePrimaria'];
-				$modelos=[$pipe->clase,$clase];
-				sort($modelos);
-				$tablaUnionRelacion=isset($valores['tablaUnion']) ? $valores['tablaUnion'] : strtolower($modelos[0].'_'.$modelos[1]);
-				$llaveForaneaLocal=isset($valores['llaveForaneaLocal']) ? $valores['llaveForaneaLocal'] : strtolower($pipe->clase).'_id';
-				$llaveForaneaUnion=isset($valores['llaveForaneaUnion']) ? $valores['llaveForaneaUnion'] : strtolower($clase).'_id';
-				$relacion=$pipe->tabla($tablaUnion)->unir($tablaUnionRelacion,$tablaUnion.'.'.$llavePrimariaUnion,$tablaUnionRelacion.'.'.$llaveForaneaUnion);
-				$datos=$relacion->seleccionar($tablaUnion.'.*')->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=?',[$pipe->_valor37812_])->obtener();
-				foreach($datos as $dato){
-					$datosTablaUnionRelacion=$relacion->seleccionar($tablaUnionRelacion.'.*')
-					->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=? y '.$tablaUnionRelacion.'.'.$llaveForaneaUnion.'=?',[$pipe->_valor37812_,$dato->$llavePrimariaUnion])->obtener()[0];
-					$dato->$tablaUnionRelacion=$datosTablaUnionRelacion;
-				}
-				$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
 			}
 		}
 	}
@@ -1368,25 +1011,25 @@ class ConstructorConsulta{
 			if($I!='' || $F!=''){
 				/*
 				En caso de que la palabra encontrada no este independiente
-				se procede a remplazarla por *# para que pueda continuar buscando y remplazando.
+				se procede a remplazarla por __DEPENDIENTE37812__ para que pueda continuar buscando y remplazando.
 				*/
-				$cadena=$this->remplazarPrimeraCadena($viejo,'*#',$cadena,$sensible);
+				$cadena=$this->remplazarPrimeraCadena($viejo,'__DEPENDIENTE37812__',$cadena,$sensible);
 			}
 			else{
 				/*
 				En caso de que la palabra encontrada este independiente
-				se procede a reemplazarla por *#*# para que pueda continuar buscando y remplazando.
+				se procede a reemplazarla por __INPENDIENTE37812__ para que pueda continuar buscando y remplazando.
 				*/
-				$cadena=$this->remplazarPrimeraCadena($viejo,'*#*#',$cadena,$sensible);
+				$cadena=$this->remplazarPrimeraCadena($viejo,'__INPENDIENTE37812__',$cadena,$sensible);
 				//$cadena=preg_replace('/'.preg_quote($viejo,'/').'/',$nuevo,$cadena,1);
 			}
 		}
 		/*
-		Volvemos a poner los *# por los catacteres $viejo
-		Volvemos a poner los *#*# por los catacteres $nuevo.
+		Volvemos a poner los __DEPENDIENTE37812__ por los catacteres $viejo
+		Volvemos a poner los __INPENDIENTE37812__ por los catacteres $nuevo.
 		*/
-		$cadena=str_replace('*#*#',$nuevo,$cadena);
-		$cadena=str_replace('*#',$viejo,$cadena);
+		$cadena=str_replace('__DEPENDIENTE37812__',$viejo,$cadena);
+		$cadena=str_replace('__INPENDIENTE37812__',$nuevo,$cadena);
 		return $cadena;
 	}
 	/*
@@ -1497,9 +1140,10 @@ class ConstructorConsulta{
      * @retorno string
      */
 	private function traducirErrorSQL($error){
-		//Texto largo
 		$error=$this->remplazarCadenaIndependiente('You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near','tienes un error en tu sintaxis sql; consulte el manual que corresponde a la versión de su servidor MariaDB para conocer la sintaxis correcta para usar cerca de',$error);
+		$error=$this->remplazarCadenaIndependiente('You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near','tienes un error en tu sintaxis sql; consulte el manual que corresponde a la versión de su servidor MySQL para conocer la sintaxis correcta para usar cerca de',$error);
 		$error=$this->remplazarCadenaIndependiente('No function matches the given name and argument types. You might need to add explicit type casts.','Ninguna función coincide con los tipos de nombre y argumento dados. Es posible que necesite agregar conversiones de tipo explícito.',$error);
+		$error=$this->remplazarCadenaIndependiente('No operator matches the given name and argument types. You might need to add explicit type casts.','Ningún operador coincide con los tipos de nombre y argumento dados. Es posible que necesite agregar conversiones de tipo explícito.',$error);
 		$error=$this->remplazarCadenaIndependiente("is specified twice, both as a target for 'UPDATE' and as a separate source for data","se especifica dos veces, como objetivo para 'ACTUALIZAR' y como fuente separada para datos",$error);
 		$error=$this->remplazarCadenaIndependiente('Cannot delete or update a parent row: a foreign key constraint fails','No se puede actualizar el valor de una llave primaria ni eliminar el registro donde el campo primario este ligado a una llave foránea',$error);
 		$error=$this->remplazarCadenaIndependiente('Cannot add or update a child row: a foreign key constraint fails','No se puede agregar o actualizar una fila secundaria: error en la llave foránea',$error);
@@ -1509,10 +1153,12 @@ class ConstructorConsulta{
 		$error=$this->remplazarCadenaIndependiente('cannot truncate a table referenced in a foreign key constraint','no se puede vaciar una tabla a la que se hace referencia en una llave foránea',$error);
 		$error=$this->remplazarCadenaIndependiente('a non-numeric character was found where a numeric was expected','se encontró un carácter no numérico donde se esperaba un número',$error);
 		$error=$this->remplazarCadenaIndependiente('the numeric value does not match the length of the format item','el valor numérico no coincide con la longitud del elemento de formato',$error);
-		$error=$this->remplazarCadenaIndependiente('argument of WHERE must be type boolean, not type','argumento de WHERE debe ser de tipo booleano, no de tipo',$error);
+		$error=$this->remplazarCadenaIndependiente('ERROR:  operator does not exist: character varying','ERROR: el operador no existe: carácter variable',$error);
+		$error=$this->remplazarCadenaIndependiente('argument of WHERE must be type boolean, not type','argumento de WHERE debe ser de tipo booleano, no de tipo',$error);		
 		$error=$this->remplazarCadenaIndependiente('could not connect to server: Connection refused','no se pudo conectar al servidor: conexión rechazada',$error);
 		$error=$this->remplazarCadenaIndependiente('duplicate key value violates unique constraint','el valor de la llave duplicada viola la restricción única',$error);
 		$error=$this->remplazarCadenaIndependiente("Column count doesn't match value count at row",'El conteo de columnas no coincide con el conteo de valores en la fila',$error);
+		$error=$this->remplazarCadenaIndependiente('ERROR:  unrecognized configuration parameter','ERROR: parámetro de configuración no reconocido',$error);
 		$error=$this->remplazarCadenaIndependiente('input value not long enough for date format','el valor de entrada no es lo suficientemente largo para el formato de fecha',$error);
 		$error=$this->remplazarCadenaIndependiente('Perhaps you meant to reference the column','Tal vez deseaste hacer referencia a la columna',$error);
 		$error=$this->remplazarCadenaIndependiente('has more target columns than expressions','tiene más columnas de destino que expresiones',$error);
@@ -1521,14 +1167,17 @@ class ConstructorConsulta{
 		$error=$this->remplazarCadenaIndependiente('invalid username/password; logon denied','usuario/contraseña invalida; inicio de sesión denegado',$error);
 		$error=$this->remplazarCadenaIndependiente('FROM keyword not found where expected','palabra clave FROM no se encuentra donde se esperaba',$error);
 		$error=$this->remplazarCadenaIndependiente('bad parameter or other API misuse','mal parámetro u otro uso incorrecto de la API',$error);			
+		$error=$this->remplazarCadenaIndependiente('Truncated incorrect DOUBLE value:','Truncado incorrecto de valor doble:',$error);
 		$error=$this->remplazarCadenaIndependiente('missing FROM-cláusula entry for','falta la entrada de FROM-cláusula para',$error);
 		$error=$this->remplazarCadenaIndependiente('violates foreign key constraint','viola la restricción de llave foránea',$error);
+		$error=$this->remplazarCadenaIndependiente('field incorrect or syntax error','campo incorrecto o error de sintaxis',$error);
 		$error=$this->remplazarCadenaIndependiente('is still referenced from table','todavía está referenciado en la tabla',$error);
 		$error=$this->remplazarCadenaIndependiente('SQL command not properly ended','El comando SQL no ha finalizado correctamente',$error);
 		$error=$this->remplazarCadenaIndependiente('could not translate host name','no se pudo traducir el nombre del host',$error);
 		$error=$this->remplazarCadenaIndependiente('violated - child record found','violado - registro hijo encontrado',$error);
 		$error=$this->remplazarCadenaIndependiente('syntax error at end of input','tienes un error en tu sintaxis sql al final de la entrada',$error);
 		$error=$this->remplazarCadenaIndependiente('day of month must be between','el día del mes debe estar entre',$error);
+		$error=$this->remplazarCadenaIndependiente("doesn't have a default value",'no tiene un valor predeterminado',$error);
 		$error=$this->remplazarCadenaIndependiente('column ambiguously defined','columna ambiguamente definida',$error);
 		$error=$this->remplazarCadenaIndependiente('update or delete on table','actualizar o eliminar en la tabla',$error);
 		$error=$this->remplazarCadenaIndependiente('UNIQUE constraint failed:','La restricción ÚNICA ha fallado:',$error);
@@ -1567,7 +1216,7 @@ class ConstructorConsulta{
 		$error=$this->remplazarCadenaIndependiente('syntax error','error de sintaxis',$error);
 		$error=$this->remplazarCadenaIndependiente('field list','la lista de campos de la tabla '.$this->_tabla,$error);
 		$error=$this->remplazarCadenaIndependiente('for key','para la llave',$error);
-		$error=$this->remplazarCadenaIndependiente('at line','en la línea',$error);																				
+		$error=$this->remplazarCadenaIndependiente('at line','en la línea',$error);																																								
 		//Texto con 1 palabra
 		$error=$this->remplazarCadenaIndependiente('references','referencias',$error);	
 		$error=$this->remplazarCadenaIndependiente('ambiguous','ambigua',$error);
@@ -1584,6 +1233,7 @@ class ConstructorConsulta{
 		$error=$this->remplazarCadenaIndependiente('column','la columna',$error,false);
 		$error=$this->remplazarCadenaIndependiente('values','valores',$error);
 		$error=$this->remplazarCadenaIndependiente('HINT:','PISTA:',$error);
+		$error=$this->remplazarCadenaIndependiente('field','campo',$error,false);
 		$error=$this->remplazarCadenaIndependiente('value','valor',$error);
 		$error=$this->remplazarCadenaIndependiente('table','la tabla',$error,false);
 		$error=$this->remplazarCadenaIndependiente('LINE','LÍNEA',$error);
@@ -1606,8 +1256,8 @@ class ConstructorConsulta{
      * Muestra el error de SQL y detiene la ejecución del script.
      *
      * @parametro int $codigoError
-     * @parametro string $inforError
-     * @retorno html
+     * @parametro string $infoError
+     * @retorno void
      */
 	private function mostrarErrorSQL($codigoError,$infoError){
 		switch(Configuracion::obtenerVariable('IDIOMA')){
@@ -1636,8 +1286,369 @@ class ConstructorConsulta{
 		$zonaHoraria=Configuracion::obtenerVariable('ZONA_HORARIA');
 		$zonaHoraria=$zonaHoraria ? $zonaHoraria : 'UTC';
 		$dateTime=new \DateTime($zonaHoraria);
-		$tiempo=Configuracion::obtenerVariable('BD_CONTROLADOR')=='oci' ? $dateTime->format('d-m-Y h:i:s') : $dateTime->format('Y-m-d H:i:s');
+		$tiempo=$dateTime->format('Y-m-d H:i:s');
 		return $tiempo;
+	}
+	/*
+     * Configura y obtiene el objeto del contexto this.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $contextoThis
+     * @parametro array $datos
+     * @parametro string $llavePrimaria
+     * @parametro int|string $id
+     * @retorno \PIPE\Clases\ConstructorConsulta|null
+     */
+	private function obtenerObjetoThis(self $contextoThis,$datos,$llavePrimaria,$id){
+		if(empty($datos)) return null;
+		$contextoThis->_llavePrimaria37812_=$llavePrimaria;
+		$contextoThis->_valor37812_=$id;
+		foreach($datos[0] as $campo=>$valor){
+			//Creamos los atributos de los campos de la base de datos en el objeto $contextoThis.
+			$contextoThis->$campo=$valor;
+		}
+		$contextoThis->asignarDatosModeloRelacion($contextoThis);
+		return $contextoThis;
+	}
+	/*
+     * Asigna los datos relacionados a un modelo.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno void
+     */
+	private function asignarDatosModeloRelacion(self $pipe){
+		if(!empty($pipe->tieneUno)){
+			if(is_string($pipe->tieneUno)) $pipe->tieneUno=[$pipe->tieneUno=>null];
+			$pipe->asignarRelacionTieneUno($pipe);
+		}
+		if(!empty($pipe->tieneMuchos)){
+			if(is_string($pipe->tieneMuchos)) $pipe->tieneMuchos=[$pipe->tieneMuchos=>null];
+			$pipe->asignarRelacionTieneMuchos($pipe);
+		}
+		if(!empty($pipe->perteneceAUno)){
+			if(is_string($pipe->perteneceAUno)) $pipe->perteneceAUno=[$pipe->perteneceAUno=>null];
+			$pipe->asignarRelacionPerteneceAUno($pipe);
+		}
+		if(!empty($pipe->perteneceAMuchos)){
+			if(is_string($pipe->perteneceAMuchos)) $pipe->perteneceAMuchos=[$pipe->perteneceAMuchos=>null];
+			$pipe->asignarRelacionPerteneceAMuchos($pipe);
+		}
+	}
+	/*
+     * Asigna los datos de la relación tieneUno en el modelo.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno void
+     */
+	private function asignarRelacionTieneUno(self $pipe){
+		foreach($pipe->tieneUno as $clase=>$valores){
+			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
+			$tablaUnion=$atributosClaseUnion['tabla'];
+			$campoForaneo=substr(Modelo::convertirModeloTabla($pipe->clase),0,-1).'_id';
+			$llaveForanea=$valores['llaveForanea'] ?? $campoForaneo;
+			if(isset($valores['llavePrincipal'])){
+				$llavePrincipal=$valores['llavePrincipal'];
+				$valorllavePrincipal=(new self(['tabla'=>$pipe->_tabla]))
+					->seleccionar($llavePrincipal)
+					->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])
+					->obtener()[0]->$llavePrincipal;
+			}
+			else{
+				$valorllavePrincipal=$pipe->_valor37812_;
+			}
+			$datos=(new self(['tabla'=>$tablaUnion]))->donde($llaveForanea.'=?',[$valorllavePrincipal])->tomar(1);
+			$datos=!empty($datos) ? $datos[0] : null;
+			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
+		}
+	}
+	/*
+     * Asigna los datos de la relación tieneMuchos en el modelo.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno void
+     */
+	private function asignarRelacionTieneMuchos(self $pipe){
+		foreach($pipe->tieneMuchos as $clase=>$valores){
+			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
+			$tablaUnion=$atributosClaseUnion['tabla'];
+			$campoForaneo=substr(Modelo::convertirModeloTabla($pipe->clase),0,-1).'_id';
+			$llaveForanea=$valores['llaveForanea'] ?? $campoForaneo;
+			if(isset($valores['llavePrincipal'])){
+				$llavePrincipal=$valores['llavePrincipal'];
+				$valorllavePrincipal=(new self(['tabla'=>$pipe->_tabla]))
+					->seleccionar($llavePrincipal)
+					->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])
+					->obtener()[0]->$llavePrincipal;
+			}
+			else{
+				$valorllavePrincipal=$pipe->_valor37812_;
+			}
+			$datos=(new self(['tabla'=>$tablaUnion]))->donde($llaveForanea.'=?',[$valorllavePrincipal])->obtener();
+			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
+		}
+	}
+	/*
+     * Asigna los datos de la relación perteneceAUno en el modelo.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno void
+     */
+	private function asignarRelacionPerteneceAUno(self $pipe){
+		foreach($pipe->perteneceAUno as $clase=>$valores){
+			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
+			$tablaUnion=$atributosClaseUnion['tabla'];
+			$llavePrimariaUnion=$atributosClaseUnion['llavePrimaria'];
+			$clase=Modelo::obtenerClaseLlamada($clase);
+			$campoForaneo=substr(Modelo::convertirModeloTabla($clase),0,-1).'_id';
+			$llaveForanea=$valores['llaveForanea'] ?? $campoForaneo;
+			$valorForanea=(new self(['tabla'=>$pipe->_tabla]))
+				->seleccionar($llaveForanea)
+				->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])
+				->obtener()[0]->$llaveForanea;
+			if(isset($valores['llavePrincipal'])){
+				$llavePrincipal=$valores['llavePrincipal'];
+				$valorllavePrincipal=(new self(['tabla'=>$tablaUnion]))
+					->seleccionar($llavePrincipal)
+					->donde($llavePrimariaUnion.'=?',[$valorForanea])
+					->obtener()[0]->$llavePrincipal;
+			}
+			else{
+				$valorllavePrincipal=$valorForanea;
+			}
+			$datos=(new self(['tabla'=>$tablaUnion]))->donde($llavePrimariaUnion.'=?',[$valorllavePrincipal]);
+			$datos=$datos->existe() ? $datos->obtener()[0] : null;
+			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
+		}
+	}
+	/*
+     * Asigna los datos de la relación perteneceAMuchos en el modelo.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno void
+     */
+	private function asignarRelacionPerteneceAMuchos(self $pipe){
+		foreach($pipe->perteneceAMuchos as $clase=>$valores){
+			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
+			$tablaUnion=$atributosClaseUnion['tabla'];
+			$llavePrimariaUnion=$atributosClaseUnion['llavePrimaria'];
+			$clase=Modelo::obtenerClaseLlamada($clase);
+			$foraneaLocal=substr(Modelo::convertirModeloTabla($pipe->clase),0,-1);
+			$foraneaUnion=substr(Modelo::convertirModeloTabla($clase),0,-1);
+			$modelos=[$foraneaLocal,$foraneaUnion];
+			sort($modelos);
+			$tablaUnionRelacion=$valores['tablaUnion'] ?? strtolower($modelos[0].'_'.$modelos[1]);
+			$llaveForaneaLocal=$valores['llaveForaneaLocal'] ?? $foraneaLocal.'_id';
+			$llaveForaneaUnion=$valores['llaveForaneaUnion'] ?? $foraneaUnion.'_id';
+			$relacion=(new self(['tabla'=>$tablaUnion]))
+				->unir($tablaUnionRelacion,$tablaUnion.'.'.$llavePrimariaUnion,$tablaUnionRelacion.'.'.$llaveForaneaUnion);
+			$datos=$relacion->seleccionar($tablaUnion.'.*')
+				->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=?',[$pipe->_valor37812_])
+				->obtener();
+			foreach($datos as $dato){
+				$datosTablaUnionRelacion=$relacion->seleccionar($tablaUnionRelacion.'.*')
+				->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=? y '.$tablaUnionRelacion.'.'.$llaveForaneaUnion.'=?',[
+					$pipe->_valor37812_,$dato->$llavePrimariaUnion
+				])->obtener()[0];
+				$dato->$tablaUnionRelacion=$datosTablaUnionRelacion;
+			}
+			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
+		}
+	}
+	/*
+     * Configura las variables del registro del tiempo.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno \PIPE\Clases\ConstructorConsulta
+     */
+	private function configurarRegistroTiempo(self $pipe){
+		if($pipe->registroTiempo==true){
+			$pipe->{$pipe->creadoEn}=$pipe->obtenerFechaHoraActual();
+			$pipe->{$pipe->actualizadoEn}=$pipe->obtenerFechaHoraActual();
+		}
+		else{
+			$pipe->{$pipe->creadoEn}=null;
+			$pipe->{$pipe->actualizadoEn}=null;
+		}
+		return $pipe;
+	}
+	/*
+     * Obtiene los campos personalizados de insersión.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @parametro array $registro
+     * @retorno string
+     */
+	private function obtenerCamposInsercionP(self $pipe,$registro){
+		$campos='';
+		if(!empty($pipe->insertables)) $registro=$pipe->generarArregloAsociativo($registro,$pipe->insertables);
+		foreach($registro as $campo=>$valor){
+			$campos=$campos.$campo.',';
+		}
+		if($pipe->registroTiempo===true && $pipe->verificarCamposRegistroTiempo($pipe))
+			$campos=$campos.$pipe->creadoEn.','.$pipe->actualizadoEn;
+		else
+			$campos=substr($campos,0,-1);
+		return $campos;
+	}
+	/*
+     * Obtiene los parámetros personalizados de insersión.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @parametro array $registro
+     * @retorno string
+     */
+	private function obtenerParametrosInsercionP(self $pipe,$registro){
+		$parametros='';
+		if(!empty($pipe->insertables)) $registro=$pipe->generarArregloAsociativo($registro,$pipe->insertables);
+		foreach($registro as $campo=>$valor){
+			if($pipe->llavePrimaria==$campo && $registro[$campo]==='default')
+				$parametros=$parametros.$registro[$campo].',';
+			else
+				$parametros=$parametros.'?,';
+		}
+		if($pipe->registroTiempo===true && $pipe->verificarCamposRegistroTiempo($pipe))
+			$parametros=$parametros.'?,?';
+		else
+			$parametros=substr($parametros,0,-1);
+		return $parametros;
+	}
+	/*
+     * Obtiene los valores personalizados de insersión.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @parametro array $registro
+     * @retorno array
+     */
+	private function obtenerValoresInsercionP(self $pipe,$registro){
+		$valores=[];
+		if(!empty($pipe->insertables)) $registro=$pipe->generarArregloAsociativo($registro,$pipe->insertables);
+		foreach($registro as $campo=>$valor){
+			if(!($pipe->llavePrimaria==$campo) || !($registro[$campo]==='default'))
+				$valores[]=$registro[$campo];
+		}
+		if($pipe->registroTiempo===true && $pipe->verificarCamposRegistroTiempo($pipe)){
+			array_push($valores,$pipe->{$pipe->creadoEn});
+			array_push($valores,$pipe->{$pipe->actualizadoEn});
+		}
+		return $valores;
+	}
+	/*
+     * Obtiene los campos insersión.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno string
+     */
+	private function obtenerCamposInsercion(self $pipe){
+		$campos='';
+		$camposTabla=$pipe->obtenerCamposTabla($pipe->insertables);
+		foreach($camposTabla as $campo){
+			if(!property_exists($pipe,$campo)) exit(Mensaje::$mensajes['PROPIEDAD_NO_DEFINIDA'].' <b>'.$campo.'</b>');
+			$campos=$campos.$campo.',';
+		}
+		$campos=substr($campos,0,-1);
+		return $campos;
+	}
+	/*
+     * Obtiene los parámetros insersión.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno string
+     */
+	private function obtenerParametrosInsercion(self $pipe){
+		$parametros='';
+		$camposTabla=$pipe->obtenerCamposTabla($pipe->insertables);
+		foreach($camposTabla as $campo){
+			if($pipe->llavePrimaria==$campo && $pipe->$campo==='default')
+				$parametros=$parametros.$pipe->$campo.',';
+			else
+				$parametros=$parametros.'?,';
+		}
+		$parametros=substr($parametros,0,-1);
+		return $parametros;
+	}
+	/*
+     * Obtiene los valores insersión.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno array
+     */
+	private function obtenerValoresInsercion(self $pipe){
+		$valores=[];
+		$camposTabla=$pipe->obtenerCamposTabla($pipe->insertables);
+		foreach($camposTabla as $campo){
+			if(!($pipe->llavePrimaria==$campo) || !($pipe->$campo==='default'))
+				$valores[]=$pipe->$campo;
+		}
+		return $valores;
+	}
+	/*
+     * Obtiene los parámetros personalizados de actualización.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @parametro array $valores
+     * @retorno string|boolean
+     */
+	private function obtenerParametrosActualizacionP(self $pipe,$valores){
+		$parametros='';
+		if(!empty($pipe->actualizables)) $valores=$pipe->generarArregloAsociativo($valores,$pipe->actualizables);
+		foreach($valores as $campo=>$valor){
+			if(is_string($valor)) $valor="'".$valor."'";
+			if(!isset($valor)) $valor='null';
+			$parametros=$parametros.$campo.'='.$valor.',';
+		}
+		$parametros=substr($parametros,0,-1);
+		return $parametros;
+	}
+	/*
+     * Obtiene los parámetros de actualización.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno string
+     */
+	private function obtenerParametrosActualizacion(self $pipe){
+		$parametros='';
+		$camposTabla=$pipe->obtenerCamposTabla($pipe->actualizables);
+		foreach($camposTabla as $campo){
+			$parametros=is_null($pipe->$campo)
+				? $parametros.$campo.'=null,'
+				: $parametros.$campo."='".$pipe->$campo."',";
+		}
+		$parametros=substr($parametros,0,-1);
+		return $parametros;
+	}
+	/*
+     * Genera un arreglo asociativo respecto a las excepciones encontradas.
+     *
+     * @parametro array $registro
+     * @parametro array $excepciones
+     * @retorno array
+     */
+	private function generarArregloAsociativo($registro,$excepciones){
+		$arregloAsociativo=[];
+		foreach($registro as $campo=>$valor){
+			foreach($excepciones as $valorPivote){
+				if($campo==$valorPivote) $arregloAsociativo[$valorPivote]=$valor;
+			}
+		}
+		return $arregloAsociativo;
+	}
+	/*
+     * Verifica si los campos del registro del tiempo están definidos en la tabla de la base de datos.
+     *
+     * @parametro \PIPE\Clases\ConstructorConsulta $pipe
+     * @retorno boolean
+     */
+	private function verificarCamposRegistroTiempo(self $pipe){
+		$contador=0;
+		$camposTabla=$pipe->obtenerCamposTabla();
+		foreach($camposTabla as $campo){
+			if($campo==$pipe->creadoEn || $campo==$pipe->actualizadoEn) $contador++;
+		}
+		$existen=$contador==2 ? true : false;
+		return $existen;
 	}
 	//Fin métodos privados.
 }

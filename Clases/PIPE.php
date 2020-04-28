@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 29-03-2020
- * Versión: 3.1.3
+ * Fecha última modificación: 28-04-2020
+ * Versión: 4.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,7 +48,7 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 namespace PIPE\Clases;
-class PIPE extends ConstructorConsulta{
+abstract class PIPE{
 	/*
      * Autor del ORM PIPE.
      * @tipo string
@@ -58,7 +58,7 @@ class PIPE extends ConstructorConsulta{
      * Versión actual del ORM PIPE.
      * @tipo string
      */
-	const VERSION='3.1.3';
+	const VERSION='4.0.0';
 	/*
      * Indica el retorno de resultados de una consulta SQL como un objeto.
      * @tipo string
@@ -74,4 +74,52 @@ class PIPE extends ConstructorConsulta{
      * @tipo string
      */
 	const JSON='json';
+	/*
+     * Indica el retorno de la consulta SQL generada.
+     * @tipo string
+     */
+	const SQL='sql';
+	/*
+     * Establece el nombre de la tabla en el Constructor de Consultas.
+     *
+     * @parametro string $tabla
+     * @retorno \PIPE\Clases\ConstructorConsulta
+     */
+	public static function tabla($tabla){
+		return new ConstructorConsulta(['tabla'=>$tabla]);
+	}
+	/*
+     * Realiza una consulta SQL en español.
+     *
+     * @parametro string $consulta
+     * @parametro array|string $datos
+     * @parametro string $tipo
+     * @retorno array|json|int
+     */
+	public static function consulta($consulta,$datos=[],$tipo=self::OBJETO){
+		$pipe=new ConstructorConsulta();
+		return $pipe->consulta(...func_get_args());
+	}
+	/*
+     * Realiza una consulta SQL nativa.
+     *
+     * @parametro string $consulta
+     * @parametro array|string $datos
+     * @parametro string $tipo
+     * @retorno array|json|int
+     */
+	public static function consultaNativa($consulta,$datos=[],$tipo=self::OBJETO){
+		$pipe=new ConstructorConsulta();
+		return $pipe->consultaNativa(...func_get_args());
+	}
+	/*
+     * Realiza una sentencia SQL.
+     *
+     * @parametro string $sentencia
+     * @retorno int
+     */
+	public static function sentencia($sentencia){
+		$pipe=new ConstructorConsulta();
+		return $pipe->sentencia(...func_get_args());
+	}
 }

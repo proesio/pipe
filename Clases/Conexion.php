@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 29-03-2020
- * Versión: 3.1.3
+ * Fecha última modificación: 28-04-2020
+ * Versión: 4.0.0
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -69,38 +69,77 @@ class Conexion{
      */
 	private function conexion(){
 		try{
-			$controlador=Configuracion::obtenerVariable('BD_CONTROLADOR');
-			$host=Configuracion::obtenerVariable('BD_HOST');
-			$puerto=Configuracion::obtenerVariable('BD_PUERTO');
-			$usuario=Configuracion::obtenerVariable('BD_USUARIO');
-			$contrasena=Configuracion::obtenerVariable('BD_CONTRASENA');
-			$basedatos=Configuracion::obtenerVariable('BD_BASEDATOS');
-			$codificacion=Configuracion::obtenerVariable('BD_CODIFICACION');
-			if($controlador && $host && $puerto && $usuario && $basedatos && $codificacion){
-				$BD_HOST=empty($host) ? '' : 'host='.$host.';';
-				$BD_PUERTO=empty($puerto) ? '' : 'port='.$puerto.';';
-				$BD_BASEDATOS=empty($basedatos) ? '' : 'dbname='.$basedatos.';';
-				if($controlador=='mysql' || $controlador=='pgsql'  || $controlador=='sqlite' || $controlador=='oci' || $controlador=='sqlsrv'){
-					if($controlador=='sqlite') $BD_BASEDATOS=substr(substr($BD_BASEDATOS,7),0,-1);
-					if($controlador=='sqlsrv'){
-						$BD_HOST='server='.$host.';';
-						$BD_BASEDATOS='database='.$basedatos.';';
-					}
-					$cnx=new \PDO($controlador.':'.$BD_HOST.$BD_PUERTO.$BD_BASEDATOS,$usuario,$contrasena);
-					if(!empty($codificacion)) $cnx->exec('set names '.$codificacion);
-					return $cnx;
-				}
-				else{
-					exit('BD_CONTROLADOR <b>'.$controlador.'</b>'.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']);
-				}
+			$constantes=$this->obtenerConstantesConexion();
+			if($this->validarControladorAdmitido($constantes['BD_CONTROLADOR'])){
+				$dsn=$this->obtenerDSN($constantes);
+				$cnx=new \PDO($dsn,$constantes['BD_USUARIO'] ?? '',$constantes['BD_CONTRASENA'] ?? '');
+				if($constantes['BD_CODIFICACION']) $cnx->exec('set names '.$constantes['BD_CODIFICACION']);
+				return $cnx;
 			}
 			else{
-				exit(Mensaje::$mensajes['CONSTANTES_REQUERIDAS']);
+				exit('BD_CONTROLADOR <b>'.$constantes['BD_CONTROLADOR'].'</b>'.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']);
 			}
 		}
 		catch(\PDOException $e){
 			exit($e->getMessage());
 		}
+	}
+	/*
+     * Obtiene las constantes necesarias para la conexión.
+     *
+     * @retorno array
+     */
+	private function obtenerConstantesConexion(){
+		$constantes['BD_CONTROLADOR']=Configuracion::obtenerVariable('BD_CONTROLADOR');
+		$constantes['BD_HOST']=Configuracion::obtenerVariable('BD_HOST');
+		$constantes['BD_PUERTO']=Configuracion::obtenerVariable('BD_PUERTO');
+		$constantes['BD_USUARIO']=Configuracion::obtenerVariable('BD_USUARIO');
+		$constantes['BD_CONTRASENA']=Configuracion::obtenerVariable('BD_CONTRASENA');
+		$constantes['BD_BASEDATOS']=Configuracion::obtenerVariable('BD_BASEDATOS');
+		$constantes['BD_CODIFICACION']=Configuracion::obtenerVariable('BD_CODIFICACION');
+		return $constantes;
+	}
+	/*
+     * Valida que se ingrese un controlador correcto.
+     *
+     * @parametro string $controlador
+     * @retorno boolean
+     */
+	private function validarControladorAdmitido($controlador){
+		if($controlador=='mysql' || $controlador=='pgsql'  || $controlador=='sqlite' || $controlador=='sqlsrv') return true;
+		return false;
+	}
+	/*
+     * Obtiene la cadena DSN con los parámetros de conexión.
+     *
+     * @parametro array $constantes
+     * @retorno string
+     */
+	private function obtenerDSN($constantes){
+		$controlador=$constantes['BD_CONTROLADOR'];
+		$host=$constantes['BD_HOST'];
+		$puerto=$constantes['BD_PUERTO'];
+		$basedatos=$constantes['BD_BASEDATOS'];
+		if($controlador=='mysql' || $controlador=='pgsql'){
+			$host=$host ? 'host='.$host.';' : '';
+			$puerto=$puerto ? 'port='.$puerto.';' : '';
+			$basedatos=$basedatos ? 'dbname='.$basedatos.';' : '';
+			$dsn=$controlador.':'.$host.$puerto.$basedatos;
+		}
+		else if($controlador=='sqlite'){
+			$dsn=$controlador.':'.$basedatos;
+		}
+		else if($controlador=='sqlsrv'){
+			if($host && $puerto)
+				$host='server='.$host.','.$puerto.';';
+			else if($host)
+				$host='server='.$host.';';
+			else
+				$host='';
+			$basedatos=$basedatos ? 'database='.$basedatos.';' : '';
+			$dsn=$controlador.':'.$host.$basedatos;
+		}
+		return $dsn;
 	}
 }
 new Conexion();

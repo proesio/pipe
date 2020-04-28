@@ -11,18 +11,17 @@
 
 PIPE es un ORM - Mapeador Objeto Relacional desarrollado en PHP que permite interactuar con el modelo de las tablas en la base de datos accediendo a métodos escritos en español. https://proes.tk/pipe/
 
-## [Documentación](https://proes.tk/pipe/documentacion/3.x/).
+## [Documentación](https://proes.tk/pipe/documentacion/4.x/).
 
-- [Instalación](https://proes.tk/pipe/documentacion/3.x/instalacion/).
-- [Configuración](https://proes.tk/pipe/documentacion/3.x/configuracion/).
-- [Convensiones](https://proes.tk/pipe/documentacion/3.x/convenciones/).
-- [Modelos y Constructor de Consultas](https://proes.tk/pipe/documentacion/3.x/modelos-y-constructor-de-consultas/).
-- [Insertar](https://proes.tk/pipe/documentacion/3.x/insertar/).
-- [Consultar](https://proes.tk/pipe/documentacion/3.x/consultar/).
-- [Actualizar](https://proes.tk/pipe/documentacion/3.x/actualizar/).
-- [Eliminar](https://proes.tk/pipe/documentacion/3.x/eliminar/).
-- [Vaciar Tabla](https://proes.tk/pipe/documentacion/3.x/vaciar-tabla/).
-- [Autenticar Usuarios](https://proes.tk/pipe/documentacion/3.x/autenticar-usuarios/).
+- [Instalación](https://proes.tk/pipe/documentacion/4.x/instalacion/).
+- [Configuración](https://proes.tk/pipe/documentacion/4.x/configuracion/).
+- [Convensiones](https://proes.tk/pipe/documentacion/4.x/convenciones/).
+- [Modelos y Constructor de Consultas](https://proes.tk/pipe/documentacion/4.x/modelos-y-constructor-de-consultas/).
+- [Insertar](https://proes.tk/pipe/documentacion/4.x/insertar/).
+- [Consultar](https://proes.tk/pipe/documentacion/4.x/consultar/).
+- [Actualizar](https://proes.tk/pipe/documentacion/4.x/actualizar/).
+- [Eliminar](https://proes.tk/pipe/documentacion/4.x/eliminar/).
+- [Vaciar Tabla](https://proes.tk/pipe/documentacion/4.x/vaciar-tabla/).
 
 ## Licencia
 
