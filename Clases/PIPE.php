@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 28-04-2020
- * Versión: 4.0.0
+ * Fecha última modificación: 05-05-2020
+ * Versión: 4.1.2
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -58,7 +58,7 @@ abstract class PIPE{
      * Versión actual del ORM PIPE.
      * @tipo string
      */
-	const VERSION='4.0.0';
+	const VERSION='4.1.2';
 	/*
      * Indica el retorno de resultados de una consulta SQL como un objeto.
      * @tipo string

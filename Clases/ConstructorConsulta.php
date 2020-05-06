@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 28-04-2020
- * Versión: 4.0.0
+ * Fecha última modificación: 05-05-2020
+ * Versión: 4.1.2
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -170,6 +170,11 @@ class ConstructorConsulta{
      */
 	private $actualizables=[];
 	/*
+     * Indica los campos que se mostrarán en la consulta SQL.
+     * @tipo array
+     */
+	private $visibles=[];
+	/*
      * Indica los campos que no se mostrarán en la consulta SQL.
      * @tipo array
      */
@@ -213,6 +218,7 @@ class ConstructorConsulta{
 		$this->perteneceAMuchos=$atributosClase['perteneceAMuchos'] ?? $this->perteneceAMuchos;
 		$this->insertables=$atributosClase['insertables'] ?? $this->insertables;
 		$this->actualizables=$atributosClase['actualizables'] ?? $this->actualizables;
+		$this->visibles=$atributosClase['visibles'] ?? $this->visibles;
 		$this->ocultos=$atributosClase['ocultos'] ?? $this->ocultos;
 	}
 	//Inicio métodos públicos.
@@ -636,9 +642,9 @@ class ConstructorConsulta{
 		}
 		else{
 			$parametros=$this->obtenerParametrosActualizacion($this);
-			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' where '.$this->_llavePrimaria37812_.'=?',[$this->_valor37812_]);
+			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' '.$this->_condiciones,$this->_datos);
 			if($resultado>0 && $this->registroTiempo===true && $this->verificarCamposRegistroTiempo($this))
-				$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$this->actualizadoEn.'=? where '.$this->_llavePrimaria37812_.'=?',[$this->obtenerFechaHoraActual(),$this->_valor37812_]);
+				$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$this->actualizadoEn."='".$this->obtenerFechaHoraActual()."' ".$this->_condiciones,$this->_datos);
 			return $resultado;
 		}
 	}
@@ -666,15 +672,7 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function eliminar(){
-		if(empty($this->_condiciones) && empty($this->_llavePrimaria37812_) && empty($this->_valor37812_)){
-			return $this->procesarConsultaSQL('delete from '.$this->_tabla);
-		}
-		else if(empty($this->_condiciones)){
-			return $this->procesarConsultaSQL('delete from '.$this->_tabla.' where '.$this->_llavePrimaria37812_.'=?',[$this->_valor37812_]);
-		}
-		else if(!empty($this->_condiciones)){
-			return $this->procesarConsultaSQL('delete from '.$this->_tabla.' '.$this->_condiciones,$this->_datos);
-		}
+		return $this->procesarConsultaSQL('delete from '.$this->_tabla.' '.$this->_condiciones,$this->_datos);
 	}
 	/*
      * Elimina todos los registros en la tabla y reinicia el contador autoincrementable.
@@ -805,9 +803,10 @@ class ConstructorConsulta{
 			$registro=[];
 			for($j=0; $j<$consulta->columnCount(); $j++){
 				$valor=$this->convertirValorNumerico($datosArreglo[$i][$campos[$j]]);
-				if(!in_array($campos[$j],$this->ocultos)) $registro[$campos[$j]]=$valor;
+				$condicion=!empty($this->visibles) ? in_array($campos[$j],$this->visibles) : !in_array($campos[$j],$this->ocultos);
+				if($condicion) $registro[$campos[$j]]=$valor;
 			}
-			if(!empty((array) $registro)) $datosConsulta[$i]=$tipo==self::OBJETO ? (object) $registro : $registro;
+			if(!empty($registro)) $datosConsulta[$i]=$tipo==self::OBJETO ? (object) $registro : $registro;
 		}
 		if($tipo==self::JSON) $datosConsulta=json_encode($datosConsulta);
 		return $datosConsulta;
@@ -1300,8 +1299,6 @@ class ConstructorConsulta{
      */
 	private function obtenerObjetoThis(self $contextoThis,$datos,$llavePrimaria,$id){
 		if(empty($datos)) return null;
-		$contextoThis->_llavePrimaria37812_=$llavePrimaria;
-		$contextoThis->_valor37812_=$id;
 		foreach($datos[0] as $campo=>$valor){
 			//Creamos los atributos de los campos de la base de datos en el objeto $contextoThis.
 			$contextoThis->$campo=$valor;
@@ -1350,11 +1347,11 @@ class ConstructorConsulta{
 				$llavePrincipal=$valores['llavePrincipal'];
 				$valorllavePrincipal=(new self(['tabla'=>$pipe->_tabla]))
 					->seleccionar($llavePrincipal)
-					->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])
+					->donde(substr($this->_condiciones,7),$pipe->_datos)
 					->obtener()[0]->$llavePrincipal;
 			}
 			else{
-				$valorllavePrincipal=$pipe->_valor37812_;
+				$valorllavePrincipal=$pipe->_datos[0];
 			}
 			$datos=(new self(['tabla'=>$tablaUnion]))->donde($llaveForanea.'=?',[$valorllavePrincipal])->tomar(1);
 			$datos=!empty($datos) ? $datos[0] : null;
@@ -1378,11 +1375,11 @@ class ConstructorConsulta{
 				$llavePrincipal=$valores['llavePrincipal'];
 				$valorllavePrincipal=(new self(['tabla'=>$pipe->_tabla]))
 					->seleccionar($llavePrincipal)
-					->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])
+					->donde(substr($this->_condiciones,7),$pipe->_datos)
 					->obtener()[0]->$llavePrincipal;
 			}
 			else{
-				$valorllavePrincipal=$pipe->_valor37812_;
+				$valorllavePrincipal=$pipe->_datos[0];
 			}
 			$datos=(new self(['tabla'=>$tablaUnion]))->donde($llaveForanea.'=?',[$valorllavePrincipal])->obtener();
 			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
@@ -1405,7 +1402,7 @@ class ConstructorConsulta{
 			$llaveForanea=$valores['llaveForanea'] ?? $campoForaneo;
 			$valorForanea=(new self(['tabla'=>$pipe->_tabla]))
 				->seleccionar($llaveForanea)
-				->donde($pipe->_llavePrimaria37812_.'=?',[$pipe->_valor37812_])
+				->donde(substr($this->_condiciones,7),$pipe->_datos)
 				->obtener()[0]->$llaveForanea;
 			if(isset($valores['llavePrincipal'])){
 				$llavePrincipal=$valores['llavePrincipal'];
@@ -1445,12 +1442,12 @@ class ConstructorConsulta{
 			$relacion=(new self(['tabla'=>$tablaUnion]))
 				->unir($tablaUnionRelacion,$tablaUnion.'.'.$llavePrimariaUnion,$tablaUnionRelacion.'.'.$llaveForaneaUnion);
 			$datos=$relacion->seleccionar($tablaUnion.'.*')
-				->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=?',[$pipe->_valor37812_])
+				->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=?',$pipe->_datos)
 				->obtener();
 			foreach($datos as $dato){
 				$datosTablaUnionRelacion=$relacion->seleccionar($tablaUnionRelacion.'.*')
 				->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=? y '.$tablaUnionRelacion.'.'.$llaveForaneaUnion.'=?',[
-					$pipe->_valor37812_,$dato->$llavePrimariaUnion
+					$pipe->_datos[0],$dato->$llavePrimariaUnion
 				])->obtener()[0];
 				$dato->$tablaUnionRelacion=$datosTablaUnionRelacion;
 			}
@@ -1612,6 +1609,7 @@ class ConstructorConsulta{
 		$parametros='';
 		$camposTabla=$pipe->obtenerCamposTabla($pipe->actualizables);
 		foreach($camposTabla as $campo){
+			if(property_exists($pipe,$campo))
 			$parametros=is_null($pipe->$campo)
 				? $parametros.$campo.'=null,'
 				: $parametros.$campo."='".$pipe->$campo."',";

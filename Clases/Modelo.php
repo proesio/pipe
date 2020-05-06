@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 28-04-2020
- * Versión: 4.0.0
+ * Fecha última modificación: 05-05-2020
+ * Versión: 4.1.2
  * Sitio web: https://proes.tk/pipe
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -515,6 +515,7 @@ abstract class Modelo{
 		$atributosClase['perteneceAMuchos']=$atributosClase['perteneceAMuchos'] ?? [];
 		$atributosClase['insertables']=$atributosClase['insertables'] ?? [];
 		$atributosClase['actualizables']=$atributosClase['actualizables'] ?? [];
+		$atributosClase['visibles']=$atributosClase['visibles'] ?? [];
 		$atributosClase['ocultos']=$atributosClase['ocultos'] ?? [];
 		return $atributosClase;
 	}
