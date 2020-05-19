@@ -1,4 +1,4 @@
-<p align="center"><a href="https://proes.tk/pipe/" target="_blank"><img src="https://proes.tk/pipe/imagenes/eslogan_pipe.png" alt="Eslogan PIPE"></a></p>
+<p align="center"><a href="https://proes.tk/pipe/" target="_blank"><img src="https://proes.tk/pipe/imagenes/pipe-eslogan-transparente.png" width="300" alt="Eslogan PIPE"></a></p>
 
 <p align="center">
 	<a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/downloads" alt="Total Descargas"></a>
