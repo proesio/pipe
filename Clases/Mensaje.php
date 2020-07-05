@@ -2,9 +2,9 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 13-05-2020
- * Versión: 4.2.0
- * Sitio web: https://proes.tk/pipe
+ * Fecha última modificación: 05-07-2020
+ * Versión: 4.2.3
+ * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
@@ -47,44 +47,54 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+
 namespace PIPE\Clases;
+
 class Mensaje{
+	
 	/*
      * Mensajes según el idioma establecido.
      * @tipo array
      */
 	public static $mensajes=[];
+	
 	/*
      * Crea una nueva instancia de la clase Mensaje.
      *
      * @retorno void
      */
 	public function __construct(){
-		$this->obtenerMensajes();
+		$this->asignarMensajes();
 	}
+	
 	/*
      * Asigna los mensajes según el idioma establecido.
      *
      * @retorno void
      */
-	public function obtenerMensajes(){
+	public function asignarMensajes(){
 		$idioma=Configuracion::obtenerVariable('IDIOMA');
 		if($idioma){
 			switch($idioma){
 				case 'es':
-					Mensaje::$mensajes=require_once __DIR__.'/../Idiomas/es.php';
+					self::$mensajes=require __DIR__.'/../Idiomas/es.php';
 				break;
 				case 'en':
-					Mensaje::$mensajes=require_once __DIR__.'/../Idiomas/en.php';
+					self::$mensajes=require __DIR__.'/../Idiomas/en.php';
 				break;
 				default:
-					exit('IDIOMA <b>'.$idioma.'</b> desconocido.<br><br>Idiomas admitidos: es, en.');
+					Error::mostrar(
+						'IDIOMA '.$idioma.' desconocido. Idiomas admitidos: es, en.'
+					);
 				break;
 			}
 		}
 		else{
-			exit('La constante <b>IDIOMA</b> debe ser inicializada en el método <b>Configuracion::inicializar()</b>.');
+			Error::mostrar(
+				'La constante IDIOMA debe ser inicializada en el método Configuracion::inicializar().'
+			);
 		}
 	}
 }
+
 new Mensaje();

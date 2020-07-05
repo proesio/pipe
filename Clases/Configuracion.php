@@ -2,9 +2,9 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 13-05-2020
- * Versión: 4.2.0
- * Sitio web: https://proes.tk/pipe
+ * Fecha última modificación: 05-07-2020
+ * Versión: 4.2.3
+ * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
@@ -47,13 +47,17 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+
 namespace PIPE\Clases;
+
 class Configuracion{
+	
 	/*
      * Configuración del ORM PIPE.
      * @tipo array
      */
 	private static $config=[];
+	
 	/*
      * Inicializa la configuración del ORM PIPE.
      *
@@ -61,9 +65,10 @@ class Configuracion{
      * @retorno void
      */
 	public static function inicializar($config=[]){
-		Configuracion::$config=$config;
-		Configuracion::incluirArchivos();
+		self::$config=$config;
+		self::incluirArchivos();
 	}
+	
 	/*
      * Obtiene una variable de la configuración del ORM PIPE.
      *
@@ -71,15 +76,20 @@ class Configuracion{
      * @retorno string|null
      */
 	public static function obtenerVariable($variable){
-		$valor=array_key_exists($variable,Configuracion::$config) && !empty(Configuracion::$config[$variable]) ? Configuracion::$config[$variable] : null;
+		$valor=array_key_exists($variable,self::$config)
+			&& !empty(self::$config[$variable])
+			? self::$config[$variable] : null;
 		return $valor;
 	}
+	
 	/*
      * Incluye los archivos del ORM PIPE.
      *
      * @retorno void
      */
 	private static function incluirArchivos(){
+		require __DIR__.'/../Rasgos/Encadenable.php';
+		require 'Error.php';
 		require 'Mensaje.php';
 		require 'Conexion.php';
 		require 'ConstructorConsulta.php';

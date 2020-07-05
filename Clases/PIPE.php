@@ -2,9 +2,9 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 13-05-2020
- * Versión: 4.2.0
- * Sitio web: https://proes.tk/pipe
+ * Fecha última modificación: 05-07-2020
+ * Versión: 4.2.3
+ * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
@@ -47,38 +47,47 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+
 namespace PIPE\Clases;
+
 abstract class PIPE{
+	
 	/*
      * Autor del ORM PIPE.
      * @tipo string
      */
 	const AUTOR='Juan Felipe Valencia Murillo';
+	
 	/*
      * Versión actual del ORM PIPE.
      * @tipo string
      */
-	const VERSION='4.2.0';
+	const VERSION='4.2.3';
+	
 	/*
      * Indica el retorno de resultados de una consulta SQL como un objeto.
      * @tipo string
      */
 	const OBJETO='objeto';
+	
 	/*
      * Indica el retorno de resultados de una consulta SQL como un arreglo.
      * @tipo string
      */
 	const ARREGLO='arreglo';
+	
 	/*
      * Indica el retorno de resultados de una consulta SQL como una cadena de json.
      * @tipo string
      */
 	const JSON='json';
+	
 	/*
      * Indica el retorno de la consulta SQL generada.
      * @tipo string
      */
 	const SQL='sql';
+	
 	/*
      * Establece el nombre de la tabla en el Constructor de Consultas.
      *
@@ -88,6 +97,7 @@ abstract class PIPE{
 	public static function tabla($tabla){
 		return new ConstructorConsulta(['tabla'=>$tabla]);
 	}
+	
 	/*
      * Realiza una consulta SQL en español.
      *
@@ -100,6 +110,7 @@ abstract class PIPE{
 		$pipe=new ConstructorConsulta();
 		return $pipe->consulta(...func_get_args());
 	}
+	
 	/*
      * Realiza una consulta SQL nativa.
      *
@@ -112,6 +123,7 @@ abstract class PIPE{
 		$pipe=new ConstructorConsulta();
 		return $pipe->consultaNativa(...func_get_args());
 	}
+	
 	/*
      * Realiza una sentencia SQL.
      *
@@ -122,6 +134,7 @@ abstract class PIPE{
 		$pipe=new ConstructorConsulta();
 		return $pipe->sentencia(...func_get_args());
 	}
+	
 	/*
      * Obtiene la instancia de PDO.
      *

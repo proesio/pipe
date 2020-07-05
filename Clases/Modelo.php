@@ -2,9 +2,9 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 13-05-2020
- * Versión: 4.2.0
- * Sitio web: https://proes.tk/pipe
+ * Fecha última modificación: 05-07-2020
+ * Versión: 4.2.3
+ * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
@@ -47,8 +47,11 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+
 namespace PIPE\Clases;
+
 abstract class Modelo{
+	
 	//Inicio métodos públicos.
 	//Inicio palabras reservadas representadas en métodos para construir una consulta SQL.
 	/*
@@ -62,6 +65,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->alias(...func_get_args());
 	}
+	
 	/*
      * Obtiene todos los datos de la tabla seleccionada.
      *
@@ -74,6 +78,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->todo(...func_get_args());
 	}
+	
 	/*
      * Establece los campos que serán seleccionados.
      *
@@ -85,6 +90,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->seleccionar(...func_get_args());
 	}
+	
 	/*
      * Elimina duplicados del conjunto de resultados.
      *
@@ -95,6 +101,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->distinto(...func_get_args());
 	}
+	
 	/*
      * Combina registros de una o más tablas relacionadas.
      *
@@ -109,6 +116,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->unir(...func_get_args());
 	}
+	
 	/*
      * Combina registros de una o más tablas relacionadas obteniendo todos los registros de la tabla de la derecha.
      *
@@ -123,6 +131,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->unirDerecha(...func_get_args());
 	}
+	
 	/*
      * Combina registros de una o más tablas relacionadas obteniendo todos los registros de la tabla de la izquierda.
      *
@@ -137,6 +146,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->unirIzquierda(...func_get_args());
 	}
+	
 	/*
      * Establece una condición en la consulta SQL.
      *
@@ -149,6 +159,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->donde(...func_get_args());
 	}
+	
 	/*
      * Agrupa registros que tienen los mismos valores.
      *
@@ -160,6 +171,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->agruparPor(...func_get_args());
 	}
+	
 	/*
      * Establece una condición a una función de agregación.
      *
@@ -171,6 +183,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->teniendo(...func_get_args());
 	}
+	
 	/*
      * Ordena el resultado de la consulta SQL.
      *
@@ -183,6 +196,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->ordenarPor(...func_get_args());
 	}
+	
 	/*
      * Limita el número de registros retornados en la consulta SQL.
      *
@@ -195,6 +209,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->limite(...func_get_args());
 	}
+
 	/*
      * Obtiene una cantidad específca de registros retornados.
      *
@@ -208,6 +223,7 @@ abstract class Modelo{
 		return $pipe->tomar(...func_get_args());
 	}
 	//Fin palabras reservadas representadas en métodos para construir una consulta SQL.
+	
 	//Inicio consultas básicas por medio de métodos.
 	/*
      * Obtiene los primeros registros retornados en la consulta SQL.
@@ -221,6 +237,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->primero(...func_get_args());
 	}
+	
 	/*
      * Obtiene los últimos registros retornados en la consulta SQL.
      *
@@ -234,6 +251,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->ultimo(...func_get_args());
 	}
+	
 	/*
      * Obtiene la cantidad general o específica de registros retornados.
      *
@@ -245,6 +263,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->contar(...func_get_args());
 	}
+	
 	/*
      * Obtiene el valor máximo del campo especificado.
      *
@@ -256,6 +275,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->maximo(...func_get_args());
 	}
+	
 	/*
      * Obtiene el valor mímino del campo especificado.
      *
@@ -267,6 +287,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->minimo(...func_get_args());
 	}
+	
 	/*
      * Obtiene el valor promedio del campo especificado.
      *
@@ -278,6 +299,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->promedio(...func_get_args());
 	}
+	
 	/*
      * Obtiene la suma del campo especificado.
      *
@@ -289,6 +311,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->suma(...func_get_args());
 	}
+	
 	/*
      * Verifica que la consulta SQL ha retornado un resultado.
      *
@@ -299,6 +322,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->existe(...func_get_args());
 	}
+	
 	/*
      * Verifica que la consulta SQL no ha retornado un resultado.
      *
@@ -309,6 +333,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->noExiste(...func_get_args());
 	}
+	
 	/*
      * Incrementa el valor del campo especificado.
      *
@@ -321,6 +346,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->incrementar(...func_get_args());
 	}
+	
 	/*
      * Decrementa el valor del campo especificado.
      *
@@ -333,6 +359,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->decrementar(...func_get_args());
 	}
+	
 	/*
      * Obtiene una instancia del Modelo con los datos asociados a la llave primaria.
      *
@@ -346,6 +373,7 @@ abstract class Modelo{
 		return $pipe->encontrar(...func_get_args());
 	}
 	//Fin consultas básicas por medio de métodos.
+	
 	//Inicio instrucciones insertar, actualizar, eliminar y vaciar.
 	/*
      * Inserta un nuevo registro en la base de datos.
@@ -361,6 +389,7 @@ abstract class Modelo{
 		}
 		return $pipe->insertar(...func_get_args());
 	}
+	
 	/*
      * Inserta un nuevo registro en la base de datos y obtiene el último id generado.
      *
@@ -372,6 +401,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->insertarObtenerId(...func_get_args());
 	}
+	
 	/*
      * Actualiza un registro en la base de datos.
      *
@@ -383,6 +413,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->actualizar(...func_get_args());
 	}
+	
 	/*
      * Actualiza o inserta un nuevo registro en la base de datos.
      *
@@ -395,6 +426,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->actualizarOInsertar(...func_get_args());
 	}
+	
 	/*
      * Elimina un registro en la base de datos.
      *
@@ -405,6 +437,7 @@ abstract class Modelo{
 		$pipe=new ConstructorConsulta($atributosClase);
 		return $pipe->eliminar(...func_get_args());
 	}
+	
 	/*
      * Elimina todos los registros en la tabla y reinicia el contador autoincrementable.
      *
@@ -417,6 +450,7 @@ abstract class Modelo{
 		return $pipe->vaciar(...func_get_args());
 	}
 	//Fin instrucciones insertar, actualizar, eliminar y vaciar.
+	
 	//Inicio instrucciones crear, editar y destruir.
 	/*
      * Crea un nuevo registro en la base de datos.
@@ -436,6 +470,7 @@ abstract class Modelo{
 		if(isset($inserciones)) $inserciones=count($inserciones)==1 ? $inserciones[0] : $inserciones;
 		return $inserciones;
 	}
+	
 	/*
      * Edita un registro en la base de datos.
      *
@@ -469,6 +504,7 @@ abstract class Modelo{
 		}
 		return $actualizaciones;
 	}
+	
 	/*
      * Destruye un registro en la base de datos.
      *
@@ -494,6 +530,7 @@ abstract class Modelo{
 		return $eliminaciones;
 	}
 	//Fin instrucciones crear, editar y destruir.
+	
 	/*
      * Obtiene los atributos de la clase (modelo) instanciada.
      *
@@ -519,6 +556,7 @@ abstract class Modelo{
 		$atributosClase['ocultos']=$atributosClase['ocultos'] ?? [];
 		return $atributosClase;
 	}
+	
 	/*
      * Obtiene el nombre de la clase instanciada que ha hecho la invocación.
      *
@@ -529,6 +567,7 @@ abstract class Modelo{
 		$partesClase=explode('\\',$nombreCompleto);
 		return $partesClase[count($partesClase)-1];
 	}
+	
 	/*
      * Convierte el nombre del modelo (clase) en el nombre de la tabla de la base de datos.
      *

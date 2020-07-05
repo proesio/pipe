@@ -2,9 +2,9 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 13-05-2020
- * Versión: 4.2.0
- * Sitio web: https://proes.tk/pipe
+ * Fecha última modificación: 05-07-2020
+ * Versión: 4.2.3
+ * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
@@ -47,13 +47,14 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+
 return [
 	'AMBIGUEDAD_DE_CAMPOS'=>'Ambiguedad de campos en la consulta SQL. Verifique la pertenencia de los campos a su respectiva tabla y asigne un alias a cada campo donde el nombre sea igual en otra tabla.',
-	'CONTROLADOR_DESCONOCIDO'=>' desconocido.<br><br>Controladores admitidos: mysql, pgsql, sqlite y sqlsrv.',
-	'MODELO_NO_ENCONTRADO'=>'El siguiente modelo no fue encontrado: ',
-	'TIPO_DATO_DESCONOCIDO'=>'El siguiente tipo de dato es desconocido: ',
-	'RUTA_MODELOS_NO_ENCONTRADA'=>'La siguiente ruta de modelos no fue encontrada: ',
-	'PROPIEDAD_NO_DEFINIDA'=>'La siguiente propiedad debe estar definida: ',
-	'LIMITE_NO_SOPORTADO'=>'El controlador <b>sqlsrv</b> no soporta el método <b>limite()</b>, en su lugar use el método <b>tomar()</b>.',
-	'RETORNO_SQL_NO_SOPORTADO'=>'Tipo de retorno <b>SQL</b> no soportado.'
+	'CONTROLADOR_DESCONOCIDO'=>' desconocido. Controladores admitidos: mysql, pgsql, sqlite y sqlsrv.',
+	'MODELO_NO_ENCONTRADO'=>'El siguiente modelo no fue encontrado',
+	'TIPO_DATO_DESCONOCIDO'=>'El siguiente tipo de dato es desconocido',
+	'RUTA_MODELOS_NO_ENCONTRADA'=>'La siguiente ruta de modelos no fue encontrada',
+	'PROPIEDAD_NO_DEFINIDA'=>'La siguiente propiedad debe estar definida',
+	'METODO_LIMITE_NO_SOPORTADO'=>'El controlador sqlsrv no soporta el método limite(), en su lugar use el método tomar().',
+	'RETORNO_SQL_NO_SOPORTADO'=>'Tipo de retorno SQL no soportado.'
 ];

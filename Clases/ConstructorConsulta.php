@@ -2,9 +2,9 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 13-05-2020
- * Versión: 4.2.0
- * Sitio web: https://proes.tk/pipe
+ * Fecha última modificación: 05-07-2020
+ * Versión: 4.2.3
+ * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
@@ -47,158 +47,195 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+
 namespace PIPE\Clases;
+
+use PIPE\Rasgos\Encadenable;
+
 class ConstructorConsulta{
+	
+	use Encadenable;
+	
 	/*
      * Palabra reservada distinct.
      * @tipo string
      */
 	private $_distinto='';
+	
 	/*
      * Campos seleccionados en la consulta SQL.
      * @tipo string
      */
 	private $_campos='*';
+	
 	/*
      * Nombre de la tabla en la base de datos.
      * @tipo string
      */
 	private $_tabla='';
+	
 	/*
      * Uniones con la cláusula inner join.
      * @tipo string
      */
 	private $_unir='';
+	
 	/*
      * Uniones con la cláusula right join.
      * @tipo string
      */
 	private $_unirDerecha='';
+	
 	/*
      * Uniones con la cláusula left join.
      * @tipo string
      */
 	private $_unirIzquierda='';
+	
 	/*
      * Condiciones con la cláusula where.
      * @tipo string
      */
 	private $_condiciones='';
+	
 	/*
      * Agrupaciones con la cláusula group by.
      * @tipo string
      */
 	private $_agrupar='';
+	
 	/*
      * Condiciones con la cláusula having.
      * @tipo string
      */
 	private $_teniendo='';
+	
 	/*
      * Ordenamiento de registros con la cláusula order by.
      * @tipo string
      */
 	private $_ordenar='';
+	
 	/*
      * Limitación de registros con la cláusula limit.
      * @tipo string
      */
 	private $_limite='';
+	
 	/*
      * Valores de la consulta SQL para ejecutar consultas preparadas.
      * @tipo array
      */
 	private $_datos=[];
+	
 	/*
      * Datos relacionados con el modelo(s) establecido.
      * @tipo array
      */
 	private $_datosModeloRelacion=[];
+	
 	/*
      * Nombre de la clase que extiende del Modelo.
      * @tipo string
      */
 	private $clase='';
+	
 	/*
      * Llave primaria de la tabla en representación de un modelo.
      * @tipo string
      */
 	private $llavePrimaria='id';
+	
 	/*
      * Indica si se almacena el registro del tiempo en los campos especificados.
      * @tipo boolean
      */
 	private $registroTiempo=true;
+	
 	/*
      * Nombre del campo donde se registra el tiempo de la creación del registro.
      * @tipo string
      */
 	private $creadoEn='creado_en';
+	
 	/*
      * Nombre del campo donde se registra el tiempo de la actualización del registro.
      * @tipo string
      */
 	private $actualizadoEn='actualizado_en';
+	
 	/*
      * Indica que el modelo tiene una relación de Uno a Uno.
      * @tipo array
      */
 	private $tieneUno=[];
+	
 	/*
      * Indica que el modelo tiene una relación de Uno a Muchos.
      * @tipo array
      */
 	private $tieneMuchos=[];
+	
 	/*
      * Indica la relación inversa de las relaciones Uno a Uno y Uno a Muchos.
      * @tipo array
      */
 	private $perteneceAUno=[];
+	
 	/*
      * Indica que el modelo tiene una relación de Muchos a Muchos.
      * @tipo array
      */
 	private $perteneceAMuchos=[];
+	
 	/*
      * Indica los campos que pueden ser insertados.
      * @tipo array
      */
 	private $insertables=[];
+	
 	/*
      * Indica los campos que pueden ser actualizados.
      * @tipo array
      */
 	private $actualizables=[];
+	
 	/*
      * Indica los campos que se mostrarán en la consulta SQL.
      * @tipo array
      */
 	private $visibles=[];
+	
 	/*
      * Indica los campos que no se mostrarán en la consulta SQL.
      * @tipo array
      */
 	private $ocultos=[];
+	
 	/*
      * Indica el retorno de resultados de una consulta SQL como un objeto.
      * @tipo string
      */
 	const OBJETO='objeto';
+	
 	/*
      * Indica el retorno de resultados de una consulta SQL como un arreglo.
      * @tipo string
      */
 	const ARREGLO='arreglo';
+	
 	/*
      * Indica el retorno de resultados de una consulta SQL como una cadena de json.
      * @tipo string
      */
 	const JSON='json';
+	
 	/*
      * Indica el retorno de la consulta SQL generada.
      * @tipo string
      */
 	const SQL='sql';
+	
 	/*
      * Crea una nueva instancia de la clase ConstructorConsulta.
      *
@@ -221,6 +258,7 @@ class ConstructorConsulta{
 		$this->visibles=$atributosClase['visibles'] ?? $this->visibles;
 		$this->ocultos=$atributosClase['ocultos'] ?? $this->ocultos;
 	}
+	
 	//Inicio métodos públicos.
 	//Inicio palabras reservadas representadas en métodos para construir una consulta SQL.
 	/*
@@ -233,6 +271,7 @@ class ConstructorConsulta{
 		$this->_tabla=$this->_tabla.' as '.$alias;
 		return $this;
 	}
+	
 	/*
      * Obtiene todos los datos de la tabla seleccionada.
      *
@@ -245,10 +284,16 @@ class ConstructorConsulta{
 			return $this->seleccionar($campos)->obtener($tipo);
 		}
 		else{
-			if($campos==self::OBJETO || $campos==self::ARREGLO || $campos==self::JSON || $campos==self::SQL) $tipo=$campos;
+			if(
+				$campos==self::OBJETO
+				|| $campos==self::ARREGLO
+				|| $campos==self::JSON
+				|| $campos==self::SQL
+			) $tipo=$campos;
 			return $this->obtener($tipo);
 		}
 	}
+	
 	/*
      * Establece los campos que serán seleccionados.
      *
@@ -264,6 +309,7 @@ class ConstructorConsulta{
 		$this->_campos=$this->traducirConsultaSQL(substr($_campos,0,-1));
 		return $this;
 	}
+	
 	/*
      * Elimina duplicados del conjunto de resultados.
      *
@@ -273,6 +319,7 @@ class ConstructorConsulta{
 		$this->_distinto='distinct';
 		return $this;
 	}
+	
 	/*
      * Combina registros de una o más tablas relacionadas.
      *
@@ -287,9 +334,14 @@ class ConstructorConsulta{
 			$llavePrimaria=$union;
 			$union='=';
 		}		
-		$this->_unir=$this->_unir.' inner join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
+		$this->_unir=$this->_unir
+			.' inner join '
+			.$tablaUnion
+			.' on '
+			.$llaveForanea.' '.$union.' '.$llavePrimaria;
 		return $this;
 	}
+	
 	/*
      * Combina registros de una o más tablas relacionadas obteniendo todos los registros de la tabla de la derecha.
      *
@@ -304,9 +356,14 @@ class ConstructorConsulta{
 			$llavePrimaria=$union;
 			$union='=';
 		}
-		$this->_unirDerecha=$this->_unirDerecha.' right join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
+		$this->_unirDerecha=$this->_unirDerecha
+			.' right join '
+			.$tablaUnion
+			.' on '
+			.$llaveForanea.' '.$union.' '.$llavePrimaria;
 		return $this;
 	}
+	
 	/*
      * Combina registros de una o más tablas relacionadas obteniendo todos los registros de la tabla de la izquierda.
      *
@@ -321,9 +378,14 @@ class ConstructorConsulta{
 			$llavePrimaria=$union;
 			$union='=';
 		}
-		$this->_unirIzquierda=$this->_unirIzquierda.' left join '.$tablaUnion.' on '.$llaveForanea.' '.$union.' '.$llavePrimaria;
+		$this->_unirIzquierda=$this->_unirIzquierda
+			.' left join '
+			.$tablaUnion
+			.' on '
+			.$llaveForanea.' '.$union.' '.$llavePrimaria;
 		return $this;
 	}
+	
 	/*
      * Establece una condición en la consulta SQL.
      *
@@ -336,6 +398,7 @@ class ConstructorConsulta{
 		$this->_datos=$datos;
 		return $this;
 	}
+	
 	/*
      * Agrupa registros que tienen los mismos valores.
      *
@@ -357,6 +420,7 @@ class ConstructorConsulta{
 		$this->_agrupar=$grupo;
 		return $this;
 	}
+	
 	/*
      * Establece una condición a una función de agregación.
      *
@@ -367,6 +431,7 @@ class ConstructorConsulta{
 		$this->_teniendo=$this->traducirConsultaSQL('having '.$condicion);
 		return $this;
 	}
+	
 	/*
      * Ordena el resultado de la consulta SQL.
      *
@@ -389,6 +454,7 @@ class ConstructorConsulta{
 		$this->_ordenar=$ordenar;
 		return $this;
 	}
+	
 	/*
      * Limita el número de registros retornados en la consulta SQL.
      *
@@ -398,12 +464,13 @@ class ConstructorConsulta{
      */
 	public function limite($inicio,$cantidad=''){
 		if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='sqlsrv')
-			exit(Mensaje::$mensajes['LIMITE_NO_SOPORTADO']);
+			Error::mostrar(Mensaje::$mensajes['METODO_LIMITE_NO_SOPORTADO']);
 		$limite='limit '.$inicio;
 		if($cantidad!=='') $limite='limit '.$inicio.','.$cantidad;
 		$this->_limite=$limite;
 		return $this;
 	}
+	
 	/*
      * Obtiene una cantidad específca de registros retornados.
      *
@@ -412,7 +479,8 @@ class ConstructorConsulta{
      * @retorno array|json
      */
 	public function tomar($inicio,$cantidad='',$tipo=self::OBJETO){
-		if($cantidad==self::SQL || $tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		if($cantidad==self::SQL || $tipo==self::SQL)
+			Error::mostrar(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
 		if($cantidad===''){
 			$cantidad=$inicio;
 			$inicio=0;		
@@ -435,6 +503,7 @@ class ConstructorConsulta{
 		return $datos;
 	}
 	//Fin palabras reservadas representadas en métodos para construir una consulta SQL.
+	
 	//Inicio consultas básicas por medio de métodos.
 	/*
      * Obtiene los primeros registros retornados en la consulta SQL.
@@ -444,13 +513,15 @@ class ConstructorConsulta{
      * @retorno array|json
      */
 	public function primero($limite=1,$tipo=self::OBJETO){
-		if($limite==self::SQL || $tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		if($limite==self::SQL || $tipo==self::SQL)
+			Error::mostrar(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
 		if($limite==self::OBJETO || $limite==self::ARREGLO || $limite==self::JSON){
 			$tipo=$limite;
 			$limite=1;
 		}
 		return $this->tomar($limite,$tipo);
 	}
+	
 	/*
      * Obtiene los últimos registros retornados en la consulta SQL.
      *
@@ -460,7 +531,8 @@ class ConstructorConsulta{
      * @retorno array|json
      */
 	public function ultimo($llavePrimaria='id',$limite=1,$tipo=self::OBJETO){
-		if($llavePrimaria==self::SQL || $limite==self::SQL || $tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		if($llavePrimaria==self::SQL || $limite==self::SQL || $tipo==self::SQL)
+			Error::mostrar(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
 		if($llavePrimaria==self::OBJETO || $llavePrimaria==self::ARREGLO || $llavePrimaria==self::JSON){
 			$tipo=$llavePrimaria;
 			$llavePrimaria='id';
@@ -479,6 +551,7 @@ class ConstructorConsulta{
 		if($this->llavePrimaria!='id') $llavePrimaria=$this->llavePrimaria;
 		return $this->ordenarPor($llavePrimaria,'desc')->tomar($limite,$tipo);
 	}
+	
 	/*
      * Obtiene la cantidad general o específica de registros retornados.
      *
@@ -486,8 +559,17 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function contar($campo='*'){
-		return intval($this->procesarConsultaSQL('select count('.$campo.') as conteo from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->conteo);
+		$conteo=intval(
+			$this->procesarConsultaSQL(
+				'select count('.$campo.') as conteo
+				from '.$this->_tabla.' '
+				.$this->_condiciones,
+				$this->_datos
+			)[0]->conteo
+		);
+		return $conteo;
 	}
+	
 	/*
      * Obtiene el valor máximo del campo especificado.
      *
@@ -495,8 +577,15 @@ class ConstructorConsulta{
      * @retorno mixto
      */
 	public function maximo($campo){
-		return $this->procesarConsultaSQL('select max('.$campo.') as maximo from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->maximo;
+		$maximo=$this->procesarConsultaSQL(
+			'select max('.$campo.') as maximo
+			from '.$this->_tabla.' '
+			.$this->_condiciones,
+			$this->_datos
+		)[0]->maximo;
+		return $maximo;
 	}
+	
 	/*
      * Obtiene el valor mímino del campo especificado.
      *
@@ -504,8 +593,15 @@ class ConstructorConsulta{
      * @retorno mixto
      */
 	public function minimo($campo){
-		return $this->procesarConsultaSQL('select min('.$campo.') as minimo from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->minimo;
+		$minimo=$this->procesarConsultaSQL(
+			'select min('.$campo.') as minimo
+			from '.$this->_tabla.' '
+			.$this->_condiciones,
+			$this->_datos
+		)[0]->minimo;
+		return $minimo;
 	}
+	
 	/*
      * Obtiene el valor promedio del campo especificado.
      *
@@ -513,8 +609,15 @@ class ConstructorConsulta{
      * @retorno mixto
      */
 	public function promedio($campo){
-		return $this->procesarConsultaSQL('select avg('.$campo.') as promedio from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->promedio;
+		$promedio=$this->procesarConsultaSQL(
+			'select avg('.$campo.') as promedio
+			from '.$this->_tabla.' '
+			.$this->_condiciones,
+			$this->_datos
+		)[0]->promedio;
+		return $promedio;
 	}
+	
 	/*
      * Obtiene la suma del campo especificado.
      *
@@ -522,8 +625,15 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function suma($campo){
-		return $this->procesarConsultaSQL('select sum('.$campo.') as suma from '.$this->_tabla.' '.$this->_condiciones,$this->_datos)[0]->suma;
+		$suma=$this->procesarConsultaSQL(
+			'select sum('.$campo.') as suma
+			from '.$this->_tabla.' '
+			.$this->_condiciones,
+			$this->_datos
+		)[0]->suma;
+		return $suma;
 	}
+	
 	/*
      * Verifica que la consulta SQL ha retornado un resultado.
      *
@@ -533,6 +643,7 @@ class ConstructorConsulta{
 		$existe=$this->obtener() ? true : false;
 		return $existe;
 	}
+	
 	/*
      * Verifica que la consulta SQL no ha retornado un resultado.
      *
@@ -542,6 +653,7 @@ class ConstructorConsulta{
 		$noExiste=$this->obtener() ? false : true;
 		return $noExiste;
 	}
+	
 	/*
      * Incrementa el valor del campo especificado.
      *
@@ -550,9 +662,15 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function incrementar($campo,$incremento=1){
-		$incremento=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$campo.'='.$campo.'+'.$incremento.' '.$this->_condiciones,$this->_datos);
+		$incremento=$this->procesarConsultaSQL(
+			'update '.$this->_tabla
+			.' set '.$campo.'='.$campo.'+'.$incremento.' '
+			.$this->_condiciones,
+			$this->_datos
+		);
 		return $incremento;
 	}
+	
 	/*
      * Decrementa el valor del campo especificado.
      *
@@ -561,9 +679,15 @@ class ConstructorConsulta{
      * @retorno int
      */
 	public function decrementar($campo,$decremento=1){
-		$decremento=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$campo.'='.$campo.'-'.$decremento.' '.$this->_condiciones,$this->_datos);
+		$decremento=$this->procesarConsultaSQL(
+			'update '.$this->_tabla
+			.' set '.$campo.'='.$campo.'-'.$decremento.' '
+			.$this->_condiciones,
+			$this->_datos
+		);
 		return $decremento;
 	}
+	
 	/*
      * Obtiene una instancia del Constructor de Consultas con los datos asociados a la llave primaria.
      *
@@ -589,6 +713,7 @@ class ConstructorConsulta{
 		}
 	}
 	//Fin consultas básicas por medio de métodos.
+	
 	//Inicio instrucciones insertar, actualizar, eliminar y vaciar.
 	/*
      * Inserta un nuevo registro en la base de datos.
@@ -604,7 +729,11 @@ class ConstructorConsulta{
 				$campos=$pipe->obtenerCamposInsercionP($pipe,$registro);
 				$parametros=$pipe->obtenerParametrosInsercionP($pipe,$registro);
 				$valores=$pipe->obtenerValoresInsercionP($pipe,$registro);
-				$inserciones=$inserciones+$pipe->procesarConsultaSQL('insert into '.$pipe->_tabla.' ('.$campos.') values ('.$parametros.')',$valores);
+				$inserciones=$inserciones+$pipe->procesarConsultaSQL(
+					'insert into '.$pipe->_tabla
+					.' ('.$campos.') values ('.$parametros.')',
+					$valores
+				);
 			}
 			return $inserciones;
 		}
@@ -612,9 +741,14 @@ class ConstructorConsulta{
 			$campos=$pipe->obtenerCamposInsercion($pipe);
 			$parametros=$pipe->obtenerParametrosInsercion($pipe);
 			$valores=$pipe->obtenerValoresInsercion($pipe);
-			return $pipe->procesarConsultaSQL('insert into '.$pipe->_tabla.' ('.$campos.') values ('.$parametros.')',$valores);
+			return $pipe->procesarConsultaSQL(
+				'insert into '.$pipe->_tabla
+				.' ('.$campos.') values ('.$parametros.')',
+				$valores
+			);
 		}
 	}
+	
 	/*
      * Inserta un nuevo registro en la base de datos y obtiene el último id generado.
      *
@@ -625,6 +759,7 @@ class ConstructorConsulta{
 		$this->insertar($valores);
 		return intval(Conexion::$cnx->lastInsertId());
 	}
+	
 	/*
      * Actualiza un registro en la base de datos.
      *
@@ -635,19 +770,40 @@ class ConstructorConsulta{
 		if(is_array($valores) && !empty($valores)){
 			$parametros=$this->obtenerParametrosActualizacionP($this,$valores);
 			if($parametros==false) return 0;
-			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' '.$this->_condiciones,$this->_datos);
+			$resultado=$this->procesarConsultaSQL(
+				'update '.$this->_tabla
+				.' set '.$parametros.' '
+				.$this->_condiciones,
+				$this->_datos
+			);
 			if($resultado>0 && $this->registroTiempo==true && $this->verificarCamposRegistroTiempo($this))
-				$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$this->actualizadoEn."='".$this->obtenerFechaHoraActual()."' ".$this->_condiciones,$this->_datos);
+				$this->procesarConsultaSQL(
+					'update '.$this->_tabla
+					.' set '.$this->actualizadoEn."='".$this->obtenerFechaHoraActual()
+					."' ".$this->_condiciones,
+					$this->_datos
+				);
 			return $resultado;
 		}
 		else{
 			$parametros=$this->obtenerParametrosActualizacion($this);
-			$resultado=$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$parametros.' '.$this->_condiciones,$this->_datos);
+			$resultado=$this->procesarConsultaSQL(
+				'update '.$this->_tabla
+				.' set '.$parametros.' '
+				.$this->_condiciones,
+				$this->_datos
+			);
 			if($resultado>0 && $this->registroTiempo===true && $this->verificarCamposRegistroTiempo($this))
-				$this->procesarConsultaSQL('update '.$this->_tabla.' set '.$this->actualizadoEn."='".$this->obtenerFechaHoraActual()."' ".$this->_condiciones,$this->_datos);
+				$this->procesarConsultaSQL(
+					'update '.$this->_tabla
+					.' set '.$this->actualizadoEn."='".$this->obtenerFechaHoraActual()
+					."' ".$this->_condiciones,
+					$this->_datos
+				);
 			return $resultado;
 		}
 	}
+	
 	/*
      * Actualiza o inserta un nuevo registro en la base de datos.
      *
@@ -666,6 +822,7 @@ class ConstructorConsulta{
 			return false;
 		}
 	}
+	
 	/*
      * Elimina un registro en la base de datos.
      *
@@ -674,6 +831,7 @@ class ConstructorConsulta{
 	public function eliminar(){
 		return $this->procesarConsultaSQL('delete from '.$this->_tabla.' '.$this->_condiciones,$this->_datos);
 	}
+	
 	/*
      * Elimina todos los registros en la tabla y reinicia el contador autoincrementable.
      *
@@ -684,26 +842,23 @@ class ConstructorConsulta{
 		if(Configuracion::obtenerVariable('BD_CONTROLADOR')=='sqlite'){
 			$consulta=Conexion::$cnx->exec('delete from '.$this->_tabla);
 			$consulta1=Conexion::$cnx->exec('update sqlite_sequence set seq=0 where name='."'".$this->_tabla."'".'');
-			if($consulta===false || $consulta1===false){
-				$this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);	
-			}
-			else{
+			if($consulta===false || $consulta1===false)
+				Error::mostrar(Conexion::$cnx->errorInfo()[1].' - '.Conexion::$cnx->errorInfo()[2],true);	
+			else
 				return 1;
-			}
 		}
 		else{
 			$sentencia=$this->traducirConsultaSQL($sentencia);
 			if(is_string($sentencia) && $sentencia!='') Conexion::$cnx->exec($sentencia);
 			$consulta=Conexion::$cnx->exec('truncate table '.$this->_tabla);
-			if($consulta===false){
-				$this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
-			}
-			else{
+			if($consulta===false)
+				Error::mostrar(Conexion::$cnx->errorInfo()[1].' - '.Conexion::$cnx->errorInfo()[2],true);
+			else
 				return 1;
-			}
 		}
 	}
 	//Fin instrucciones insertar, actualizar, eliminar y vaciar.
+	
 	/*
      * Realiza una consulta SQL en español.
      *
@@ -715,6 +870,7 @@ class ConstructorConsulta{
 	public function consulta($consulta,$datos=[],$tipo=self::OBJETO){
 		return $this->procesarConsultaSQL($consulta,$datos,$tipo,false);
 	}
+	
 	/*
      * Realiza una consulta SQL nativa.
      *
@@ -726,6 +882,7 @@ class ConstructorConsulta{
 	public function consultaNativa($consulta,$datos=[],$tipo=self::OBJETO){
 		return $this->procesarConsultaSQL($consulta,$datos,$tipo);
 	}
+	
 	/*
      * Realiza una sentencia SQL.
      *
@@ -736,6 +893,7 @@ class ConstructorConsulta{
 		$this->procesarConsultaSQL($sentencia);
 		return 1;
 	}
+	
 	/*
      * Obtiene el resultado de una consulta SQL.
      *
@@ -746,6 +904,7 @@ class ConstructorConsulta{
 		if($tipo==self::SQL) return $this->obtenerConsultaSQL(true);
 		return $this->obtenerDatosConsultaSQL($tipo);
 	}
+	
 	/*
      * Obtiene los datos relacionados a un modelo.
      *
@@ -753,7 +912,7 @@ class ConstructorConsulta{
      * @retorno object|array|json
      */
 	public function relaciones($tipo=self::OBJETO){
-		if($tipo==self::SQL) exit(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
+		if($tipo==self::SQL) Error::mostrar(Mensaje::$mensajes['RETORNO_SQL_NO_SOPORTADO']);
 		switch($tipo){
 			case self::OBJETO:
 				return json_decode(json_encode($this->_datosModeloRelacion));
@@ -765,11 +924,12 @@ class ConstructorConsulta{
 				return json_encode($this->_datosModeloRelacion);
 			break;
 			default:
-				exit(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].'<b>'.$tipo.'</b>');
+				Error::mostrar(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].': '.$tipo);
 			break;
 		}
 	}
 	//Fin métodos públicos.
+	
 	//Inicio métodos privados.
 	/*
      * Procesa y obtiene los datos de una consulta SQL.
@@ -780,7 +940,8 @@ class ConstructorConsulta{
      * @retorno array|json
      */
 	private function obtenerDatosConsultaSQL($tipo=self::OBJETO,$consultaUsuario='',$datos=[]){
-		if($tipo!=self::OBJETO && $tipo!=self::ARREGLO && $tipo!=self::JSON) exit(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].'<b>'.$tipo.'</b>');
+		if($tipo!=self::OBJETO && $tipo!=self::ARREGLO && $tipo!=self::JSON)
+			Error::mostrar(Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].': '.$tipo);
 		if($datos==self::OBJETO || $datos==self::ARREGLO || $datos==self::JSON) $tipo=$datos;
 		if(is_array($this->_datos) && !empty($this->_datos)) $datos=$this->_datos;
 		if($consultaUsuario=='') $consultaUsuario=$this->obtenerConsultaSQL();
@@ -788,22 +949,25 @@ class ConstructorConsulta{
 			$consulta=Conexion::$cnx->prepare($consultaUsuario);
 			$resultado=$consulta->execute($datos);
 			if($resultado) $datosArreglo=$consulta->fetchAll(\PDO::FETCH_ASSOC);
-			if(!$resultado) $this->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
+			if(!$resultado) Error::mostrar($consulta->errorInfo()[1].' - '.$consulta->errorInfo()[2],true);
 		}
 		else{
 			$consulta=Conexion::$cnx->query($consultaUsuario);
 			if($consulta) $datosArreglo=$consulta->fetchAll(\PDO::FETCH_ASSOC);
-			if(!$consulta) $this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
+			if(!$consulta) Error::mostrar(Conexion::$cnx->errorInfo()[1].' - '.Conexion::$cnx->errorInfo()[2],true);
 		}
 		$campos=$this->obtenerCamposConsultaSQL($datosArreglo);
 		$conteoDatosArreglo=count($datosArreglo);
-		if($conteoDatosArreglo!=0 && count($campos)!=$consulta->columnCount()) exit(Mensaje::$mensajes['AMBIGUEDAD_DE_CAMPOS']);
+		if($conteoDatosArreglo!=0 && count($campos)!=$consulta->columnCount())
+			Error::mostrar(Mensaje::$mensajes['AMBIGUEDAD_DE_CAMPOS']);
 		$datosConsulta=[];
 		for($i=0; $i<$conteoDatosArreglo; $i++){
 			$registro=[];
 			for($j=0; $j<$consulta->columnCount(); $j++){
 				$valor=$this->convertirValorNumerico($datosArreglo[$i][$campos[$j]]);
-				$condicion=!empty($this->visibles) ? in_array($campos[$j],$this->visibles) : !in_array($campos[$j],$this->ocultos);
+				$condicion=!empty($this->visibles)
+					? in_array($campos[$j],$this->visibles)
+					: !in_array($campos[$j],$this->ocultos);
 				if($condicion) $registro[$campos[$j]]=$valor;
 			}
 			if(!empty($registro)) $datosConsulta[$i]=$tipo==self::OBJETO ? (object) $registro : $registro;
@@ -811,6 +975,7 @@ class ConstructorConsulta{
 		if($tipo==self::JSON) $datosConsulta=json_encode($datosConsulta);
 		return $datosConsulta;
 	}
+	
 	/*
      * Obtiene la consulta SQL generada.
      *
@@ -832,6 +997,7 @@ class ConstructorConsulta{
 		$comandos=explode(' ',$sql);
 		return $this->obtenerSQL($comandos,$traducirParametros);
 	}
+	
 	/*
      * Obtiene el SQL a través de un arreglo de comandos.
      *
@@ -856,6 +1022,7 @@ class ConstructorConsulta{
 		}
 		return trim($sql);
 	}
+	
 	/*
      * Obtiene los campos seleccionados de una consulta SQL.
      *
@@ -866,6 +1033,7 @@ class ConstructorConsulta{
 		if(!empty($datosArreglo)) return array_keys($datosArreglo[0]);
 		return null;
 	}
+	
 	/*
      * Obtiene todos los campos de la tabla en la base de datos.
      *
@@ -886,7 +1054,14 @@ class ConstructorConsulta{
 				$atributo='Field';
 			break;
 			case 'pgsql':
-				$consulta=Conexion::$cnx->query('select column_name from information_schema.columns where table_schema='."'public'".' and table_name='."'".$this->_tabla."'".'');
+				$consulta=Conexion::$cnx->query(
+					'select 
+						column_name
+					from
+						information_schema.columns
+					where
+						table_name='."'".$this->_tabla."'"
+				);
 				$atributo='column_name';
 			break;
 			case 'sqlite':
@@ -894,7 +1069,14 @@ class ConstructorConsulta{
 				$atributo='name';
 			break;
 			case 'sqlsrv':
-				$consulta=Conexion::$cnx->query('select column_name from information_schema.columns where table_name='."'".$this->_tabla."'".'');
+				$consulta=Conexion::$cnx->query(
+					'select
+						column_name
+					from
+						information_schema.columns
+					where
+						table_name='."'".$this->_tabla."'"
+				);
 				$atributo='column_name';
 			break;
 		}
@@ -904,6 +1086,7 @@ class ConstructorConsulta{
 		}
 		return $campos;
 	}
+	
 	/*
      * Procesa una consulta SQL.
      *
@@ -915,22 +1098,29 @@ class ConstructorConsulta{
      */
 	private function procesarConsultaSQL($consulta,$datos=[],$tipo=self::OBJETO,$nativa=true){
 		if($nativa==false) $consulta=$this->traducirConsultaSQL($consulta);
-		if((strpos($consulta,'select')>-1 && strpos($consulta,'from')>-1) && (strpos($consulta,'select')<strpos($consulta,'from'))){
+		if(
+			(strpos($consulta,'select')>-1 && strpos($consulta,'from')>-1)
+			&&
+			(strpos($consulta,'select')<strpos($consulta,'from'))
+		){
 			return $this->obtenerDatosConsultaSQL($tipo,$consulta,$datos);
 		}
 		else{
 			if(is_array($datos) && !empty($datos)){
 				$consulta=Conexion::$cnx->prepare($consulta);
 				if($consulta->execute($datos)) return $consulta->rowCount();
-				if(!$consulta->execute($datos)) $this->mostrarErrorSQL($consulta->errorInfo()[1],$consulta->errorInfo()[2]);
+				if(!$consulta->execute($datos))
+					Error::mostrar($consulta->errorInfo()[1].' - '.$consulta->errorInfo()[2],true);
 			}
 			else{
 				$resultado=$consulta=Conexion::$cnx->exec($consulta);
 				if($resultado==true || $resultado===0) return $resultado;
-				if($resultado==false) $this->mostrarErrorSQL(Conexion::$cnx->errorInfo()[1],Conexion::$cnx->errorInfo()[2]);
+				if($resultado==false)
+					Error::mostrar(Conexion::$cnx->errorInfo()[1].' - '.Conexion::$cnx->errorInfo()[2],true);
 			}
 		}
 	}
+	
 	/*
      * Convierte el valor de tipo string en int o float.
      *
@@ -941,96 +1131,7 @@ class ConstructorConsulta{
 		if(is_numeric($valor)) return $valor+0;
 		return $valor;
 	}
-	/*
-     * Valida que un valor a buscar se encuentre separado por espacios en ambos extremos dentro de una cadena.
-     *
-     * @parametro string $buscar
-     * @parametro string $cadena
-     * @parametro string|boolean $IF
-     * @parametro boolean $sensible
-     * @retorno boolean|string
-     */
-	private function validarCadenaIndependiente($buscar,$cadena,$IF='',$sensible=true){
-		//Valida si la cadena $buscar es independiente o se encuentra dentro de otra.
-		if($sensible==true || $IF===true) $posicion=strpos($cadena,$buscar);
-		if($sensible==false || $IF===false) $posicion=stripos($cadena,$buscar);
-		$tamano=strlen($buscar);
-		$I=substr($cadena,$posicion-1,1);
-		$F=substr($cadena,$posicion+$tamano,1);
-		if($IF=='I'){
-			return trim($I);
-		}
-		else if($IF=='F'){
-			return trim($F);
-		}
-		else{
-			if(trim($I)=='' && trim($F)==''){
-				return true;
-			}
-			else{
-				return false;
-			}
-		}
-	}
-	/*
-     * Remplaza la primera coincidencia que encuentra en una cadena.
-     *
-     * @parametro string $viejo
-     * @parametro string $nuevo
-     * @parametro string $cadena
-     * @parametro boolean $sensible
-     * @retorno string
-     */
-	private function remplazarPrimeraCadena($viejo,$nuevo,$cadena,$sensible=true){
-		$condicion=$sensible===true ? strpos($cadena,$viejo)>-1 : stripos($cadena,$viejo)>-1;
-		$posicionInicial=$sensible===true ? strpos($cadena,$viejo) : stripos($cadena,$viejo);
-		if($condicion) $cadena=substr_replace($cadena,$nuevo,$posicionInicial,strlen($viejo));
-		//$cadena=preg_replace('/'.preg_quote($viejo,'/').'/',$nuevo,$cadena,1);
-		return $cadena;
-	}
-	/*
-     * Remplaza un valor que se encuentre separado por espacios en ambos extremos dentro de una cadena.
-     *
-     * @parametro string $viejo
-     * @parametro string $nuevo
-     * @parametro string $cadena
-     * @parametro boolean $sensible
-     * @retorno string
-     */
-	private function remplazarCadenaIndependiente($viejo,$nuevo,$cadena,$sensible=true){
-		$condicion=$sensible===true ? strpos($cadena,$viejo)>-1 : stripos($cadena,$viejo)>-1;
-		while($condicion){
-			$condicion=$sensible===true ? strpos($cadena,$viejo)>-1 : stripos($cadena,$viejo)>-1;
-			/*
-			Buscamos elementos al inicio y al final de la busqueda ($viejo) recibida
-			para definir si lo encontrado en la $cadena es una palabra independiente o está dentro de otra.
-			*/
-			$I=$this->validarCadenaIndependiente($viejo,$cadena,'I',$sensible);
-			$F=$this->validarCadenaIndependiente($viejo,$cadena,'F',$sensible);
-			if($I!='' || $F!=''){
-				/*
-				En caso de que la palabra encontrada no este independiente
-				se procede a remplazarla por __DEPENDIENTE37812__ para que pueda continuar buscando y remplazando.
-				*/
-				$cadena=$this->remplazarPrimeraCadena($viejo,'__DEPENDIENTE37812__',$cadena,$sensible);
-			}
-			else{
-				/*
-				En caso de que la palabra encontrada este independiente
-				se procede a reemplazarla por __INPENDIENTE37812__ para que pueda continuar buscando y remplazando.
-				*/
-				$cadena=$this->remplazarPrimeraCadena($viejo,'__INPENDIENTE37812__',$cadena,$sensible);
-				//$cadena=preg_replace('/'.preg_quote($viejo,'/').'/',$nuevo,$cadena,1);
-			}
-		}
-		/*
-		Volvemos a poner los __DEPENDIENTE37812__ por los catacteres $viejo
-		Volvemos a poner los __INPENDIENTE37812__ por los catacteres $nuevo.
-		*/
-		$cadena=str_replace('__DEPENDIENTE37812__',$viejo,$cadena);
-		$cadena=str_replace('__INPENDIENTE37812__',$nuevo,$cadena);
-		return $cadena;
-	}
+	
 	/*
      * Traduce una consulta SQL en español a una consulta SQL nativa.
      *
@@ -1132,150 +1233,7 @@ class ConstructorConsulta{
 		}
 		return $consultaTraducida;
 	}
-	/*
-     * Traduce errores SQL.
-     *
-     * @parametro string $error
-     * @retorno string
-     */
-	private function traducirErrorSQL($error){
-		$error=$this->remplazarCadenaIndependiente('You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near','tienes un error en tu sintaxis sql; consulte el manual que corresponde a la versión de su servidor MariaDB para conocer la sintaxis correcta para usar cerca de',$error);
-		$error=$this->remplazarCadenaIndependiente('You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near','tienes un error en tu sintaxis sql; consulte el manual que corresponde a la versión de su servidor MySQL para conocer la sintaxis correcta para usar cerca de',$error);
-		$error=$this->remplazarCadenaIndependiente('No function matches the given name and argument types. You might need to add explicit type casts.','Ninguna función coincide con los tipos de nombre y argumento dados. Es posible que necesite agregar conversiones de tipo explícito.',$error);
-		$error=$this->remplazarCadenaIndependiente('No operator matches the given name and argument types. You might need to add explicit type casts.','Ningún operador coincide con los tipos de nombre y argumento dados. Es posible que necesite agregar conversiones de tipo explícito.',$error);
-		$error=$this->remplazarCadenaIndependiente("is specified twice, both as a target for 'UPDATE' and as a separate source for data","se especifica dos veces, como objetivo para 'ACTUALIZAR' y como fuente separada para datos",$error);
-		$error=$this->remplazarCadenaIndependiente('Cannot delete or update a parent row: a foreign key constraint fails','No se puede actualizar el valor de una llave primaria ni eliminar el registro donde el campo primario este ligado a una llave foránea',$error);
-		$error=$this->remplazarCadenaIndependiente('Cannot add or update a child row: a foreign key constraint fails','No se puede agregar o actualizar una fila secundaria: error en la llave foránea',$error);
-		$error=$this->remplazarCadenaIndependiente('invalid user.table.column, table.column, or column specification','user.table.column, table.column o especificación de columna no válida',$error);
-		$error=$this->remplazarCadenaIndependiente('unique/primary keys in table referenced by enabled foreign keys','llaves únicas / primarias en la tabla referenciada por llaves foráneas habilitadas',$error);
-		$error=$this->remplazarCadenaIndependiente('Cannot truncate a table referenced in a foreign key constraint','No se puede vaciar una tabla a la que se hace referencia en una restricción de llave foránea',$error);
-		$error=$this->remplazarCadenaIndependiente('cannot truncate a table referenced in a foreign key constraint','no se puede vaciar una tabla a la que se hace referencia en una llave foránea',$error);
-		$error=$this->remplazarCadenaIndependiente('a non-numeric character was found where a numeric was expected','se encontró un carácter no numérico donde se esperaba un número',$error);
-		$error=$this->remplazarCadenaIndependiente('the numeric value does not match the length of the format item','el valor numérico no coincide con la longitud del elemento de formato',$error);
-		$error=$this->remplazarCadenaIndependiente('ERROR:  operator does not exist: character varying','ERROR: el operador no existe: carácter variable',$error);
-		$error=$this->remplazarCadenaIndependiente('argument of WHERE must be type boolean, not type','argumento de WHERE debe ser de tipo booleano, no de tipo',$error);		
-		$error=$this->remplazarCadenaIndependiente('could not connect to server: Connection refused','no se pudo conectar al servidor: conexión rechazada',$error);
-		$error=$this->remplazarCadenaIndependiente('duplicate key value violates unique constraint','el valor de la llave duplicada viola la restricción única',$error);
-		$error=$this->remplazarCadenaIndependiente("Column count doesn't match value count at row",'El conteo de columnas no coincide con el conteo de valores en la fila',$error);
-		$error=$this->remplazarCadenaIndependiente('ERROR:  unrecognized configuration parameter','ERROR: parámetro de configuración no reconocido',$error);
-		$error=$this->remplazarCadenaIndependiente('input value not long enough for date format','el valor de entrada no es lo suficientemente largo para el formato de fecha',$error);
-		$error=$this->remplazarCadenaIndependiente('Perhaps you meant to reference the column','Tal vez deseaste hacer referencia a la columna',$error);
-		$error=$this->remplazarCadenaIndependiente('has more target columns than expressions','tiene más columnas de destino que expresiones',$error);
-		$error=$this->remplazarCadenaIndependiente('has more expressions than target columns','tiene más expresiones que columnas de destino',$error);
-		$error=$this->remplazarCadenaIndependiente('invalid input syntax for type timestamp:','sintaxis de entrada no válida para el registro de tiempo de tipo:',$error);	
-		$error=$this->remplazarCadenaIndependiente('invalid username/password; logon denied','usuario/contraseña invalida; inicio de sesión denegado',$error);
-		$error=$this->remplazarCadenaIndependiente('FROM keyword not found where expected','palabra clave FROM no se encuentra donde se esperaba',$error);
-		$error=$this->remplazarCadenaIndependiente('bad parameter or other API misuse','mal parámetro u otro uso incorrecto de la API',$error);			
-		$error=$this->remplazarCadenaIndependiente('Truncated incorrect DOUBLE value:','Truncado incorrecto de valor doble:',$error);
-		$error=$this->remplazarCadenaIndependiente('missing FROM-cláusula entry for','falta la entrada de FROM-cláusula para',$error);
-		$error=$this->remplazarCadenaIndependiente('violates foreign key constraint','viola la restricción de llave foránea',$error);
-		$error=$this->remplazarCadenaIndependiente('field incorrect or syntax error','campo incorrecto o error de sintaxis',$error);
-		$error=$this->remplazarCadenaIndependiente('is still referenced from table','todavía está referenciado en la tabla',$error);
-		$error=$this->remplazarCadenaIndependiente('SQL command not properly ended','El comando SQL no ha finalizado correctamente',$error);
-		$error=$this->remplazarCadenaIndependiente('could not translate host name','no se pudo traducir el nombre del host',$error);
-		$error=$this->remplazarCadenaIndependiente('violated - child record found','violado - registro hijo encontrado',$error);
-		$error=$this->remplazarCadenaIndependiente('syntax error at end of input','tienes un error en tu sintaxis sql al final de la entrada',$error);
-		$error=$this->remplazarCadenaIndependiente('day of month must be between','el día del mes debe estar entre',$error);
-		$error=$this->remplazarCadenaIndependiente("doesn't have a default value",'no tiene un valor predeterminado',$error);
-		$error=$this->remplazarCadenaIndependiente('column ambiguously defined','columna ambiguamente definida',$error);
-		$error=$this->remplazarCadenaIndependiente('update or delete on table','actualizar o eliminar en la tabla',$error);
-		$error=$this->remplazarCadenaIndependiente('UNIQUE constraint failed:','La restricción ÚNICA ha fallado:',$error);
-		$error=$this->remplazarCadenaIndependiente('clause is required before','cláusula es requerido antes de',$error);
-		$error=$this->remplazarCadenaIndependiente('at the same time, or use','al mismo tiempo, o usar',$error);
-		$error=$this->remplazarCadenaIndependiente('syntax error at or near','tienes un error en tu sintaxis sql cerca de',$error);
-		$error=$this->remplazarCadenaIndependiente('Not unique table/alias:','Tabla/Alias no únicos:',$error);
-		$error=$this->remplazarCadenaIndependiente('minutes must be between','los minutos deben estar entre',$error);
-		$error=$this->remplazarCadenaIndependiente('seconds must be between','los segundos deben estar entre',$error);
-		$error=$this->remplazarCadenaIndependiente('cannot insert NULL into','no se puede insertar NULO en',$error);
-		$error=$this->remplazarCadenaIndependiente('Access denied for user','Acceso denegado para el usuario',$error);
-		$error=$this->remplazarCadenaIndependiente('ambiguous column name:','nombre de columna ambiguo:',$error);
-		$error=$this->remplazarCadenaIndependiente('could not find driver','No se pudo encontrar el controlador',$error);
-		$error=$this->remplazarCadenaIndependiente('invalid SQL statement','sentencia SQL inválida',$error);
-		$error=$this->remplazarCadenaIndependiente('and last day of month','y el último día del mes',$error);
-		$error=$this->remplazarCadenaIndependiente('hour must be between','la hora debe estar entre',$error);
-		$error=$this->remplazarCadenaIndependiente('has no column named','no tiene una columna llamada',$error);
-		$error=$this->remplazarCadenaIndependiente('no such function:','no existe dicha función:',$error);
-		$error=$this->remplazarCadenaIndependiente('not a valid month','no es un mes válido',$error);
-		$error=$this->remplazarCadenaIndependiente('Query was empty','La consulta esta vacía',$error);
-		$error=$this->remplazarCadenaIndependiente('no such column:','no existe dicha columna:',$error);
-		$error=$this->remplazarCadenaIndependiente('does not exist','no existe',$error);
-		$error=$this->remplazarCadenaIndependiente('no such table:','no existe dicha tabla:',$error);
-		//Texto con 2 palabras
-		$error=$this->remplazarCadenaIndependiente('Undeclared variable:','Variable no declarada:',$error);
-		$error=$this->remplazarCadenaIndependiente('integrity constraint','restricción de integridad',$error);
-		$error=$this->remplazarCadenaIndependiente('unrecognized token:','símbolo no reconocido:',$error);
-		$error=$this->remplazarCadenaIndependiente('missing expression','expresión perdida',$error);
-		$error=$this->remplazarCadenaIndependiente('invalid identifier','identificador no válido',$error);
-		$error=$this->remplazarCadenaIndependiente('column reference','la columna de referencia',$error);
-		$error=$this->remplazarCadenaIndependiente('incomplete input','entrada incompleta',$error);
-		$error=$this->remplazarCadenaIndependiente('Duplicate entry','entrada duplicada',$error);
-		$error=$this->remplazarCadenaIndependiente('already exists.','ya existe.',$error);	
-		$error=$this->remplazarCadenaIndependiente('Unknown column','columna desconocida',$error);
-		$error=$this->remplazarCadenaIndependiente("doesn't exist",'no existe',$error);
-		$error=$this->remplazarCadenaIndependiente('syntax error','error de sintaxis',$error);
-		$error=$this->remplazarCadenaIndependiente('field list','la lista de campos de la tabla '.$this->_tabla,$error);
-		$error=$this->remplazarCadenaIndependiente('for key','para la llave',$error);
-		$error=$this->remplazarCadenaIndependiente('at line','en la línea',$error);																																								
-		//Texto con 1 palabra
-		$error=$this->remplazarCadenaIndependiente('references','referencias',$error);	
-		$error=$this->remplazarCadenaIndependiente('ambiguous','ambigua',$error);
-		$error=$this->remplazarCadenaIndependiente('database','base de datos',$error);
-		$error=$this->remplazarCadenaIndependiente('relation','relación',$error);
-		$error=$this->remplazarCadenaIndependiente('Truncate','vaciar',$error);
-		$error=$this->remplazarCadenaIndependiente('FUNCTION','FUNCIÓN',$error,false);
-		$error=$this->remplazarCadenaIndependiente('address:','dirección:',$error);
-		$error=$this->remplazarCadenaIndependiente('sequence','secuencia',$error);
-		$error=$this->remplazarCadenaIndependiente('DETAIL:','DETALLE:',$error);
-		$error=$this->remplazarCadenaIndependiente('unknown','desconocido',$error,false);
-		$error=$this->remplazarCadenaIndependiente('columns','columnas',$error,false);
-		$error=$this->remplazarCadenaIndependiente('clause','cláusula',$error);
-		$error=$this->remplazarCadenaIndependiente('column','la columna',$error,false);
-		$error=$this->remplazarCadenaIndependiente('values','valores',$error);
-		$error=$this->remplazarCadenaIndependiente('HINT:','PISTA:',$error);
-		$error=$this->remplazarCadenaIndependiente('field','campo',$error,false);
-		$error=$this->remplazarCadenaIndependiente('value','valor',$error);
-		$error=$this->remplazarCadenaIndependiente('table','la tabla',$error,false);
-		$error=$this->remplazarCadenaIndependiente('LINE','LÍNEA',$error);
-		$error=$this->remplazarCadenaIndependiente('role','rol',$error);
-		$error=$this->remplazarCadenaIndependiente('view','vista',$error);
-		$error=$this->remplazarCadenaIndependiente('near','cerca de',$error);
-		$error=$this->remplazarCadenaIndependiente('key','llave',$error,false);
-		$error=$this->remplazarCadenaIndependiente('for','para',$error,false);
-		$error=$this->remplazarCadenaIndependiente('and','y',$error);
-		$error=$this->remplazarCadenaIndependiente('is','es',$error);
-		$error=$this->remplazarCadenaIndependiente('in','en',$error);
-		$error=$this->remplazarCadenaIndependiente('of','de',$error);
-		$error=$this->remplazarCadenaIndependiente('to','a',$error);
-		$error=$this->remplazarCadenaIndependiente('on','en',$error);
-		$error=$this->remplazarCadenaIndependiente('or','o',$error);
-		$error=$this->remplazarCadenaIndependiente('a','un',$error);
-		return ucfirst(trim($error));
-	}
-	/*
-     * Muestra el error de SQL y detiene la ejecución del script.
-     *
-     * @parametro int $codigoError
-     * @parametro string $infoError
-     * @retorno void
-     */
-	private function mostrarErrorSQL($codigoError,$infoError){
-		switch(Configuracion::obtenerVariable('IDIOMA')){
-			case 'es':
-				$titulo='Error de SQL';
-				$infoError=$this->traducirErrorSQL(' '.$infoError);
-			break;
-			case 'en':
-				$titulo='SQL error';
-			break;
-		}
-		exit('
-		<div style="background-color:pink; padding:10px; border:1px solid maroon; border-radius:5px;">
-			<b>'.$titulo.'</b>
-			<hr style="border:1px solid red;">
-			#'.$codigoError.' - '.$infoError.'
-		</div>
-		');
-	}
+	
 	/*
      * Obtiene la fecha y la hora actual según la zona horaria.
      *
@@ -1288,6 +1246,7 @@ class ConstructorConsulta{
 		$tiempo=$dateTime->format('Y-m-d H:i:s');
 		return $tiempo;
 	}
+	
 	/*
      * Configura y obtiene el objeto del contexto this.
      *
@@ -1306,6 +1265,7 @@ class ConstructorConsulta{
 		$contextoThis->asignarDatosModeloRelacion($contextoThis);
 		return $contextoThis;
 	}
+	
 	/*
      * Asigna los datos relacionados a un modelo.
      *
@@ -1330,6 +1290,7 @@ class ConstructorConsulta{
 			$pipe->asignarRelacionPerteneceAMuchos($pipe);
 		}
 	}
+	
 	/*
      * Asigna los datos de la relación tieneUno en el modelo.
      *
@@ -1338,7 +1299,8 @@ class ConstructorConsulta{
      */
 	private function asignarRelacionTieneUno(self $pipe){
 		foreach($pipe->tieneUno as $clase=>$valores){
-			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			if(!class_exists($clase))
+				Error::mostrar(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].': '.$clase);
 			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
 			$tablaUnion=$atributosClaseUnion['tabla'];
 			$campoForaneo=substr(Modelo::convertirModeloTabla($pipe->clase),0,-1).'_id';
@@ -1358,6 +1320,7 @@ class ConstructorConsulta{
 			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
 		}
 	}
+	
 	/*
      * Asigna los datos de la relación tieneMuchos en el modelo.
      *
@@ -1366,7 +1329,8 @@ class ConstructorConsulta{
      */
 	private function asignarRelacionTieneMuchos(self $pipe){
 		foreach($pipe->tieneMuchos as $clase=>$valores){
-			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			if(!class_exists($clase))
+				Error::mostrar(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].': '.$clase);
 			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
 			$tablaUnion=$atributosClaseUnion['tabla'];
 			$campoForaneo=substr(Modelo::convertirModeloTabla($pipe->clase),0,-1).'_id';
@@ -1385,6 +1349,7 @@ class ConstructorConsulta{
 			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
 		}
 	}
+	
 	/*
      * Asigna los datos de la relación perteneceAUno en el modelo.
      *
@@ -1393,7 +1358,8 @@ class ConstructorConsulta{
      */
 	private function asignarRelacionPerteneceAUno(self $pipe){
 		foreach($pipe->perteneceAUno as $clase=>$valores){
-			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			if(!class_exists($clase))
+				Error::mostrar(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].': '.$clase);
 			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
 			$tablaUnion=$atributosClaseUnion['tabla'];
 			$llavePrimariaUnion=$atributosClaseUnion['llavePrimaria'];
@@ -1419,6 +1385,7 @@ class ConstructorConsulta{
 			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
 		}
 	}
+	
 	/*
      * Asigna los datos de la relación perteneceAMuchos en el modelo.
      *
@@ -1427,7 +1394,8 @@ class ConstructorConsulta{
      */
 	private function asignarRelacionPerteneceAMuchos(self $pipe){
 		foreach($pipe->perteneceAMuchos as $clase=>$valores){
-			if(!class_exists($clase)) exit(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].'<b>'.$clase.'</b>');
+			if(!class_exists($clase))
+				Error::mostrar(Mensaje::$mensajes['MODELO_NO_ENCONTRADO'].': '.$clase);
 			$atributosClaseUnion=Modelo::obtenerAtributosClase($clase);
 			$tablaUnion=$atributosClaseUnion['tabla'];
 			$llavePrimariaUnion=$atributosClaseUnion['llavePrimaria'];
@@ -1440,20 +1408,27 @@ class ConstructorConsulta{
 			$llaveForaneaLocal=$valores['llaveForaneaLocal'] ?? $foraneaLocal.'_id';
 			$llaveForaneaUnion=$valores['llaveForaneaUnion'] ?? $foraneaUnion.'_id';
 			$relacion=(new self(['tabla'=>$tablaUnion]))
-				->unir($tablaUnionRelacion,$tablaUnion.'.'.$llavePrimariaUnion,$tablaUnionRelacion.'.'.$llaveForaneaUnion);
+				->unir(
+					$tablaUnionRelacion,
+					$tablaUnion.'.'.$llavePrimariaUnion,
+					$tablaUnionRelacion.'.'.$llaveForaneaUnion
+				);
 			$datos=$relacion->seleccionar($tablaUnion.'.*')
 				->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=?',$pipe->_datos)
 				->obtener();
 			foreach($datos as $dato){
 				$datosTablaUnionRelacion=$relacion->seleccionar($tablaUnionRelacion.'.*')
-				->donde($tablaUnionRelacion.'.'.$llaveForaneaLocal.'=? y '.$tablaUnionRelacion.'.'.$llaveForaneaUnion.'=?',[
-					$pipe->_datos[0],$dato->$llavePrimariaUnion
-				])->obtener()[0];
+				->donde(
+					$tablaUnionRelacion.'.'
+					.$llaveForaneaLocal.'=? y '.$tablaUnionRelacion.'.'.$llaveForaneaUnion.'=?',
+					[$pipe->_datos[0],$dato->$llavePrimariaUnion]
+				)->obtener()[0];
 				$dato->$tablaUnionRelacion=$datosTablaUnionRelacion;
 			}
 			$pipe->_datosModeloRelacion[$tablaUnion]=$datos;
 		}
 	}
+	
 	/*
      * Configura las variables del registro del tiempo.
      *
@@ -1471,6 +1446,7 @@ class ConstructorConsulta{
 		}
 		return $pipe;
 	}
+	
 	/*
      * Obtiene los campos personalizados de insersión.
      *
@@ -1490,6 +1466,7 @@ class ConstructorConsulta{
 			$campos=substr($campos,0,-1);
 		return $campos;
 	}
+	
 	/*
      * Obtiene los parámetros personalizados de insersión.
      *
@@ -1512,6 +1489,7 @@ class ConstructorConsulta{
 			$parametros=substr($parametros,0,-1);
 		return $parametros;
 	}
+	
 	/*
      * Obtiene los valores personalizados de insersión.
      *
@@ -1532,6 +1510,7 @@ class ConstructorConsulta{
 		}
 		return $valores;
 	}
+	
 	/*
      * Obtiene los campos insersión.
      *
@@ -1542,12 +1521,14 @@ class ConstructorConsulta{
 		$campos='';
 		$camposTabla=$pipe->obtenerCamposTabla($pipe->insertables);
 		foreach($camposTabla as $campo){
-			if(!property_exists($pipe,$campo)) exit(Mensaje::$mensajes['PROPIEDAD_NO_DEFINIDA'].' <b>'.$campo.'</b>');
+			if(!property_exists($pipe,$campo))
+				Error::mostrar(Mensaje::$mensajes['PROPIEDAD_NO_DEFINIDA'].': '.$campo);
 			$campos=$campos.$campo.',';
 		}
 		$campos=substr($campos,0,-1);
 		return $campos;
 	}
+	
 	/*
      * Obtiene los parámetros insersión.
      *
@@ -1566,6 +1547,7 @@ class ConstructorConsulta{
 		$parametros=substr($parametros,0,-1);
 		return $parametros;
 	}
+	
 	/*
      * Obtiene los valores insersión.
      *
@@ -1581,6 +1563,7 @@ class ConstructorConsulta{
 		}
 		return $valores;
 	}
+	
 	/*
      * Obtiene los parámetros personalizados de actualización.
      *
@@ -1599,6 +1582,7 @@ class ConstructorConsulta{
 		$parametros=substr($parametros,0,-1);
 		return $parametros;
 	}
+	
 	/*
      * Obtiene los parámetros de actualización.
      *
@@ -1617,6 +1601,7 @@ class ConstructorConsulta{
 		$parametros=substr($parametros,0,-1);
 		return $parametros;
 	}
+	
 	/*
      * Genera un arreglo asociativo respecto a las excepciones encontradas.
      *
@@ -1633,6 +1618,7 @@ class ConstructorConsulta{
 		}
 		return $arregloAsociativo;
 	}
+	
 	/*
      * Verifica si los campos del registro del tiempo están definidos en la tabla de la base de datos.
      *

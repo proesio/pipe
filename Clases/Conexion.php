@@ -2,9 +2,9 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 13-05-2020
- * Versión: 4.2.0
- * Sitio web: https://proes.tk/pipe
+ * Fecha última modificación: 05-07-2020
+ * Versión: 4.2.3
+ * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
  *
@@ -47,21 +47,26 @@
  * DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
+
 namespace PIPE\Clases;
+
 class Conexion{
+	
 	/*
      * Instancia de PDO
      * @tipo \PDO
      */
 	public static $cnx=null;
+	
 	/*
      * Crea una nueva instancia de la clase Conexion.
      *
      * @retorno void
      */
 	public function __construct(){
-		Conexion::$cnx=$this->conexion();
+		self::$cnx=$this->conexion();
 	}
+	
 	/*
      * Obtiene la conexión de la base de datos.
      *
@@ -77,13 +82,16 @@ class Conexion{
 				return $cnx;
 			}
 			else{
-				exit('BD_CONTROLADOR <b>'.$constantes['BD_CONTROLADOR'].'</b>'.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']);
+				Error::mostrar(
+					'BD_CONTROLADOR '.$constantes['BD_CONTROLADOR'].' '.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']
+				);
 			}
 		}
 		catch(\PDOException $e){
-			exit($e->getMessage());
+			Error::mostrar($e->getMessage(),true);
 		}
 	}
+	
 	/*
      * Obtiene las constantes necesarias para la conexión.
      *
@@ -99,6 +107,7 @@ class Conexion{
 		$constantes['BD_CODIFICACION']=Configuracion::obtenerVariable('BD_CODIFICACION');
 		return $constantes;
 	}
+	
 	/*
      * Valida que se ingrese un controlador correcto.
      *
@@ -106,9 +115,15 @@ class Conexion{
      * @retorno boolean
      */
 	private function validarControladorAdmitido($controlador){
-		if($controlador=='mysql' || $controlador=='pgsql'  || $controlador=='sqlite' || $controlador=='sqlsrv') return true;
+		if(
+			$controlador=='mysql'
+			|| $controlador=='pgsql'
+			|| $controlador=='sqlite'
+			|| $controlador=='sqlsrv'
+		) return true;
 		return false;
 	}
+	
 	/*
      * Obtiene la cadena DSN con los parámetros de conexión.
      *
@@ -142,4 +157,5 @@ class Conexion{
 		return $dsn;
 	}
 }
+
 new Conexion();
