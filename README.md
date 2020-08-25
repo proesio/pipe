@@ -1,10 +1,14 @@
-<p align="center"><a href="https://pipe.proes.tk" target="_blank"><img src="https://pipe.proes.tk/imagenes/pipe-eslogan-transparente.png" width="300" alt="Eslogan PIPE"></a></p>
+<p align="center">
+    <a href="https://pipe.proes.tk" target="_blank">
+        <img src="https://pipe.proes.tk/imagenes/pipe-eslogan-transparente.png" width="300" alt="Eslogan PIPE">
+    </a>
+</p>
 
 <p align="center">
-	<a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/downloads" alt="Total Descargas"></a>
-	<a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/v/stable" alt="Última Versión Estable"></a>
-	<a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/v/unstable" alt="Última Versión No Estable"></a>
-	<a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/license" alt="Licencia"></a>
+    <a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/downloads" alt="Total Descargas"></a>
+    <a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/v/stable" alt="Última Versión Estable"></a>
+    <a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/v/unstable" alt="Última Versión No Estable"></a>
+    <a href="https://packagist.org/packages/proesio/pipe"><img src="https://poser.pugx.org/proesio/pipe/license" alt="Licencia"></a>
 </p>
 
 ## PIPE

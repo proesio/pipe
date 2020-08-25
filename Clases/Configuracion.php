@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 05-07-2020
- * Versión: 4.2.3
+ * Fecha última modificación: 24-08-2020
+ * Versión: 4.2.6
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -51,50 +51,63 @@
 namespace PIPE\Clases;
 
 class Configuracion{
-	
-	/*
+    
+    /*
      * Configuración del ORM PIPE.
+     *
      * @tipo array
      */
-	private static $config=[];
-	
-	/*
+    private static $config = [];
+    
+    /*
      * Inicializa la configuración del ORM PIPE.
      *
-	 * @parametro array $config
+     * @parametro array $config
      * @retorno void
      */
-	public static function inicializar($config=[]){
-		self::$config=$config;
-		self::incluirArchivos();
-	}
-	
-	/*
+    public static function inicializar($config = []){
+        self::$config = $config;
+        self::incluirArchivos();
+    }
+    
+    /*
      * Obtiene una variable de la configuración del ORM PIPE.
      *
-	 * @parametro string $variable
+     * @parametro string $variable
      * @retorno string|null
      */
-	public static function obtenerVariable($variable){
-		$valor=array_key_exists($variable,self::$config)
-			&& !empty(self::$config[$variable])
-			? self::$config[$variable] : null;
-		return $valor;
-	}
-	
-	/*
+    public static function obtenerVariable($variable){
+        $valor = array_key_exists($variable, self::$config)
+            && !empty(self::$config[$variable])
+            ? self::$config[$variable] : null;
+        return $valor;
+    }
+    
+    /*
      * Incluye los archivos del ORM PIPE.
      *
      * @retorno void
      */
-	private static function incluirArchivos(){
-		require __DIR__.'/../Rasgos/Encadenable.php';
-		require 'Error.php';
-		require 'Mensaje.php';
-		require 'Conexion.php';
-		require 'ConstructorConsulta.php';
-		require 'PIPE.php';
-		require 'Modelo.php';
-		require 'Archivo.php';
-	}
+    private static function incluirArchivos(){
+        require_once __DIR__.'/../Rasgos/Encadenable.php';
+        require_once 'Error.php';
+        require_once 'Mensaje.php';
+        require_once 'Conexion.php';
+        require_once 'ConstructorConsulta.php';
+        require_once 'PIPE.php';
+        require_once 'Modelo.php';
+        require_once 'Archivo.php';
+        self::instanciarClases();
+    }
+    
+    /*
+     * Instancia las clases al inicio de la configuración.
+     *
+     * @retorno void
+     */
+    private static function instanciarClases(){
+        new Mensaje();
+        new Conexion();
+        new Archivo();
+    }
 }

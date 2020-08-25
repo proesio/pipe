@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 05-07-2020
- * Versión: 4.2.3
+ * Fecha última modificación: 24-08-2020
+ * Versión: 4.2.6
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -51,50 +51,49 @@
 namespace PIPE\Clases;
 
 class Mensaje{
-	
-	/*
+    
+    /*
      * Mensajes según el idioma establecido.
+     *
      * @tipo array
      */
-	public static $mensajes=[];
-	
-	/*
+    public static $mensajes = [];
+    
+    /*
      * Crea una nueva instancia de la clase Mensaje.
      *
      * @retorno void
      */
-	public function __construct(){
-		$this->asignarMensajes();
-	}
-	
-	/*
+    public function __construct(){
+        $this->asignarMensajes();
+    }
+    
+    /*
      * Asigna los mensajes según el idioma establecido.
      *
      * @retorno void
      */
-	public function asignarMensajes(){
-		$idioma=Configuracion::obtenerVariable('IDIOMA');
-		if($idioma){
-			switch($idioma){
-				case 'es':
-					self::$mensajes=require __DIR__.'/../Idiomas/es.php';
-				break;
-				case 'en':
-					self::$mensajes=require __DIR__.'/../Idiomas/en.php';
-				break;
-				default:
-					Error::mostrar(
-						'IDIOMA '.$idioma.' desconocido. Idiomas admitidos: es, en.'
-					);
-				break;
-			}
-		}
-		else{
-			Error::mostrar(
-				'La constante IDIOMA debe ser inicializada en el método Configuracion::inicializar().'
-			);
-		}
-	}
+    public function asignarMensajes(){
+        $idioma = Configuracion::obtenerVariable('IDIOMA');
+        if($idioma){
+            switch($idioma){
+                case 'es':
+                    self::$mensajes = require __DIR__.'/../Idiomas/es.php';
+                break;
+                case 'en':
+                    self::$mensajes = require __DIR__.'/../Idiomas/en.php';
+                break;
+                default:
+                    Error::mostrar(
+                        'IDIOMA '.$idioma.' desconocido. Idiomas admitidos: es, en.'
+                    );
+                break;
+            }
+        }
+        else{
+            Error::mostrar(
+                'La constante IDIOMA debe ser inicializada en el método Configuracion::inicializar().'
+            );
+        }
+    }
 }
-
-new Mensaje();

@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 05-07-2020
- * Versión: 4.2.3
+ * Fecha última modificación: 24-08-2020
+ * Versión: 4.2.6
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -51,111 +51,110 @@
 namespace PIPE\Clases;
 
 class Conexion{
-	
-	/*
+    
+    /*
      * Instancia de PDO
+     *
      * @tipo \PDO
      */
-	public static $cnx=null;
-	
-	/*
+    public static $cnx = null;
+    
+    /*
      * Crea una nueva instancia de la clase Conexion.
      *
      * @retorno void
      */
-	public function __construct(){
-		self::$cnx=$this->conexion();
-	}
-	
-	/*
+    public function __construct(){
+        self::$cnx = $this->conexion();
+    }
+    
+    /*
      * Obtiene la conexión de la base de datos.
      *
      * @retorno \PDO
      */
-	private function conexion(){
-		try{
-			$constantes=$this->obtenerConstantesConexion();
-			if($this->validarControladorAdmitido($constantes['BD_CONTROLADOR'])){
-				$dsn=$this->obtenerDSN($constantes);
-				$cnx=new \PDO($dsn,$constantes['BD_USUARIO'] ?? '',$constantes['BD_CONTRASENA'] ?? '');
-				if($constantes['BD_CODIFICACION']) $cnx->exec('set names '.$constantes['BD_CODIFICACION']);
-				return $cnx;
-			}
-			else{
-				Error::mostrar(
-					'BD_CONTROLADOR '.$constantes['BD_CONTROLADOR'].' '.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']
-				);
-			}
-		}
-		catch(\PDOException $e){
-			Error::mostrar($e->getMessage(),true);
-		}
-	}
-	
-	/*
+    private function conexion(){
+        try{
+            $constantes = $this->obtenerConstantesConexion();
+            if($this->validarControladorAdmitido($constantes['BD_CONTROLADOR'])){
+                $dsn = $this->obtenerDSN($constantes);
+                $cnx = new \PDO($dsn, $constantes['BD_USUARIO'] ?? '', $constantes['BD_CONTRASENA'] ?? '');
+                if($constantes['BD_CODIFICACION']) $cnx->exec('set names '.$constantes['BD_CODIFICACION']);
+                return $cnx;
+            }
+            else{
+                Error::mostrar(
+                    'BD_CONTROLADOR '.$constantes['BD_CONTROLADOR'].' '.Mensaje::$mensajes['CONTROLADOR_DESCONOCIDO']
+                );
+            }
+        }
+        catch(\PDOException $e){
+            Error::mostrar($e->getMessage(), true);
+        }
+    }
+    
+    /*
      * Obtiene las constantes necesarias para la conexión.
      *
      * @retorno array
      */
-	private function obtenerConstantesConexion(){
-		$constantes['BD_CONTROLADOR']=Configuracion::obtenerVariable('BD_CONTROLADOR');
-		$constantes['BD_HOST']=Configuracion::obtenerVariable('BD_HOST');
-		$constantes['BD_PUERTO']=Configuracion::obtenerVariable('BD_PUERTO');
-		$constantes['BD_USUARIO']=Configuracion::obtenerVariable('BD_USUARIO');
-		$constantes['BD_CONTRASENA']=Configuracion::obtenerVariable('BD_CONTRASENA');
-		$constantes['BD_BASEDATOS']=Configuracion::obtenerVariable('BD_BASEDATOS');
-		$constantes['BD_CODIFICACION']=Configuracion::obtenerVariable('BD_CODIFICACION');
-		return $constantes;
-	}
-	
-	/*
+    private function obtenerConstantesConexion(){
+        $constantes['BD_CONTROLADOR'] = Configuracion::obtenerVariable('BD_CONTROLADOR');
+        $constantes['BD_HOST'] = Configuracion::obtenerVariable('BD_HOST');
+        $constantes['BD_PUERTO'] = Configuracion::obtenerVariable('BD_PUERTO');
+        $constantes['BD_USUARIO'] = Configuracion::obtenerVariable('BD_USUARIO');
+        $constantes['BD_CONTRASENA'] = Configuracion::obtenerVariable('BD_CONTRASENA');
+        $constantes['BD_BASEDATOS'] = Configuracion::obtenerVariable('BD_BASEDATOS');
+        $constantes['BD_CODIFICACION'] = Configuracion::obtenerVariable('BD_CODIFICACION');
+        return $constantes;
+    }
+    
+    /*
      * Valida que se ingrese un controlador correcto.
      *
      * @parametro string $controlador
      * @retorno boolean
      */
-	private function validarControladorAdmitido($controlador){
-		if(
-			$controlador=='mysql'
-			|| $controlador=='pgsql'
-			|| $controlador=='sqlite'
-			|| $controlador=='sqlsrv'
-		) return true;
-		return false;
-	}
-	
-	/*
+    private function validarControladorAdmitido($controlador){
+        if(
+            $controlador == 'mysql'
+            || $controlador == 'pgsql'
+            || $controlador == 'sqlite'
+            || $controlador == 'sqlsrv'
+        ) return true;
+        return false;
+    }
+    
+    /*
      * Obtiene la cadena DSN con los parámetros de conexión.
      *
      * @parametro array $constantes
      * @retorno string
      */
-	private function obtenerDSN($constantes){
-		$controlador=$constantes['BD_CONTROLADOR'];
-		$host=$constantes['BD_HOST'];
-		$puerto=$constantes['BD_PUERTO'];
-		$basedatos=$constantes['BD_BASEDATOS'];
-		if($controlador=='mysql' || $controlador=='pgsql'){
-			$host=$host ? 'host='.$host.';' : '';
-			$puerto=$puerto ? 'port='.$puerto.';' : '';
-			$basedatos=$basedatos ? 'dbname='.$basedatos.';' : '';
-			$dsn=$controlador.':'.$host.$puerto.$basedatos;
-		}
-		else if($controlador=='sqlite'){
-			$dsn=$controlador.':'.$basedatos;
-		}
-		else if($controlador=='sqlsrv'){
-			if($host && $puerto)
-				$host='server='.$host.','.$puerto.';';
-			else if($host)
-				$host='server='.$host.';';
-			else
-				$host='';
-			$basedatos=$basedatos ? 'database='.$basedatos.';' : '';
-			$dsn=$controlador.':'.$host.$basedatos;
-		}
-		return $dsn;
-	}
+    private function obtenerDSN($constantes){
+        $controlador = $constantes['BD_CONTROLADOR'];
+        $host = $constantes['BD_HOST'];
+        $puerto = $constantes['BD_PUERTO'];
+        $basedatos = $constantes['BD_BASEDATOS'];
+        if($controlador == 'mysql' || $controlador == 'pgsql'){
+            $host = $host ? 'host='.$host.';' : '';
+            $puerto = $puerto ? 'port='.$puerto.';' : '';
+            $basedatos = $basedatos ? 'dbname='.$basedatos.';' : '';
+            $dsn = $controlador.':'.$host.$puerto.$basedatos;
+        }
+        else if($controlador == 'sqlite'){
+            $dsn = $controlador.':'.$basedatos;
+        }
+        else if($controlador == 'sqlsrv'){
+            if($host && $puerto)
+                $host = 'server='.$host.','.$puerto.';';
+            else if($host)
+                $host = 'server='.$host.';';
+            else
+                $host = '';
+            $basedatos = $basedatos ? 'database='.$basedatos.';' : '';
+            $dsn = $controlador.':'.$host.$basedatos;
+        }
+        return $dsn;
+    }
 }
-
-new Conexion();

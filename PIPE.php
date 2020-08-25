@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 05-07-2020
- * Versión: 4.2.3
+ * Fecha última modificación: 24-08-2020
+ * Versión: 4.2.6
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -48,4 +48,4 @@
  * CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
  */
 
-require 'Clases/Configuracion.php';
+require_once 'Clases/Configuracion.php';

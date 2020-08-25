@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 05-07-2020
- * Versión: 4.2.3
+ * Fecha última modificación: 24-08-2020
+ * Versión: 4.2.6
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -51,54 +51,60 @@
 namespace PIPE\Clases;
 
 abstract class PIPE{
-	
-	/*
+    
+    /*
      * Autor del ORM PIPE.
+     *
      * @tipo string
      */
-	const AUTOR='Juan Felipe Valencia Murillo';
-	
-	/*
+    const AUTOR = 'Juan Felipe Valencia Murillo';
+    
+    /*
      * Versión actual del ORM PIPE.
+     *
      * @tipo string
      */
-	const VERSION='4.2.3';
-	
-	/*
+    const VERSION = '4.2.6';
+    
+    /*
      * Indica el retorno de resultados de una consulta SQL como un objeto.
+     *
      * @tipo string
      */
-	const OBJETO='objeto';
-	
-	/*
+    const OBJETO = 'objeto';
+    
+    /*
      * Indica el retorno de resultados de una consulta SQL como un arreglo.
+     *
      * @tipo string
      */
-	const ARREGLO='arreglo';
-	
-	/*
+    const ARREGLO = 'arreglo';
+    
+    /*
      * Indica el retorno de resultados de una consulta SQL como una cadena de json.
+     *
      * @tipo string
      */
-	const JSON='json';
-	
-	/*
+    const JSON = 'json';
+    
+    /*
      * Indica el retorno de la consulta SQL generada.
+     *
      * @tipo string
      */
-	const SQL='sql';
-	
-	/*
+    const SQL = 'sql';
+    
+    /*
      * Establece el nombre de la tabla en el Constructor de Consultas.
      *
      * @parametro string $tabla
      * @retorno \PIPE\Clases\ConstructorConsulta
      */
-	public static function tabla($tabla){
-		return new ConstructorConsulta(['tabla'=>$tabla]);
-	}
-	
-	/*
+    public static function tabla($tabla){
+        return new ConstructorConsulta(['tabla' => $tabla]);
+    }
+    
+    /*
      * Realiza una consulta SQL en español.
      *
      * @parametro string $consulta
@@ -106,12 +112,12 @@ abstract class PIPE{
      * @parametro string $tipo
      * @retorno array|json|int
      */
-	public static function consulta($consulta,$datos=[],$tipo=self::OBJETO){
-		$pipe=new ConstructorConsulta();
-		return $pipe->consulta(...func_get_args());
-	}
-	
-	/*
+    public static function consulta($consulta, $datos = [], $tipo = self::OBJETO){
+        $pipe = new ConstructorConsulta();
+        return $pipe->consulta(...func_get_args());
+    }
+    
+    /*
      * Realiza una consulta SQL nativa.
      *
      * @parametro string $consulta
@@ -119,28 +125,28 @@ abstract class PIPE{
      * @parametro string $tipo
      * @retorno array|json|int
      */
-	public static function consultaNativa($consulta,$datos=[],$tipo=self::OBJETO){
-		$pipe=new ConstructorConsulta();
-		return $pipe->consultaNativa(...func_get_args());
-	}
-	
-	/*
+    public static function consultaNativa($consulta, $datos = [], $tipo = self::OBJETO){
+        $pipe = new ConstructorConsulta();
+        return $pipe->consultaNativa(...func_get_args());
+    }
+    
+    /*
      * Realiza una sentencia SQL.
      *
      * @parametro string $sentencia
      * @retorno int
      */
-	public static function sentencia($sentencia){
-		$pipe=new ConstructorConsulta();
-		return $pipe->sentencia(...func_get_args());
-	}
-	
-	/*
+    public static function sentencia($sentencia){
+        $pipe = new ConstructorConsulta();
+        return $pipe->sentencia(...func_get_args());
+    }
+    
+    /*
      * Obtiene la instancia de PDO.
      *
      * @retorno \PDO
      */
-	public static function obtenerPDO(){
-		return Conexion::$cnx;
-	}
+    public static function obtenerPDO(){
+        return Conexion::$cnx;
+    }
 }

@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 05-07-2020
- * Versión: 4.2.3
+ * Fecha última modificación: 24-08-2020
+ * Versión: 4.2.6
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -51,35 +51,33 @@
 namespace PIPE\Clases;
 
 class Archivo{
-	
-	/*
+    
+    /*
      * Crea una nueva instancia de la clase Archivo.
      *
      * @retorno void
      */
-	public function __construct(){
-		$this->importarModelos();
-	}
-	
-	/*
+    public function __construct(){
+        $this->importarModelos();
+    }
+    
+    /*
      * Importa los modelos ubicados en el directorio especificado.
      *
      * @retorno void
      */
-	public function importarModelos(){
-		if($rutaModelos=Configuracion::obtenerVariable('RUTA_MODELOS')){
-			if(!file_exists($rutaModelos))
-				Error::mostrar(
-					Mensaje::$mensajes['RUTA_MODELOS_NO_ENCONTRADA'].': '.$rutaModelos
-				);
-			if($carpeta=opendir($rutaModelos)){
-				while(($archivo=readdir($carpeta))!==false){
-					if(substr($archivo,-3)=='php') require $rutaModelos.'/'.$archivo;
-				}
-				closedir($carpeta);
-			}
-		}
-	}
+    public function importarModelos(){
+        if($rutaModelos = Configuracion::obtenerVariable('RUTA_MODELOS')){
+            if(!file_exists($rutaModelos))
+                Error::mostrar(
+                    Mensaje::$mensajes['RUTA_MODELOS_NO_ENCONTRADA'].': '.$rutaModelos
+                );
+            if($carpeta = opendir($rutaModelos)){
+                while(($archivo = readdir($carpeta)) !== false){
+                    if(substr($archivo, -3) == 'php') require_once $rutaModelos.'/'.$archivo;
+                }
+                closedir($carpeta);
+            }
+        }
+    }
 }
-
-new Archivo();

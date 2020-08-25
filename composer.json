@@ -1,28 +1,29 @@
 {
     "name": "proesio/pipe",
     "description": "PIPE - ORM en Español.",
-	"type": "library",
+    "type": "library",
     "keywords": [
         "pipe",
         "orm",
-		"mapping",
-		"persistence",
+        "mapping",
+        "persistence",
         "database"
     ],
-	"license": "MIT",
-	"homepage": "https://pipe.proes.tk",
-	"authors":[
+    "license": "MIT",
+    "homepage": "https://pipe.proes.tk",
+    "authors": [
         {
             "name": "Juan Felipe Valencia Murillo",
-			"email": "juanfe0245@gmail.com",
-            "homepage": "https://pipe.proes.tk/desarrollador/",
-			"role": "Desarrollador"
+            "email": "juanfe0245@gmail.com",
+            "homepage": "https://jfvalenciam.proes.tk",
+            "role": "Desarrollador"
         }
     ],
-	"require": {
+    "require": {
         "php": ">=7.2.0"
     },
-	"autoload": {
-        "files":["PIPE.php"]
-    }
+    "autoload": {
+        "files": ["pipe.php"]
+    },
+    "minimum-stability": "dev"
 }

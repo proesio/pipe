@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 05-07-2020
- * Versión: 4.2.3
+ * Fecha última modificación: 24-08-2020
+ * Versión: 4.2.6
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -49,12 +49,12 @@
  */
 
 return [
-	'AMBIGUEDAD_DE_CAMPOS'=>'Ambiguity of fields in the SQL query. Verify the membership of the fields to their respective table and assign an alias to each field where the name is the same in another table.',
-	'CONTROLADOR_DESCONOCIDO'=>' unknown. Supported drivers: mysql, pgsql, sqlite, and sqlsrv.',
-	'MODELO_NO_ENCONTRADO'=>'The following model was not found',
-	'TIPO_DATO_DESCONOCIDO'=>'The following type of data is unknown',
-	'RUTA_MODELOS_NO_ENCONTRADA'=>'The following model path was not found',
-	'PROPIEDAD_NO_DEFINIDA'=>'The following property must be defined',
-	'METODO_LIMITE_NO_SOPORTADO'=>'The sqlsrv driver does not support limit() method, instead use the tomar() method.',
-	'RETORNO_SQL_NO_SOPORTADO'=>'Unsupported SQL return type.'
+    'AMBIGUEDAD_DE_CAMPOS' => 'Ambiguity of fields in the SQL query. Verify the membership of the fields to their respective table and assign an alias to each field where the name is the same in another table.',
+    'CONTROLADOR_DESCONOCIDO' => ' unknown. Supported drivers: mysql, pgsql, sqlite, and sqlsrv.',
+    'MODELO_NO_ENCONTRADO' => 'The following model was not found',
+    'TIPO_DATO_DESCONOCIDO' => 'The following type of data is unknown',
+    'RUTA_MODELOS_NO_ENCONTRADA' => 'The following model path was not found',
+    'PROPIEDAD_NO_DEFINIDA' => 'The following property must be defined',
+    'METODO_LIMITE_NO_SOPORTADO' => 'The sqlsrv driver does not support limit() method, instead use the tomar() method.',
+    'RETORNO_SQL_NO_SOPORTADO' => 'Unsupported SQL return type.'
 ];
