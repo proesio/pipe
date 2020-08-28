@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 24-08-2020
- * Versión: 4.2.6
+ * Fecha última modificación: 27-08-2020
+ * Versión: 4.3.2
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -56,5 +56,6 @@ return [
     'RUTA_MODELOS_NO_ENCONTRADA' => 'La siguiente ruta de modelos no fue encontrada',
     'PROPIEDAD_NO_DEFINIDA' => 'La siguiente propiedad debe estar definida',
     'METODO_LIMITE_NO_SOPORTADO' => 'El controlador sqlsrv no soporta el método limite(), en su lugar use el método tomar().',
-    'RETORNO_SQL_NO_SOPORTADO' => 'Tipo de retorno SQL no soportado.'
+    'RETORNO_SQL_NO_SOPORTADO' => 'Tipo de retorno SQL no soportado.',
+    'TABLA_NO_EXISTE' => 'La siguiente tabla no existe'
 ];

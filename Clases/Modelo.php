@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 24-08-2020
- * Versión: 4.2.6
+ * Fecha última modificación: 27-08-2020
+ * Versión: 4.3.2
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -453,15 +453,16 @@ abstract class Modelo{
     
     //Inicio instrucciones crear, editar y destruir.
     /*
-     * Crea un nuevo registro en la base de datos.
+     * Crea un nuevo registro en la base de datos y obtiene el objeto creado.
      *
+     * @parametro array $registros
      * @retorno object|array
      */
-    public static function crear(){
+    public static function crear($registros){
         $atributosClase = self::obtenerAtributosClase(get_called_class());
         $pipe = new ConstructorConsulta($atributosClase);
         $pipe->todo();
-        $registros = func_get_args();
+        $registros = $pipe->obtenerRegistrosInsertar($registros);
         $inserciones = null;
         foreach($registros as $registro){
             $id = $pipe->insertarObtenerId($registro);
@@ -472,7 +473,7 @@ abstract class Modelo{
     }
     
     /*
-     * Edita un registro en la base de datos.
+     * Edita un registro en la base de datos y obtiene el objeto editado.
      *
      * @parametro array|int|string $ids
      * @parametro array $valores
@@ -506,7 +507,7 @@ abstract class Modelo{
     }
     
     /*
-     * Destruye un registro en la base de datos.
+     * Destruye un registro en la base de datos y obtiene el objeto destruido.
      *
      * @parametro array|int|string $ids
      * @retorno object|array
@@ -576,8 +577,8 @@ abstract class Modelo{
      */
     public static function convertirModeloTabla($modelo){
         $alfabeto = [
-            'A','B','C','D','E','F','G','H','I','J','K','L','M',
-            'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
         ];
         $letras = str_split($modelo);
         foreach($alfabeto as $alfa){

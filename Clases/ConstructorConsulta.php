@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 24-08-2020
- * Versión: 4.2.6
+ * Fecha última modificación: 27-08-2020
+ * Versión: 4.3.2
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -287,6 +287,8 @@ class ConstructorConsulta{
         $this->actualizables = $atributosClase['actualizables'] ?? $this->actualizables;
         $this->visibles = $atributosClase['visibles'] ?? $this->visibles;
         $this->ocultos = $atributosClase['ocultos'] ?? $this->ocultos;
+        if(!empty($this->_tabla) && !$this->verificarTablaExiste($this->_tabla))
+            Error::mostrar(Mensaje::$mensajes['TABLA_NO_EXISTE'].': '.$this->_tabla);
     }
     
     //Inicio métodos públicos.
@@ -731,14 +733,15 @@ class ConstructorConsulta{
     /*
      * Inserta un nuevo registro en la base de datos.
      *
-     * @parametro array $valores
+     * @parametro array $registros
      * @retorno int
      */
-    public function insertar($valores = []){
+    public function insertar($registros = []){
         $pipe = $this->configurarRegistroTiempo($this);
-        if(is_array($valores) && !empty($valores)){
+        if(is_array($registros) && !empty($registros)){
+            $registros = $this->obtenerRegistrosInsertar($registros);
             $inserciones = 0;
-            foreach(func_get_args() as $registro){
+            foreach($registros as $registro){
                 $campos = $pipe->obtenerCamposInsercionP($pipe, $registro);
                 $parametros = $pipe->obtenerParametrosInsercionP($pipe, $registro);
                 $valores = $pipe->obtenerValoresInsercionP($pipe, $registro);
@@ -929,6 +932,18 @@ class ConstructorConsulta{
             break;
         }
     }
+    
+    /*
+     * Prepara y obtiene los registros a insertar.
+     *
+     * @parametro array $registros
+     * @retorno array
+     */
+    public function obtenerRegistrosInsertar($registros){
+        foreach($registros as $clave => $valor){
+            return is_string($clave) ? [$registros] : $registros;
+        }
+    }
     //Fin métodos públicos.
     
     //Inicio métodos privados.
@@ -949,32 +964,19 @@ class ConstructorConsulta{
         if(is_array($datos) && !empty($datos)){
             $consulta = Conexion::$cnx->prepare($consultaUsuario);
             $resultado = $consulta->execute($datos);
-            if($resultado) $datosArreglo = $consulta->fetchAll(\PDO::FETCH_ASSOC);
             if(!$resultado) Error::mostrar($consulta->errorInfo()[1].' - '.$consulta->errorInfo()[2], true);
         }
         else{
             $consulta = Conexion::$cnx->query($consultaUsuario);
-            if($consulta) $datosArreglo = $consulta->fetchAll(\PDO::FETCH_ASSOC);
-            if(!$consulta) Error::mostrar(Conexion::$cnx->errorInfo()[1].' - '.Conexion::$cnx->errorInfo()[2], true);
+            if(!$consulta)
+                Error::mostrar(Conexion::$cnx->errorInfo()[1].' - '.Conexion::$cnx->errorInfo()[2], true);
         }
-        $campos = $this->obtenerCamposConsultaSQL($datosArreglo);
-        $conteoDatosArreglo = count($datosArreglo);
-        if($conteoDatosArreglo != 0 && count($campos) != $consulta->columnCount())
+        $registros = $consulta->fetchAll(\PDO::FETCH_ASSOC);
+        $campos = $this->obtenerCamposConsultaSQL($registros);
+        $conteoRegistros = count($registros);
+        if($conteoRegistros != 0 && count($campos) != $consulta->columnCount())
             Error::mostrar(Mensaje::$mensajes['AMBIGUEDAD_DE_CAMPOS']);
-        $datosConsulta = [];
-        for($i = 0; $i < $conteoDatosArreglo; $i++){
-            $registro = [];
-            for($j = 0; $j < $consulta->columnCount(); $j++){
-                $valor = $this->convertirValorNumerico($datosArreglo[$i][$campos[$j]]);
-                $condicion =! empty($this->visibles)
-                    ? in_array($campos[$j], $this->visibles)
-                    : !in_array($campos[$j], $this->ocultos);
-                if($condicion) $registro[$campos[$j]] = $valor;
-            }
-            if(!empty($registro)) $datosConsulta[$i] = $tipo == self::OBJETO ? (object) $registro : $registro;
-        }
-        if($tipo == self::JSON) $datosConsulta = json_encode($datosConsulta);
-        return $datosConsulta;
+        return $this->convertirRegistrosTipo($registros, $tipo);
     }
     
     /*
@@ -1016,7 +1018,7 @@ class ConstructorConsulta{
             while(strpos($sql, '?') > -1){
                 $nuevo = $this->_datos[$contador] ?? '__PARAMETRO37812__';
                 $nuevo = is_string($nuevo) && $nuevo != '__PARAMETRO37812__' ? "'".$nuevo."'" : $nuevo;
-                $sql = $this->remplazarPrimeraCadena('?', $nuevo,$sql);
+                $sql = $this->remplazarPrimeraCadena('?', $nuevo, $sql);
                 $contador++;
             }
             $sql = str_replace('__PARAMETRO37812__', '?', $sql);
@@ -1033,6 +1035,32 @@ class ConstructorConsulta{
     private function obtenerCamposConsultaSQL($datosArreglo){
         if(!empty($datosArreglo)) return array_keys($datosArreglo[0]);
         return null;
+    }
+    
+    /*
+     * Convierte los registros según el tipo de dato de retorno.
+     *
+     * @parametro array $registros
+     * @parametro string $tipo
+     * @retorno array|json
+     */
+    private function convertirRegistrosTipo($registros, $tipo){
+        $registrosConvertidos = [];
+        foreach($registros as $registro){
+            $registroPivote = [];
+            foreach($registro as $clave => $valor){
+                $valor = $this->convertirValorNumerico($valor);
+                $valor = $this->decodificarCadenaUTF8($valor);
+                $condicion = !empty($this->visibles)
+                    ? in_array($clave, $this->visibles)
+                    : !in_array($clave, $this->ocultos);
+                if($condicion) $registroPivote[$clave] = $valor;
+            }
+            if(!empty($registroPivote))
+                $registrosConvertidos[] = $tipo == self::OBJETO ? (object) $registroPivote : $registroPivote;
+        }
+        if($tipo == self::JSON) $registrosConvertidos = json_encode($registrosConvertidos);
+        return $registrosConvertidos;
     }
     
     /*
@@ -1632,6 +1660,19 @@ class ConstructorConsulta{
         }
         $existen = $contador == 2 ? true : false;
         return $existen;
+    }
+    
+    /*
+     * Verifica que la tabla especificada exista en la base de datos.
+     *
+     * @parametro string $tabla
+     * @retorno boolean
+     */
+    private function verificarTablaExiste($tabla){
+        $pdo = Conexion::$cnx;
+        $consulta = $pdo->query('select * from '.$tabla);
+        $existe = $consulta ? true : false;
+        return $existe;
     }
     //Fin métodos privados.
 }

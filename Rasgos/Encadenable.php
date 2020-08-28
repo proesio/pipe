@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 24-08-2020
- * Versión: 4.2.6
+ * Fecha última modificación: 27-08-2020
+ * Versión: 4.3.2
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -141,5 +141,15 @@ trait Encadenable{
         $cadena = str_replace('__DEPENDIENTE37812__', $viejo, $cadena);
         $cadena = str_replace('__INPENDIENTE37812__', $nuevo, $cadena);
         return $cadena;
+    }
+    
+    /*
+     * Decodifica una cadena en formato UTF-8.
+     *
+     * @parametro string $cadena
+     * @retorno string
+     */
+    public function decodificarCadenaUTF8($cadena){
+        return json_encode($cadena) ? $cadena : utf8_decode($cadena);
     }
 }

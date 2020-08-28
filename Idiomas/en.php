@@ -2,8 +2,8 @@
 /*
  * Autor: Juan Felipe Valencia Murillo
  * Fecha inicio de creación: 13-09-2018
- * Fecha última modificación: 24-08-2020
- * Versión: 4.2.6
+ * Fecha última modificación: 27-08-2020
+ * Versión: 4.3.2
  * Sitio web: https://pipe.proes.tk
  *
  * Copyright (C) 2018 - 2020 Juan Felipe Valencia Murillo <juanfe0245@gmail.com>
@@ -56,5 +56,6 @@ return [
     'RUTA_MODELOS_NO_ENCONTRADA' => 'The following model path was not found',
     'PROPIEDAD_NO_DEFINIDA' => 'The following property must be defined',
     'METODO_LIMITE_NO_SOPORTADO' => 'The sqlsrv driver does not support limit() method, instead use the tomar() method.',
-    'RETORNO_SQL_NO_SOPORTADO' => 'Unsupported SQL return type.'
+    'RETORNO_SQL_NO_SOPORTADO' => 'Unsupported SQL return type.',
+    'TABLA_NO_EXISTE' => 'The following table does not exist'
 ];
