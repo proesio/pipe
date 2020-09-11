@@ -19,7 +19,7 @@ PIPE es un ORM - Mapeador Objeto Relacional desarrollado en PHP que permite inte
 
 - [Instalación](https://pipe.proes.tk/documentacion/4.x/instalacion/).
 - [Configuración](https://pipe.proes.tk/documentacion/4.x/configuracion/).
-- [Convensiones](https://pipe.proes.tk/documentacion/4.x/convenciones/).
+- [Convenciones](https://pipe.proes.tk/documentacion/4.x/convenciones/).
 - [Modelos y Constructor de Consultas](https://pipe.proes.tk/documentacion/4.x/modelos-y-constructor-de-consultas/).
 - [Insertar](https://pipe.proes.tk/documentacion/4.x/insertar/).
 - [Consultar](https://pipe.proes.tk/documentacion/4.x/consultar/).
