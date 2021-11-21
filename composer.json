@@ -10,20 +10,24 @@
         "database"
     ],
     "license": "MIT",
-    "homepage": "https://pipe.proes.tk",
+    "homepage": "https://pipe.proes.io",
     "authors": [
         {
             "name": "Juan Felipe Valencia Murillo",
             "email": "juanfe0245@gmail.com",
-            "homepage": "https://jfvalenciam.proes.tk",
-            "role": "Desarrollador"
+            "homepage": "https://jfvalenciam.proes.io",
+            "role": "Developer"
         }
     ],
     "require": {
-        "php": ">=7.2.0"
+        "php": ">=7.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.3.3"
     },
     "autoload": {
-        "files": ["pipe.php"]
+        "files": ["src/PIPE/inicializador.php"]
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
