@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.0.0
+ * @version   GIT:  5.0.2
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -197,7 +197,7 @@ class ConstructorConsulta
      */
     public function alias($alias)
     {
-        $this->_alias = 'as '.$alias;
+        $this->_alias = $alias;
 
         return $this;
     }
@@ -477,7 +477,7 @@ class ConstructorConsulta
         if ($limite == PIPE::CLASE 
             || $limite == PIPE::OBJETO 
             || $limite == PIPE::ARREGLO 
-            || $limite == PIPE::JSON
+            || $limite == PIPE::JSON 
             || $limite == PIPE::SQL
         ) {
             $tipoRetorno = $limite;
@@ -510,10 +510,6 @@ class ConstructorConsulta
             'TIPO_RETORNO', PIPE::CLASE
         );
 
-        if ($this->_atributos['llavePrimaria'] != 'id') {
-            $llavePrimaria = $this->_atributos['llavePrimaria'];
-        }
-
         if ($llavePrimaria == PIPE::CLASE
             || $llavePrimaria == PIPE::OBJETO 
             || $llavePrimaria == PIPE::ARREGLO 
@@ -521,7 +517,7 @@ class ConstructorConsulta
             || $llavePrimaria == PIPE::SQL
         ) {
             $tipoRetorno = $llavePrimaria;
-            $llavePrimaria = 'id';
+            $llavePrimaria = $this->_atributos['llavePrimaria'];
         } elseif (is_numeric($llavePrimaria)) {
             if ($limite == PIPE::CLASE
                 || $limite == PIPE::OBJETO 
@@ -533,7 +529,7 @@ class ConstructorConsulta
             }
 
             $limite = $llavePrimaria;
-            $llavePrimaria = 'id';
+            $llavePrimaria = $this->_atributos['llavePrimaria'];
         } elseif ($limite == PIPE::CLASE 
             || $limite == PIPE::OBJETO 
             || $limite == PIPE::ARREGLO 
@@ -542,6 +538,14 @@ class ConstructorConsulta
         ) {
             $tipoRetorno = $limite;
             $limite = 1;
+        }
+
+        if ($llavePrimaria != 'id') {
+            $this->_atributos['llavePrimaria'] = $llavePrimaria;
+        }
+
+        if ($this->_atributos['llavePrimaria'] != 'id') {
+            $llavePrimaria = $this->_atributos['llavePrimaria'];
         }
 
         if ($tipoRetorno == PIPE::SQL) {
@@ -713,6 +717,10 @@ class ConstructorConsulta
      */
     public function encontrar($valor, $llavePrimaria = 'id')
     {
+        if ($llavePrimaria != 'id') {
+            $this->_atributos['llavePrimaria'] = $llavePrimaria;
+        }
+
         if ($this->_atributos['llavePrimaria'] != 'id') {
             $llavePrimaria = $this->_atributos['llavePrimaria'];
         }
@@ -1209,15 +1217,19 @@ class ConstructorConsulta
             && !$this->_agrupar)
             || $this->_relaciones
         ) {
-            $campos[] = $this->_tabla.'.'.$this->_atributos['llavePrimaria'];
+            $tabla = $this->_alias ? $this->_alias : $this->_tabla;
+
+            $campos[] = $tabla.'.'.$this->_atributos['llavePrimaria'];
         }
 
         $campos = implode(',', $campos);
 
+        $alias = $this->_alias ? 'as '.$this->_alias : '';
+
         $sql = 'select '.$this->_distinto
             .' '.$campos
             .' from '.$this->_tabla
-            .' '.$this->_alias
+            .' '.$alias
             .' '.$this->_unir
             .' '.$this->_unirDerecha
             .' '.$this->_unirIzquierda
