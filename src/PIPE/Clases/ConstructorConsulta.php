@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.0.2
+ * @version   GIT:  5.0.5
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -419,31 +419,31 @@ class ConstructorConsulta
     /**
      * Limita el número de registros retornados en la consulta SQL.
      *
-     * @param int      $inicio   inicio
-     * @param int|null $cantidad cantidad
+     * @param int      $cantidad cantidad
+     * @param int|null $inicio   inicio
      * 
      * @return $this
      */
-    public function limite($inicio, $cantidad = null)
+    public function limite($cantidad, $inicio = null)
     {
         switch (Configuracion::config('BD_CONTROLADOR')) {
         case 'mysql':
-            $this->_limite = MySQL::obtenerCadenaLimite($inicio, $cantidad);
+            $this->_limite = MySQL::obtenerCadenaLimite($cantidad, $inicio);
             break;
 
         case 'pgsql':
-            $this->_limite = PostgreSQL::obtenerCadenaLimite($inicio, $cantidad);
+            $this->_limite = PostgreSQL::obtenerCadenaLimite($cantidad, $inicio);
             break;
 
         case 'sqlite':
-            $this->_limite = SQLite::obtenerCadenaLimite($inicio, $cantidad);
+            $this->_limite = SQLite::obtenerCadenaLimite($cantidad, $inicio);
             break;
 
         case 'sqlsrv':
             $this->_limite = SQLServer::obtenerCadenaLimite(
                 $this->_ordenar, 
                 $this->_tabla.'.'.$this->_atributos['llavePrimaria'], 
-                $inicio, $cantidad
+                $cantidad, $inicio
             );
             break;
         }

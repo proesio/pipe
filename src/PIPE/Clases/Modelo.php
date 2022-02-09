@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.0.2
+ * @version   GIT:  5.0.5
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -607,8 +607,7 @@ abstract class Modelo
             $pipe->donde($atributosClase['llavePrimaria'].' = ?', [$id]);
 
             if ($pipe->existe()) {
-                $pipe = $pipe->encontrar($id);
-                $eliminaciones[] = clone $pipe;
+                $eliminaciones[] = clone $pipe->encontrar($id);
                 $pipe->eliminar();
             } else {
                 $eliminaciones[] = null;
