@@ -8,13 +8,14 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.0.5
+ * @version   GIT:  5.1.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
 
 namespace PIPE\Clases;
 
+use PDO;
 use DateTime;
 use PIPE\Rasgos\Encadenable;
 use PIPE\Clases\Conectores\MySQL;
@@ -149,6 +150,7 @@ class ConstructorConsulta
         $this->_atributos = [
             'conexion' => $atributos['conexion'] ?? null,
             'tabla' => $atributos['tabla'] ?? '',
+            'claseLlamada' => $atributos['claseLlamada'] ?? self::class,
             'clase' => $atributos['clase'] ?? self::class,
             'llavePrimaria' => $atributos['llavePrimaria'] ?? 'id',
             'registroTiempo' => $atributos['registroTiempo'] ?? true,
@@ -657,7 +659,7 @@ class ConstructorConsulta
      */
     public function existe()
     {
-        return $this->obtener(PIPE::OBJETO) ? true : false;
+        return $this->primero(PIPE::OBJETO) ? true : false;
     }
 
     /**
@@ -667,7 +669,7 @@ class ConstructorConsulta
      */
     public function noExiste()
     {
-        return $this->obtener(PIPE::OBJETO) ? false : true;
+        return $this->primero(PIPE::OBJETO) ? false : true;
     }
 
     /**
@@ -754,21 +756,35 @@ class ConstructorConsulta
         if (is_array($registros) && !empty($registros)) {
             $registros = $this->obtenerRegistrosInsertar($registros);
 
-            $inserciones = 0;
+            $campos = '';
+            $parametros = '';
+            $valores = [];
+
+            if ($this->_atributos['claseLlamada'] != self::class) {
+                $registros = $this->_mutarRegistros('asignar', $registros);
+            }
 
             foreach ($registros as $registro) {
-                $campos = $this->_obtenerCamposInsercionP($registro);
-                $parametros = $this->_obtenerParametrosInsercionP($registro);
-                $valores = $this->_obtenerValoresInsercionP($registro);
+                $campos = (
+                    '('.$this->_obtenerCamposInsercionP($registro).')'
+                );
 
-                $inserciones = $inserciones + $this->_procesarConsultaSQL(
-                    'insert into '.$this->_tabla
-                    .' ('.$campos.') values ('.$parametros.')',
-                    $valores
+                $parametros .= (
+                    '('.$this->_obtenerParametrosInsercionP($registro).'),'
+                );
+
+                $valores = array_merge(
+                    $valores, $this->_obtenerValoresInsercionP($registro)
                 );
             }
 
-            return $inserciones;
+            $parametros = trim($parametros, ',');
+
+            return $this->_procesarConsultaSQL(
+                'insert into '.$this->_tabla
+                .$campos.' values '.$parametros,
+                $valores
+            );
         } else {
             $this->_configurarRegistroTiempo();
 
@@ -813,24 +829,28 @@ class ConstructorConsulta
             $parametros = $this->_obtenerParametrosActualizacion();
         }
 
-        $resultado = $this->_procesarConsultaSQL(
-            'update '.$this->_tabla
-            .' set '.$parametros.' '
-            .$this->_condiciones,
-            $this->_parametros
-        );
-
-        if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
-            $this->_procesarConsultaSQL(
+        if ($parametros) {
+            $resultado = $this->_procesarConsultaSQL(
                 'update '.$this->_tabla
-                .' set '.$this->_atributos['actualizadoEn']
-                ." = '".$this->_obtenerFechaHoraActual()
-                ."' ".$this->_condiciones,
+                .' set '.$parametros.' '
+                .$this->_condiciones,
                 $this->_parametros
             );
+
+            if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
+                $this->_procesarConsultaSQL(
+                    'update '.$this->_tabla
+                    .' set '.$this->_atributos['actualizadoEn']
+                    ." = '".$this->_obtenerFechaHoraActual()
+                    ."' ".$this->_condiciones,
+                    $this->_parametros
+                );
+            }
+
+            return $resultado;
         }
 
-        return $resultado;
+        return 0;
     }
 
     /**
@@ -1124,14 +1144,14 @@ class ConstructorConsulta
             }
 
             $parametros = [
-                \PDO::FETCH_CLASS, 
+                PDO::FETCH_CLASS, 
                 self::class, 
                 ['atributos' => $this->_atributos]
             ];
         } elseif ($tipoRetorno == PIPE::OBJETO) {
-            $parametros = [\PDO::FETCH_OBJ];
+            $parametros = [PDO::FETCH_OBJ];
         } else {
-            $parametros = [\PDO::FETCH_ASSOC];
+            $parametros = [PDO::FETCH_ASSOC];
         }
 
         $registros = $consulta->fetchAll(...$parametros);
@@ -1174,8 +1194,66 @@ class ConstructorConsulta
             }
         }
 
+        if ($this->_atributos['claseLlamada'] != self::class) {
+            $registros = $this->_mutarRegistros('obtener', $registros);
+        }
+
         if ($tipoRetorno == PIPE::JSON) {
             $registros = json_encode($registros);
+        }
+
+        return $registros;
+    }
+
+    /**
+     * Realiza una asignación u obtención personalizada
+     * de los valores de los atributos.
+     *
+     * @param string $accion   accion
+     * @param string $clase    clase
+     * @param array  $registro registro
+     * 
+     * @return array
+     */
+    private function _mutarAtributos($accion, $clase, $registro)
+    {
+        $instancia = new $clase();
+        $esArreglo = is_array($registro) ? true : false;
+
+        foreach ($registro as $clave => $valor) {
+            $metodo = strpos($clave, '_') === false
+                ? 'mutar'.$clave.$accion
+                : 'mutar'.(str_replace('_', '', $clave)).$accion;
+
+            if (method_exists($clase, $metodo)) {
+                $valorMutado = $instancia->{$metodo}($valor);
+
+                if ($esArreglo) {
+                    $registro[$clave] = $valorMutado;
+                } else {
+                    $registro->{$clave} = $valorMutado;
+                }
+            }
+        }
+
+        return $registro;
+    }
+
+    /**
+     * Realiza una asignación u obtención personalizada
+     * de los valores de los registros.
+     *
+     * @param string $accion    accion
+     * @param array  $registros registros
+     * 
+     * @return array
+     */
+    private function _mutarRegistros($accion, $registros)
+    {
+        foreach ($registros as $clave => $registro) {
+            $registros[$clave] = $this->_mutarAtributos(
+                $accion, $this->_atributos['claseLlamada'], $registro
+            );
         }
 
         return $registros;
@@ -1325,7 +1403,7 @@ class ConstructorConsulta
 
         $consulta = Conexion::$conexion->query($consultaColumna);
 
-        return $consulta->fetchAll(\PDO::FETCH_COLUMN, $columna);
+        return $consulta->fetchAll(PDO::FETCH_COLUMN, $columna);
     }
 
     /**
@@ -1474,7 +1552,7 @@ class ConstructorConsulta
             $in = $j;
             $fn = $j+1;
 
-            if ($j%2 == 0) {
+            if ($j % 2 == 0) {
                 $partesUsuario[$k] = "'".substr(
                     $consultaUsuario, 
                     strpos($consultaUsuario, "?$in") + 2, 
@@ -1512,7 +1590,7 @@ class ConstructorConsulta
             $in = $j;
             $fn = $j+1;
 
-            if ($j%2 == 0) {
+            if ($j % 2 == 0) {
                 $partesTraducido[$k] = substr(
                     $consulta, 
                     strpos($consulta, "?$in") + 2, 
@@ -2054,8 +2132,15 @@ class ConstructorConsulta
             if (!($this->_atributos['llavePrimaria'] == $campo) 
                 || !($this->{$campo} === 'default')
             ) {
-                $valores[] = $this->{$campo};
+                $valores[$campo] = $this->{$campo};
             }
+        }
+
+        if ($this->_atributos['claseLlamada'] != self::class && $valores) {
+            $valores = $this->_mutarRegistros('asignar', [$valores]);
+            $valores = array_values($valores[0]);
+        } else {
+            $valores = array_values($valores);
         }
 
         return $valores;
@@ -2073,6 +2158,14 @@ class ConstructorConsulta
         $registroFiltrado = $this->_filtrarRegistros(
             $registro, $this->_atributos['actualizables']
         );
+
+        if ($this->_atributos['claseLlamada'] != self::class && $registroFiltrado) {
+            $registroFiltrado = $this->_mutarRegistros(
+                'asignar', [$registroFiltrado]
+            );
+
+            $registroFiltrado = $registroFiltrado[0];
+        }
 
         $parametros = '';
 
@@ -2099,17 +2192,43 @@ class ConstructorConsulta
             unset($this->{$this->_atributos['llavePrimaria']});
         }
 
-        $parametros = '';
-
         $camposTabla = $this->_obtenerCamposTabla(
             $this->_atributos['actualizables']
         );
 
-        foreach ($camposTabla as $campo) {
-            if (property_exists($this, $campo)) {
-                $parametros = is_null($this->{$campo})
-                    ? $parametros.$campo.' = null,'
-                    : $parametros.$campo." = '".$this->{$campo}."',";
+        if ($this->_atributos['claseLlamada'] != self::class) {
+            $valores = $this->primero(PIPE::OBJETO);
+        } else {
+            $consultaSQL = $this->seleccionar(...$camposTabla)->obtener(PIPE::SQL);
+
+            $consulta = Conexion::$conexion->query($consultaSQL);
+
+            $valores = $consulta->fetchAll(PDO::FETCH_OBJ);
+            $valores = $valores ? $valores[0] : [];
+        }
+
+        $valoresPivote = [];
+
+        foreach ($valores as $clave => $valor) {
+            if (property_exists($this, $clave)
+                && $this->{$clave} != $valor
+            ) {
+                $valoresPivote[$clave] = $this->{$clave};
+            }
+        }
+
+        if ($this->_atributos['claseLlamada'] != self::class && $valoresPivote) {
+            $valoresPivote = $this->_mutarRegistros('asignar', [$valoresPivote]);
+            $valoresPivote = $valoresPivote[0];
+        }
+
+        $parametros = '';
+
+        foreach ($valoresPivote as $clave => $valor) {
+            if (is_numeric($valor) || is_string($valor)) {
+                $parametros = is_null($valor)
+                    ? $parametros.$clave.' = null,'
+                    : $parametros.$clave." = '".$valor."',";
             }
         }
 

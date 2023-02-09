@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.0.5
+ * @version   GIT:  5.1.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -17,6 +17,7 @@ namespace PIPE\Tests\Pruebas;
 
 use Modelos\Telefono;
 use PIPE\Clases\PIPE;
+use Modelos\Documento;
 use PIPE\Clases\Configuracion;
 use PHPUnit\Framework\TestCase;
 
@@ -58,6 +59,30 @@ class ActualizarTest extends TestCase
         foreach ($this->conexiones as $conexion) {
             $this->conexion = $conexion;
             $this->baseTestDeActualizacionMasivaDeRegistros();
+        }
+    }
+
+    public function testDeActualizacionDeRegistroConMutador()
+    {
+        foreach ($this->conexiones as $conexion) {
+            $this->conexion = $conexion;
+            $this->baseTestDeActualizacionDeRegistroConMutador();
+        }
+    }
+
+    public function testDeActualizacionDeRegistroConCondicionalYMutador()
+    {
+        foreach ($this->conexiones as $conexion) {
+            $this->conexion = $conexion;
+            $this->baseTestDeActualizacionDeRegistroConCondicionalYMutador();
+        }
+    }
+
+    public function testDeActualizacionMasivaDeRegistrosConMutador()
+    {
+        foreach ($this->conexiones as $conexion) {
+            $this->conexion = $conexion;
+            $this->baseTestDeActualizacionMasivaDeRegistrosConMutador();
         }
     }
 
@@ -130,6 +155,67 @@ class ActualizarTest extends TestCase
         $resultado = Telefono::actualizar(['numero' => 1234567890]);
 
         $this->assertEquals(3, $resultado);
+    }
+
+    private function baseTestDeActualizacionDeRegistroConMutador()
+    {
+        Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        // Prueba de modelo.
+
+        vaciarTablas($this->conexion);
+
+        generarRegistros($this->conexion, 'telefonos', 1);
+        generarRegistros($this->conexion, 'usuarios', 1);
+        generarRegistros($this->conexion, 'documentos', 1);
+
+        $documento = Documento::encontrar(1);
+        $documento->numero = 1234567890;
+        $documento->actualizar();
+
+        $documento = Documento::encontrar(1);
+
+        $this->assertEquals('C.C. 1234567890', $documento->numero);
+    }
+
+    private function baseTestDeActualizacionDeRegistroConCondicionalYMutador()
+    {
+        Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        // Prueba de modelo.
+
+        vaciarTablas($this->conexion);
+
+        generarRegistros($this->conexion, 'telefonos', 1);
+        generarRegistros($this->conexion, 'usuarios', 1);
+        generarRegistros($this->conexion, 'documentos', 1);
+
+        Documento::donde('id = ?', [1])
+            ->actualizar(['numero' => 1234567890]);
+
+        $documento = Documento::encontrar(1);
+
+        $this->assertEquals('C.C. 1234567890', $documento->numero);
+    }
+
+    private function baseTestDeActualizacionMasivaDeRegistrosConMutador()
+    {
+        Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        // Prueba de modelo.
+
+        vaciarTablas($this->conexion);
+
+        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros($this->conexion, 'usuarios', 2);
+        generarRegistros($this->conexion, 'documentos', 2);
+
+        Documento::actualizar(['numero' => 1234567890]);
+
+        $documentos = Documento::todo();
+
+        $this->assertEquals('C.C. 1234567890', $documentos[0]->numero);
+        $this->assertEquals('C.C. 1234567890', $documentos[1]->numero);
     }
 
     private function generarRegistros()

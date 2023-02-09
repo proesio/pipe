@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.0.5
+ * @version   GIT:  5.1.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -227,6 +227,12 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, $this->conexion);
 
+        $valorEsperado = 4;
+
+        if ($this->conexion == 'mysql') {
+            $valorEsperado = 3;
+        }
+
         // Prueba de constructor de consulta.
 
         $this->generarRegistros();
@@ -239,7 +245,7 @@ class InsertarObtenerIdTest extends TestCase
                 ]
             );
 
-        $this->assertEquals(4, $resultado);
+        $this->assertEquals($valorEsperado, $resultado);
 
         // Prueba de modelo.
 
@@ -254,7 +260,7 @@ class InsertarObtenerIdTest extends TestCase
             ]
         );
 
-        $this->assertEquals(4, $resultado);
+        $this->assertEquals($valorEsperado, $resultado);
     }
 
     private function generarRegistros()

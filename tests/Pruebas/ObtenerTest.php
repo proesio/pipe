@@ -8,14 +8,16 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.0.5
+ * @version   GIT:  5.1.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
 
 namespace PIPE\Tests\Pruebas;
 
+use DateTime;
 use PIPE\Clases\PIPE;
+use Modelos\Documento;
 use PIPE\Clases\Configuracion;
 use PHPUnit\Framework\TestCase;
 use PIPE\Clases\ConstructorConsulta;
@@ -74,6 +76,14 @@ class ObtenerTest extends TestCase
         foreach ($this->conexiones as $conexion) {
             $this->conexion = $conexion;
             $this->baseTestDeObtencionDeRegistrosConTipoRetornoSQL();
+        }
+    }
+
+    public function testDeObtencionDeRegistrosConMutador()
+    {
+        foreach ($this->conexiones as $conexion) {
+            $this->conexion = $conexion;
+            $this->baseTestDeObtencionDeRegistrosConMutador();
         }
     }
 
@@ -136,6 +146,22 @@ class ObtenerTest extends TestCase
         $sql = PIPE::tabla('telefonos')->obtener(PIPE::SQL);
 
         $this->assertIsString($sql);
+    }
+
+    private function baseTestDeObtencionDeRegistrosConMutador()
+    {
+        Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        vaciarTablas($this->conexion);
+
+        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros($this->conexion, 'usuarios', 2);
+        generarRegistros($this->conexion, 'documentos', 2);
+
+        $documentos = Documento::todo();
+
+        $this->assertInstanceOf(DateTime::class, $documentos[0]->actualizado_en);
+        $this->assertInstanceOf(DateTime::class, $documentos[1]->actualizado_en);
     }
 
     private function generarRegistros()
