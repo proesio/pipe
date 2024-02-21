@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.1
+ * @version   GIT:  5.1.4
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -237,10 +237,10 @@ class ModeloTest extends TestCase
         $telefono = $pipe->encontrar(1);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $telefono);
-        $this->assertObjectHasAttribute('id', $telefono);
-        $this->assertObjectHasAttribute('numero', $telefono);
-        $this->assertObjectHasAttribute('creado_en', $telefono);
-        $this->assertObjectHasAttribute('actualizado_en', $telefono);
+        $this->assertObjectHasProperty('id', $telefono);
+        $this->assertObjectHasProperty('numero', $telefono);
+        $this->assertObjectHasProperty('creado_en', $telefono);
+        $this->assertObjectHasProperty('actualizado_en', $telefono);
     }
 
     private function baseTestDeDefinicionDeRegistroTiempo()
@@ -260,8 +260,8 @@ class ModeloTest extends TestCase
         $telefono = $pipe->encontrar($id);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $telefono);
-        $this->assertObjectHasAttribute('creado_en', $telefono);
-        $this->assertObjectHasAttribute('actualizado_en', $telefono);
+        $this->assertObjectHasProperty('creado_en', $telefono);
+        $this->assertObjectHasProperty('actualizado_en', $telefono);
         $this->assertNull($telefono->creado_en);
         $this->assertNull($telefono->actualizado_en);
     }
@@ -284,8 +284,8 @@ class ModeloTest extends TestCase
         $telefono = $pipe->encontrar($id);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $telefono);
-        $this->assertObjectHasAttribute('creado_en', $telefono);
-        $this->assertObjectHasAttribute('actualizado_en', $telefono);
+        $this->assertObjectHasProperty('creado_en', $telefono);
+        $this->assertObjectHasProperty('actualizado_en', $telefono);
         $this->assertNull($telefono->creado_en);
         $this->assertNull($telefono->actualizado_en);
     }
@@ -311,7 +311,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('documentos');
 
-        $this->assertObjectHasAttribute('documentos', $usuario);
+        $this->assertObjectHasProperty('documentos', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->documentos);
 
         // Prueba de relación definiendo nombre.
@@ -320,7 +320,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('documento_relacion');
 
-        $this->assertObjectHasAttribute('documento_relacion', $usuario);
+        $this->assertObjectHasProperty('documento_relacion', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->documento_relacion);
 
         // Prueba de relación definiendo llave principal.
@@ -329,7 +329,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('documentos');
 
-        $this->assertObjectHasAttribute('documentos', $usuario);
+        $this->assertObjectHasProperty('documentos', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->documentos);
 
         // Prueba de relación definiendo llave foránea.
@@ -338,7 +338,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('documentos');
 
-        $this->assertObjectHasAttribute('documentos', $usuario);
+        $this->assertObjectHasProperty('documentos', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->documentos);
     }
 
@@ -363,7 +363,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('temas');
 
-        $this->assertObjectHasAttribute('temas', $usuario);
+        $this->assertObjectHasProperty('temas', $usuario);
         $this->assertIsArray($usuario->temas);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->temas[0]);
 
@@ -373,7 +373,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('temas_relacion');
 
-        $this->assertObjectHasAttribute('temas_relacion', $usuario);
+        $this->assertObjectHasProperty('temas_relacion', $usuario);
         $this->assertIsArray($usuario->temas_relacion);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->temas_relacion[0]);
 
@@ -383,7 +383,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('temas');
 
-        $this->assertObjectHasAttribute('temas', $usuario);
+        $this->assertObjectHasProperty('temas', $usuario);
         $this->assertIsArray($usuario->temas);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->temas[0]);
 
@@ -393,7 +393,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('temas');
 
-        $this->assertObjectHasAttribute('temas', $usuario);
+        $this->assertObjectHasProperty('temas', $usuario);
         $this->assertIsArray($usuario->temas);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->temas[0]);
     }
@@ -418,7 +418,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('telefonos');
 
-        $this->assertObjectHasAttribute('telefonos', $usuario);
+        $this->assertObjectHasProperty('telefonos', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->telefonos);
 
         // Prueba de relación definiendo nombre.
@@ -427,7 +427,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('telefono_relacion');
 
-        $this->assertObjectHasAttribute('telefono_relacion', $usuario);
+        $this->assertObjectHasProperty('telefono_relacion', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->telefono_relacion);
 
         // Prueba de relación definiendo llave principal.
@@ -436,7 +436,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('telefonos');
 
-        $this->assertObjectHasAttribute('telefonos', $usuario);
+        $this->assertObjectHasProperty('telefonos', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->telefonos);
 
         // Prueba de relación definiendo llave foránea.
@@ -445,7 +445,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('telefonos');
 
-        $this->assertObjectHasAttribute('telefonos', $usuario);
+        $this->assertObjectHasProperty('telefonos', $usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->telefonos);
     }
 
@@ -471,7 +471,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
-        $this->assertObjectHasAttribute('role_usuario', $usuario);
+        $this->assertObjectHasProperty('role_usuario', $usuario);
         $this->assertIsArray($usuario->role_usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->role_usuario[0]);
 
@@ -481,7 +481,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('rol_relacion');
 
-        $this->assertObjectHasAttribute('rol_relacion', $usuario);
+        $this->assertObjectHasProperty('rol_relacion', $usuario);
         $this->assertIsArray($usuario->rol_relacion);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->rol_relacion[0]);
 
@@ -491,7 +491,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
-        $this->assertObjectHasAttribute('role_usuario', $usuario);
+        $this->assertObjectHasProperty('role_usuario', $usuario);
         $this->assertIsArray($usuario->role_usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->role_usuario[0]);
 
@@ -501,7 +501,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
-        $this->assertObjectHasAttribute('role_usuario', $usuario);
+        $this->assertObjectHasProperty('role_usuario', $usuario);
         $this->assertIsArray($usuario->role_usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->role_usuario[0]);
 
@@ -511,7 +511,7 @@ class ModeloTest extends TestCase
         $pipe = new ConstructorConsulta($atributos);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
-        $this->assertObjectHasAttribute('role_usuario', $usuario);
+        $this->assertObjectHasProperty('role_usuario', $usuario);
         $this->assertIsArray($usuario->role_usuario);
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario->role_usuario[0]);
     }
@@ -539,7 +539,7 @@ class ModeloTest extends TestCase
         $usuario = $pipe->encontrar($id);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario);
-        $this->assertObjectHasAttribute('apellidos', $usuario);
+        $this->assertObjectHasProperty('apellidos', $usuario);
         $this->assertNull($usuario->apellidos);
     }
 
@@ -570,7 +570,7 @@ class ModeloTest extends TestCase
         $usuario = $pipe->encontrar($id);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario);
-        $this->assertObjectHasAttribute('apellidos', $usuario);
+        $this->assertObjectHasProperty('apellidos', $usuario);
         $this->assertNull($usuario->apellidos);
     }
 
@@ -597,7 +597,7 @@ class ModeloTest extends TestCase
         $usuario = $pipe->encontrar($id);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario);
-        $this->assertObjectNotHasAttribute('apellidos', $usuario);
+        $this->assertObjectNotHasProperty('apellidos', $usuario);
     }
 
     private function baseTestDeDefinicionDeOcultos()
@@ -623,6 +623,6 @@ class ModeloTest extends TestCase
         $usuario = $pipe->encontrar($id);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $usuario);
-        $this->assertObjectNotHasAttribute('apellidos', $usuario);
+        $this->assertObjectNotHasProperty('apellidos', $usuario);
     }
 }

@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.1
+ * @version   GIT:  5.1.4
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -17,12 +17,14 @@ namespace PIPE\Clases;
 
 use PDO;
 use DateTime;
+use AllowDynamicProperties;
 use PIPE\Rasgos\Encadenable;
 use PIPE\Clases\Conectores\MySQL;
 use PIPE\Clases\Conectores\SQLite;
 use PIPE\Clases\Conectores\SQLServer;
 use PIPE\Clases\Conectores\PostgreSQL;
 
+#[AllowDynamicProperties]
 class ConstructorConsulta
 {
     use Encadenable;

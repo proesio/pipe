@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.1
+ * @version   GIT:  5.1.4
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -234,8 +234,8 @@ class TodoTest extends TestCase
 
         $this->assertCount(2, $telefonos);
 
-        $this->assertObjectNotHasAttribute('creado_en', $telefonos[0]);
-        $this->assertObjectNotHasAttribute('actualizado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('creado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('actualizado_en', $telefonos[0]);
 
         // Prueba de modelo.
 
@@ -245,8 +245,8 @@ class TodoTest extends TestCase
 
         $this->assertCount(2, $telefonos);
 
-        $this->assertObjectNotHasAttribute('creado_en', $telefonos[0]);
-        $this->assertObjectNotHasAttribute('actualizado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('creado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('actualizado_en', $telefonos[0]);
     }
 
     private function baseTestDeObtencionDeTodosLosRegistrosConCamposEspecificadosYTipoRetornoOBJETO()
@@ -261,8 +261,8 @@ class TodoTest extends TestCase
 
         $this->assertIsObject($telefonos[0]);
 
-        $this->assertObjectNotHasAttribute('creado_en', $telefonos[0]);
-        $this->assertObjectNotHasAttribute('actualizado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('creado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('actualizado_en', $telefonos[0]);
 
         // Prueba de modelo.
 
@@ -272,8 +272,8 @@ class TodoTest extends TestCase
 
         $this->assertIsObject($telefonos[0]);
 
-        $this->assertObjectNotHasAttribute('creado_en', $telefonos[0]);
-        $this->assertObjectNotHasAttribute('actualizado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('creado_en', $telefonos[0]);
+        $this->assertObjectNotHasProperty('actualizado_en', $telefonos[0]);
     }
 
     private function baseTestDeObtencionDeTodosLosRegistrosConCamposEspecificadosYTipoRetornoARREGLO()
