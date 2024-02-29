@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.4
+ * @version   GIT:  5.1.6
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -50,12 +50,12 @@ class ModeloTest extends TestCase
 
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'telefonos',
             'clase' => 'Telefono'
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
         $pipe->insertar(['numero' => 123456789]);
         $telefono = $pipe->primero(PIPE::OBJETO);
 
@@ -64,8 +64,8 @@ class ModeloTest extends TestCase
         $this->assertEquals('mysql', $pdo->getAttribute(PDO::ATTR_DRIVER_NAME));
         $this->assertEquals(123456789, $telefono->numero);
 
-        $atributos['conexion'] = 'pgsql';
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['conexion'] = 'pgsql';
+        $pipe = new ConstructorConsulta($propiedades);
         $pipe->insertar(['numero' => 987654321]);
         $telefono = $pipe->primero(PIPE::OBJETO);
 
@@ -81,12 +81,12 @@ class ModeloTest extends TestCase
 
         $this->expectException(ORM::class);
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'tabla_inexistente',
             'clase' => 'Telefono'
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
     }
 
     public function testDeDefinicionDeTablaPgsql()
@@ -95,12 +95,12 @@ class ModeloTest extends TestCase
 
         $this->expectException(ORM::class);
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'tabla_inexistente',
             'clase' => 'Telefono'
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
     }
 
     public function testDeDefinicionDeTablaSqlite()
@@ -109,12 +109,12 @@ class ModeloTest extends TestCase
 
         $this->expectException(ORM::class);
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'tabla_inexistente',
             'clase' => 'Telefono'
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
     }
 
     public function testDeDefinicionDeTablaSqlsrv()
@@ -123,12 +123,12 @@ class ModeloTest extends TestCase
 
         $this->expectException(ORM::class);
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'tabla_inexistente',
             'clase' => 'Telefono'
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
     }
 
     public function testDeDefinicionDeLlavePrimaria()
@@ -227,13 +227,13 @@ class ModeloTest extends TestCase
 
         generarRegistros($this->conexion, 'telefonos');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'telefonos',
             'clase' => 'Telefono',
             'llavePrimaria' => 'id'
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
         $telefono = $pipe->encontrar(1);
 
         $this->assertInstanceOf(ConstructorConsulta::class, $telefono);
@@ -249,13 +249,13 @@ class ModeloTest extends TestCase
 
         vaciarTablas($this->conexion);
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'telefonos',
             'clase' => 'Telefono',
             'registroTiempo' => false
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
         $id = $pipe->insertarObtenerId(['numero' => 987654321]);
         $telefono = $pipe->encontrar($id);
 
@@ -272,14 +272,14 @@ class ModeloTest extends TestCase
 
         vaciarTablas($this->conexion);
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'telefonos',
             'clase' => 'Telefono',
             'creadoEn' => 'created_at',
             'actualizadoEn' => 'updated_at'
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
         $id = $pipe->insertarObtenerId(['numero' => 123456789]);
         $telefono = $pipe->encontrar($id);
 
@@ -300,15 +300,15 @@ class ModeloTest extends TestCase
         generarRegistros($this->conexion, 'usuarios');
         generarRegistros($this->conexion, 'documentos');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario'
         ];
 
         // Prueba de relación básica.
 
-        $atributos['tieneUno'] = Documento::class;
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneUno'] = Documento::class;
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('documentos');
 
         $this->assertObjectHasProperty('documentos', $usuario);
@@ -316,8 +316,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo nombre.
 
-        $atributos['tieneUno'] = [Documento::class => ['nombre' => 'documento_relacion']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneUno'] = [Documento::class => ['nombre' => 'documento_relacion']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('documento_relacion');
 
         $this->assertObjectHasProperty('documento_relacion', $usuario);
@@ -325,8 +325,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave principal.
 
-        $atributos['tieneUno'] = [Documento::class => ['llavePrincipal' => 'id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneUno'] = [Documento::class => ['llavePrincipal' => 'id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('documentos');
 
         $this->assertObjectHasProperty('documentos', $usuario);
@@ -334,8 +334,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave foránea.
 
-        $atributos['tieneUno'] = [Documento::class => ['llaveForanea' => 'usuario_id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneUno'] = [Documento::class => ['llaveForanea' => 'usuario_id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('documentos');
 
         $this->assertObjectHasProperty('documentos', $usuario);
@@ -352,15 +352,15 @@ class ModeloTest extends TestCase
         generarRegistros($this->conexion, 'usuarios');
         generarRegistros($this->conexion, 'temas');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario'
         ];
 
         // Prueba de relación básica.
 
-        $atributos['tieneMuchos'] = Tema::class;
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneMuchos'] = Tema::class;
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('temas');
 
         $this->assertObjectHasProperty('temas', $usuario);
@@ -369,8 +369,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo nombre.
 
-        $atributos['tieneMuchos'] = [Tema::class => ['nombre' => 'temas_relacion']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneMuchos'] = [Tema::class => ['nombre' => 'temas_relacion']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('temas_relacion');
 
         $this->assertObjectHasProperty('temas_relacion', $usuario);
@@ -379,8 +379,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave principal.
 
-        $atributos['tieneMuchos'] = [Tema::class => ['llavePrincipal' => 'id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneMuchos'] = [Tema::class => ['llavePrincipal' => 'id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('temas');
 
         $this->assertObjectHasProperty('temas', $usuario);
@@ -389,8 +389,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave foránea.
 
-        $atributos['tieneMuchos'] = [Tema::class => ['llaveForanea' => 'usuario_id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['tieneMuchos'] = [Tema::class => ['llaveForanea' => 'usuario_id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('temas');
 
         $this->assertObjectHasProperty('temas', $usuario);
@@ -407,15 +407,15 @@ class ModeloTest extends TestCase
         generarRegistros($this->conexion, 'telefonos');
         generarRegistros($this->conexion, 'usuarios');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario'
         ];
 
         // Prueba de relación básica.
 
-        $atributos['perteneceAUno'] = Telefono::class;
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAUno'] = Telefono::class;
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('telefonos');
 
         $this->assertObjectHasProperty('telefonos', $usuario);
@@ -423,8 +423,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo nombre.
 
-        $atributos['perteneceAUno'] = [Telefono::class => ['nombre' => 'telefono_relacion']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAUno'] = [Telefono::class => ['nombre' => 'telefono_relacion']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('telefono_relacion');
 
         $this->assertObjectHasProperty('telefono_relacion', $usuario);
@@ -432,8 +432,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave principal.
 
-        $atributos['perteneceAUno'] = [Telefono::class => ['llavePrincipal' => 'id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAUno'] = [Telefono::class => ['llavePrincipal' => 'id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('telefonos');
 
         $this->assertObjectHasProperty('telefonos', $usuario);
@@ -441,8 +441,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave foránea.
 
-        $atributos['perteneceAUno'] = [Telefono::class => ['llaveForanea' => 'telefono_id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAUno'] = [Telefono::class => ['llaveForanea' => 'telefono_id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('telefonos');
 
         $this->assertObjectHasProperty('telefonos', $usuario);
@@ -460,15 +460,15 @@ class ModeloTest extends TestCase
         generarRegistros($this->conexion, 'roles');
         generarRegistros($this->conexion, 'role_usuario');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario'
         ];
 
         // Prueba de relación básica.
 
-        $atributos['perteneceAMuchos'] = Role::class;
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAMuchos'] = Role::class;
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
         $this->assertObjectHasProperty('role_usuario', $usuario);
@@ -477,8 +477,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo nombre.
 
-        $atributos['perteneceAMuchos'] = [Role::class => ['nombre' => 'rol_relacion']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAMuchos'] = [Role::class => ['nombre' => 'rol_relacion']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('rol_relacion');
 
         $this->assertObjectHasProperty('rol_relacion', $usuario);
@@ -487,8 +487,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo tabla unión.
 
-        $atributos['perteneceAMuchos'] = [Role::class => ['tablaUnion' => 'role_usuario']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAMuchos'] = [Role::class => ['tablaUnion' => 'role_usuario']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
         $this->assertObjectHasProperty('role_usuario', $usuario);
@@ -497,8 +497,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave foránea local.
 
-        $atributos['perteneceAMuchos'] = [Role::class => ['llaveForaneaLocal' => 'usuario_id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAMuchos'] = [Role::class => ['llaveForaneaLocal' => 'usuario_id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
         $this->assertObjectHasProperty('role_usuario', $usuario);
@@ -507,8 +507,8 @@ class ModeloTest extends TestCase
 
         // Prueba de relación definiendo llave foránea unión.
 
-        $atributos['perteneceAMuchos'] = [Role::class => ['llaveForaneaUnion' => 'role_id']];
-        $pipe = new ConstructorConsulta($atributos);
+        $propiedades['perteneceAMuchos'] = [Role::class => ['llaveForaneaUnion' => 'role_id']];
+        $pipe = new ConstructorConsulta($propiedades);
         $usuario = $pipe->primero()->relacionar('role_usuario');
 
         $this->assertObjectHasProperty('role_usuario', $usuario);
@@ -524,13 +524,13 @@ class ModeloTest extends TestCase
 
         generarRegistros($this->conexion, 'telefonos');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario',
             'insertables' => ['telefono_id', 'nombres']
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
 
         $id = $pipe->insertarObtenerId(
             ['telefono_id' => 1, 'nombres' => 'Juan', 'apellidos' => 'Valencia']
@@ -551,13 +551,13 @@ class ModeloTest extends TestCase
 
         generarRegistros($this->conexion, 'telefonos');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario',
             'actualizables' => ['telefono_id', 'nombres']
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
 
         $id = $pipe->insertarObtenerId(
             ['telefono_id' => 1, 'nombres' => 'Juan']
@@ -582,13 +582,13 @@ class ModeloTest extends TestCase
 
         generarRegistros($this->conexion, 'telefonos');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario',
             'visibles' => ['id', 'nombres', 'creado_en', 'actualizado_en']
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
 
         $id = $pipe->insertarObtenerId(
             ['telefono_id' => 1, 'nombres' => 'Juan', 'apellidos' => 'Valencia']
@@ -608,13 +608,13 @@ class ModeloTest extends TestCase
 
         generarRegistros($this->conexion, 'telefonos');
 
-        $atributos = [
+        $propiedades = [
             'tabla' => 'usuarios',
             'clase' => 'Usuario',
             'ocultos' => ['apellidos']
         ];
 
-        $pipe = new ConstructorConsulta($atributos);
+        $pipe = new ConstructorConsulta($propiedades);
 
         $id = $pipe->insertarObtenerId(
             ['telefono_id' => 1, 'nombres' => 'Juan', 'apellidos' => 'Valencia']

@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.4
+ * @version   GIT:  5.1.6
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -121,11 +121,12 @@ class ConstructorConsulta
     private $_parametros = [];
 
     /**
-     * Atributos personalizados definidos por el modelo y el constructor de consulta.
+     * Propiedades personalizadas definidas por el 
+     * modelo y el constructor de consulta.
      *
      * @var array
      */
-    private $_atributos = [];
+    private $_propiedades = [];
 
     /**
      * Datos relacionados con el modelo(s) establecido.
@@ -137,47 +138,47 @@ class ConstructorConsulta
     /**
      * Crea una nueva instancia de la clase ConstructorConsulta.
      *
-     * @param array $atributos atributos
+     * @param array $propiedades propiedades
      * 
      * @return void
      * 
      * @throws \PIPE\Clases\Excepciones\ORM
      */
-    public function __construct($atributos = [])
+    public function __construct($propiedades = [])
     {
-        if (isset($atributos['conexion'])) {
-            PIPE::conexion($atributos['conexion']);
+        if (isset($propiedades['conexion'])) {
+            PIPE::conexion($propiedades['conexion']);
         }
 
-        $this->_atributos = [
-            'conexion' => $atributos['conexion'] ?? null,
-            'tabla' => $atributos['tabla'] ?? '',
-            'claseLlamada' => $atributos['claseLlamada'] ?? self::class,
-            'clase' => $atributos['clase'] ?? self::class,
-            'llavePrimaria' => $atributos['llavePrimaria'] ?? 'id',
-            'registroTiempo' => $atributos['registroTiempo'] ?? true,
-            'creadoEn' => $atributos['creadoEn'] ?? 'creado_en',
-            'actualizadoEn' => $atributos['actualizadoEn'] ?? 'actualizado_en',
-            'tieneUno' => $atributos['tieneUno'] ?? [],
-            'tieneMuchos' => $atributos['tieneMuchos'] ?? [],
-            'perteneceAUno' => $atributos['perteneceAUno'] ?? [],
-            'perteneceAMuchos' => $atributos['perteneceAMuchos'] ?? [],
-            'insertables' => $atributos['insertables'] ?? [],
-            'actualizables' => $atributos['actualizables'] ?? [],
-            'visibles' => $atributos['visibles'] ?? [],
-            'ocultos' => $atributos['ocultos'] ?? []
+        $this->_propiedades = [
+            'conexion' => $propiedades['conexion'] ?? null,
+            'tabla' => $propiedades['tabla'] ?? '',
+            'claseLlamada' => $propiedades['claseLlamada'] ?? self::class,
+            'clase' => $propiedades['clase'] ?? self::class,
+            'llavePrimaria' => $propiedades['llavePrimaria'] ?? 'id',
+            'registroTiempo' => $propiedades['registroTiempo'] ?? true,
+            'creadoEn' => $propiedades['creadoEn'] ?? 'creado_en',
+            'actualizadoEn' => $propiedades['actualizadoEn'] ?? 'actualizado_en',
+            'tieneUno' => $propiedades['tieneUno'] ?? [],
+            'tieneMuchos' => $propiedades['tieneMuchos'] ?? [],
+            'perteneceAUno' => $propiedades['perteneceAUno'] ?? [],
+            'perteneceAMuchos' => $propiedades['perteneceAMuchos'] ?? [],
+            'insertables' => $propiedades['insertables'] ?? [],
+            'actualizables' => $propiedades['actualizables'] ?? [],
+            'visibles' => $propiedades['visibles'] ?? [],
+            'ocultos' => $propiedades['ocultos'] ?? []
         ];
 
-        $this->_tabla = $this->_atributos['tabla'];
+        $this->_tabla = $this->_propiedades['tabla'];
 
-        if (isset($atributos['RETORNO_CLASE'])) {
+        if (isset($propiedades['RETORNO_CLASE'])) {
             $this->donde(
-                $this->_atributos['llavePrimaria'].' = ?',
-                [$this->{$this->_atributos['llavePrimaria']}]
+                $this->_propiedades['llavePrimaria'].' = ?',
+                [$this->{$this->_propiedades['llavePrimaria']}]
             );
 
-            $this->relaciones(...$atributos['relaciones']);
-            $this->relacionar(...$atributos['relaciones']);
+            $this->relaciones(...$propiedades['relaciones']);
+            $this->relacionar(...$propiedades['relaciones']);
         }
 
         if (!empty($this->_tabla) && !$this->_obtenerCamposTabla()) {
@@ -446,7 +447,7 @@ class ConstructorConsulta
         case 'sqlsrv':
             $this->_limite = SQLServer::obtenerCadenaLimite(
                 $this->_ordenar, 
-                $this->_tabla.'.'.$this->_atributos['llavePrimaria'], 
+                $this->_tabla.'.'.$this->_propiedades['llavePrimaria'], 
                 $cantidad, $inicio
             );
             break;
@@ -521,7 +522,7 @@ class ConstructorConsulta
             || $llavePrimaria == PIPE::SQL
         ) {
             $tipoRetorno = $llavePrimaria;
-            $llavePrimaria = $this->_atributos['llavePrimaria'];
+            $llavePrimaria = $this->_propiedades['llavePrimaria'];
         } elseif (is_numeric($llavePrimaria)) {
             if ($limite == PIPE::CLASE
                 || $limite == PIPE::OBJETO 
@@ -533,7 +534,7 @@ class ConstructorConsulta
             }
 
             $limite = $llavePrimaria;
-            $llavePrimaria = $this->_atributos['llavePrimaria'];
+            $llavePrimaria = $this->_propiedades['llavePrimaria'];
         } elseif ($limite == PIPE::CLASE 
             || $limite == PIPE::OBJETO 
             || $limite == PIPE::ARREGLO 
@@ -545,11 +546,11 @@ class ConstructorConsulta
         }
 
         if ($llavePrimaria != 'id') {
-            $this->_atributos['llavePrimaria'] = $llavePrimaria;
+            $this->_propiedades['llavePrimaria'] = $llavePrimaria;
         }
 
-        if ($this->_atributos['llavePrimaria'] != 'id') {
-            $llavePrimaria = $this->_atributos['llavePrimaria'];
+        if ($this->_propiedades['llavePrimaria'] != 'id') {
+            $llavePrimaria = $this->_propiedades['llavePrimaria'];
         }
 
         if ($tipoRetorno == PIPE::SQL) {
@@ -722,11 +723,11 @@ class ConstructorConsulta
     public function encontrar($valor, $llavePrimaria = 'id')
     {
         if ($llavePrimaria != 'id') {
-            $this->_atributos['llavePrimaria'] = $llavePrimaria;
+            $this->_propiedades['llavePrimaria'] = $llavePrimaria;
         }
 
-        if ($this->_atributos['llavePrimaria'] != 'id') {
-            $llavePrimaria = $this->_atributos['llavePrimaria'];
+        if ($this->_propiedades['llavePrimaria'] != 'id') {
+            $llavePrimaria = $this->_propiedades['llavePrimaria'];
         }
 
         if (is_array($valor) && !empty($valor)) {
@@ -762,7 +763,7 @@ class ConstructorConsulta
             $parametros = '';
             $valores = [];
 
-            if ($this->_atributos['claseLlamada'] != self::class) {
+            if ($this->_propiedades['claseLlamada'] != self::class) {
                 $registros = $this->_mutarRegistros('asignar', $registros);
             }
 
@@ -842,7 +843,7 @@ class ConstructorConsulta
             if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
                 $this->_procesarConsultaSQL(
                     'update '.$this->_tabla
-                    .' set '.$this->_atributos['actualizadoEn']
+                    .' set '.$this->_propiedades['actualizadoEn']
                     ." = '".$this->_obtenerFechaHoraActual()
                     ."' ".$this->_condiciones,
                     $this->_parametros
@@ -858,17 +859,17 @@ class ConstructorConsulta
     /**
      * Actualiza o inserta un nuevo registro en la base de datos.
      *
-     * @param array $atributos atributos
-     * @param array $valores   valores
+     * @param array $propiedades propiedades
+     * @param array $valores     valores
      * 
      * @return int
      */
-    public function actualizarOInsertar($atributos, $valores = [])
+    public function actualizarOInsertar($propiedades, $valores = [])
     {
         $condiciones = '';
         $parametros = [];
 
-        foreach ($atributos as $campo => $valor) {
+        foreach ($propiedades as $campo => $valor) {
             $condiciones .= $campo.' = ? y ';
             $parametros[] = $valor;
         }
@@ -879,13 +880,13 @@ class ConstructorConsulta
 
         if ($this->existe()) {
             if ($this->_verificarCamposRegistroTiempo()) {
-                $actualizadoEn = $this->_atributos['actualizadoEn'];
+                $actualizadoEn = $this->_propiedades['actualizadoEn'];
                 $valores[$actualizadoEn] = $this->_obtenerFechaHoraActual();
             }
 
             return $this->actualizar($valores);
         } else {
-            $registro = array_merge($atributos, $valores);
+            $registro = array_merge($propiedades, $valores);
 
             return $this->insertar($registro);
         }
@@ -1141,14 +1142,14 @@ class ConstructorConsulta
 
         if ($tipoRetorno == PIPE::CLASE) {
             if (!$this->_agrupar) {
-                $this->_atributos['RETORNO_CLASE'] = true;
-                $this->_atributos['relaciones'] = $this->_relaciones;
+                $this->_propiedades['RETORNO_CLASE'] = true;
+                $this->_propiedades['relaciones'] = $this->_relaciones;
             }
 
             $parametros = [
                 PDO::FETCH_CLASS, 
                 self::class, 
-                ['atributos' => $this->_atributos]
+                ['propiedades' => $this->_propiedades]
             ];
         } elseif ($tipoRetorno == PIPE::OBJETO) {
             $parametros = [PDO::FETCH_OBJ];
@@ -1172,13 +1173,13 @@ class ConstructorConsulta
     private function _convertirRegistros($registros, $tipoRetorno)
     {
         if ($tipoRetorno != PIPE::CLASE && $this->_relaciones) {
-            $pipe = new self($this->_atributos);
+            $pipe = new self($this->_propiedades);
 
             foreach ($registros as $clave => $registro) {
                 foreach ($this->_relaciones as $relacion) {
                     $valorLlavePrimaria = $tipoRetorno == PIPE::OBJETO
-                        ? $registro->{$this->_atributos['llavePrimaria']}
-                        : $registro[$this->_atributos['llavePrimaria']];
+                        ? $registro->{$this->_propiedades['llavePrimaria']}
+                        : $registro[$this->_propiedades['llavePrimaria']];
 
                     $pipe = $pipe->encontrar($valorLlavePrimaria);
 
@@ -1196,7 +1197,7 @@ class ConstructorConsulta
             }
         }
 
-        if ($this->_atributos['claseLlamada'] != self::class) {
+        if ($this->_propiedades['claseLlamada'] != self::class) {
             $registros = $this->_mutarRegistros('obtener', $registros);
         }
 
@@ -1209,7 +1210,7 @@ class ConstructorConsulta
 
     /**
      * Realiza una asignación u obtención personalizada
-     * de los valores de los atributos.
+     * de los valores de las propiedades.
      *
      * @param string $accion   accion
      * @param string $clase    clase
@@ -1217,7 +1218,7 @@ class ConstructorConsulta
      * 
      * @return array
      */
-    private function _mutarAtributos($accion, $clase, $registro)
+    private function _mutarPropiedades($accion, $clase, $registro)
     {
         $instancia = new $clase();
         $esArreglo = is_array($registro) ? true : false;
@@ -1253,8 +1254,8 @@ class ConstructorConsulta
     private function _mutarRegistros($accion, $registros)
     {
         foreach ($registros as $clave => $registro) {
-            $registros[$clave] = $this->_mutarAtributos(
-                $accion, $this->_atributos['claseLlamada'], $registro
+            $registros[$clave] = $this->_mutarPropiedades(
+                $accion, $this->_propiedades['claseLlamada'], $registro
             );
         }
 
@@ -1283,9 +1284,9 @@ class ConstructorConsulta
         foreach ($camposPivot as $campo) {
             $campo = trim($campo);
 
-            $condicion = !empty($this->_atributos['visibles'])
-                ? in_array($campo, $this->_atributos['visibles'])
-                : !in_array($campo, $this->_atributos['ocultos']);
+            $condicion = !empty($this->_propiedades['visibles'])
+                ? in_array($campo, $this->_propiedades['visibles'])
+                : !in_array($campo, $this->_propiedades['ocultos']);
 
             if ($condicion) {
                 $campos[] = $campo;
@@ -1293,13 +1294,13 @@ class ConstructorConsulta
         }
 
         if (($tipoRetorno == PIPE::CLASE
-            && !in_array($this->_atributos['llavePrimaria'], $campos)
+            && !in_array($this->_propiedades['llavePrimaria'], $campos)
             && !$this->_agrupar)
             || $this->_relaciones
         ) {
             $tabla = $this->_alias ? $this->_alias : $this->_tabla;
 
-            $campos[] = $tabla.'.'.$this->_atributos['llavePrimaria'];
+            $campos[] = $tabla.'.'.$this->_propiedades['llavePrimaria'];
         }
 
         $campos = implode(',', $campos);
@@ -1371,8 +1372,8 @@ class ConstructorConsulta
     {
         if (is_array($camposHabilitados) && !empty($camposHabilitados)) {
             if ($this->_verificarCamposRegistroTiempo()) {
-                array_push($camposHabilitados, $this->_atributos['creadoEn']);
-                array_push($camposHabilitados, $this->_atributos['actualizadoEn']);
+                array_push($camposHabilitados, $this->_propiedades['creadoEn']);
+                array_push($camposHabilitados, $this->_propiedades['actualizadoEn']);
             }
 
             return $camposHabilitados;
@@ -1655,10 +1656,10 @@ class ConstructorConsulta
     {
         $relaciones = [];
 
-        if (!empty($pipe->_atributos['tieneUno'])) {
-            if (is_string($pipe->_atributos['tieneUno'])) {
-                $pipe->_atributos['tieneUno'] = [
-                    $pipe->_atributos['tieneUno'] => null
+        if (!empty($pipe->_propiedades['tieneUno'])) {
+            if (is_string($pipe->_propiedades['tieneUno'])) {
+                $pipe->_propiedades['tieneUno'] = [
+                    $pipe->_propiedades['tieneUno'] => null
                 ];
             }
 
@@ -1669,10 +1670,10 @@ class ConstructorConsulta
             $relaciones[$relacion['nombre']] = $relacion['registro'];
         }
 
-        if (!empty($pipe->_atributos['tieneMuchos'])) {
-            if (is_string($pipe->_atributos['tieneMuchos'])) {
-                $pipe->_atributos['tieneMuchos'] = [
-                    $pipe->_atributos['tieneMuchos'] => null
+        if (!empty($pipe->_propiedades['tieneMuchos'])) {
+            if (is_string($pipe->_propiedades['tieneMuchos'])) {
+                $pipe->_propiedades['tieneMuchos'] = [
+                    $pipe->_propiedades['tieneMuchos'] => null
                 ];
             }
             $r = null;
@@ -1684,10 +1685,10 @@ class ConstructorConsulta
             $relaciones[$relacion['nombre']] = $relacion['registros'];
         }
 
-        if (!empty($pipe->_atributos['perteneceAUno'])) {
-            if (is_string($pipe->_atributos['perteneceAUno'])) {
-                $pipe->_atributos['perteneceAUno'] = [
-                    $pipe->_atributos['perteneceAUno'] => null
+        if (!empty($pipe->_propiedades['perteneceAUno'])) {
+            if (is_string($pipe->_propiedades['perteneceAUno'])) {
+                $pipe->_propiedades['perteneceAUno'] = [
+                    $pipe->_propiedades['perteneceAUno'] => null
                 ];
             }
 
@@ -1698,10 +1699,10 @@ class ConstructorConsulta
             $relaciones[$relacion['nombre']] = $relacion['registro'];
         }
 
-        if (!empty($pipe->_atributos['perteneceAMuchos'])) {
-            if (is_string($pipe->_atributos['perteneceAMuchos'])) {
-                $pipe->_atributos['perteneceAMuchos'] = [
-                    $pipe->_atributos['perteneceAMuchos'] => null
+        if (!empty($pipe->_propiedades['perteneceAMuchos'])) {
+            if (is_string($pipe->_propiedades['perteneceAMuchos'])) {
+                $pipe->_propiedades['perteneceAMuchos'] = [
+                    $pipe->_propiedades['perteneceAMuchos'] => null
                 ];
             }
 
@@ -1728,25 +1729,25 @@ class ConstructorConsulta
      */
     private function _obtenerRelacionTieneUno(self $pipe, $nombre, $tipoRetorno)
     {
-        $atributos = $pipe->_atributos;
+        $propiedades = $pipe->_propiedades;
 
-        foreach ($atributos['tieneUno'] as $clase => $valores) {
+        foreach ($propiedades['tieneUno'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
                     Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
                 );
             }
 
-            $atributosClaseUnion = Modelo::obtenerAtributosClase($clase);
-            $nombreRelacion = $valores['nombre'] ?? $atributosClaseUnion['tabla'];
+            $propiedadesClaseUnion = Modelo::obtenerPropiedadesClase($clase);
+            $nombreRelacion = $valores['nombre'] ?? $propiedadesClaseUnion['tabla'];
 
             if ($nombre == $nombreRelacion) {
                 $llavePrincipal = (
-                    $valores['llavePrincipal'] ?? $atributos['llavePrimaria']
+                    $valores['llavePrincipal'] ?? $propiedades['llavePrimaria']
                 );
 
                 $llaveForanea = substr(
-                    Modelo::convertirModeloTabla($atributos['clase']), 0, -1
+                    Modelo::convertirModeloTabla($propiedades['clase']), 0, -1
                 );
                 $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea.'_id';
 
@@ -1759,7 +1760,7 @@ class ConstructorConsulta
 
                 $valorllavePrincipal = $pipe->{$llavePrincipal};
 
-                $registro = new self($atributosClaseUnion);
+                $registro = new self($propiedadesClaseUnion);
                 $registro->donde($llaveForanea.' = ?', [$valorllavePrincipal]);
                 $registro = $registro->primero($tipoRetorno);
 
@@ -1789,25 +1790,25 @@ class ConstructorConsulta
      */
     private function _obtenerRelacionTieneMuchos(self $pipe, $nombre, $tipoRetorno)
     {
-        $atributos = $pipe->_atributos;
+        $propiedades = $pipe->_propiedades;
 
-        foreach ($atributos['tieneMuchos'] as $clase => $valores) {
+        foreach ($propiedades['tieneMuchos'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
                     Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
                 );
             }
 
-            $atributosClaseUnion = Modelo::obtenerAtributosClase($clase);
-            $nombreRelacion = $valores['nombre'] ?? $atributosClaseUnion['tabla'];
+            $propiedadesClaseUnion = Modelo::obtenerPropiedadesClase($clase);
+            $nombreRelacion = $valores['nombre'] ?? $propiedadesClaseUnion['tabla'];
 
             if ($nombre == $nombreRelacion) {
                 $llavePrincipal = (
-                    $valores['llavePrincipal'] ?? $atributos['llavePrimaria']
+                    $valores['llavePrincipal'] ?? $propiedades['llavePrimaria']
                 );
 
                 $llaveForanea = substr(
-                    Modelo::convertirModeloTabla($atributos['clase']), 0, -1
+                    Modelo::convertirModeloTabla($propiedades['clase']), 0, -1
                 );
                 $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea.'_id';
 
@@ -1820,7 +1821,7 @@ class ConstructorConsulta
 
                 $valorllavePrincipal = $pipe->{$llavePrincipal};
 
-                $registros = new self($atributosClaseUnion);
+                $registros = new self($propiedadesClaseUnion);
                 $registros->donde($llaveForanea.' = ?', [$valorllavePrincipal]);
                 $registros = $registros->obtener($tipoRetorno);
 
@@ -1850,27 +1851,27 @@ class ConstructorConsulta
      */
     private function _obtenerRelacionPerteneceAUno(self $pipe, $nombre, $tipoRetorno)
     {
-        $atributos = $pipe->_atributos;
+        $propiedades = $pipe->_propiedades;
 
-        foreach ($atributos['perteneceAUno'] as $clase => $valores) {
+        foreach ($propiedades['perteneceAUno'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
                     Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
                 );
             }
 
-            $atributosClaseUnion = Modelo::obtenerAtributosClase($clase);
-            $nombreRelacion = $valores['nombre'] ?? $atributosClaseUnion['tabla'];
+            $propiedadesClaseUnion = Modelo::obtenerPropiedadesClase($clase);
+            $nombreRelacion = $valores['nombre'] ?? $propiedadesClaseUnion['tabla'];
 
             if ($nombre == $nombreRelacion) {
                 $llavePrincipal = (
                     $valores['llavePrincipal'] 
-                        ?? $atributosClaseUnion['llavePrimaria']
+                        ?? $propiedadesClaseUnion['llavePrimaria']
                 );
 
                 $llaveForanea = substr(
                     Modelo::convertirModeloTabla(
-                        $atributosClaseUnion['clase']
+                        $propiedadesClaseUnion['clase']
                     ), 0, -1
                 );
                 $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea.'_id';
@@ -1884,7 +1885,7 @@ class ConstructorConsulta
 
                 $valorllavePrincipal = $pipe->{$llaveForanea};
 
-                $registro = new self($atributosClaseUnion);
+                $registro = new self($propiedadesClaseUnion);
                 $registro->donde($llavePrincipal.' = ?', [$valorllavePrincipal]);
                 $registro = $registro->primero($tipoRetorno);
 
@@ -1915,19 +1916,19 @@ class ConstructorConsulta
     private function _obtenerRelacionPerteneceAMuchos(
         self $pipe, $nombre, $tipoRetorno
     ) {
-        $atributos = $pipe->_atributos;
+        $propiedades = $pipe->_propiedades;
 
-        foreach ($atributos['perteneceAMuchos'] as $clase => $valores) {
+        foreach ($propiedades['perteneceAMuchos'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
                     Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
                 );
             }
 
-            $atributosClaseUnion = Modelo::obtenerAtributosClase($clase);
+            $propiedadesClaseUnion = Modelo::obtenerPropiedadesClase($clase);
 
             $modeloLocal = substr(
-                Modelo::convertirModeloTabla($atributos['clase']), 0, -1
+                Modelo::convertirModeloTabla($propiedades['clase']), 0, -1
             );
 
             $modeloUnion = substr(
@@ -1953,11 +1954,11 @@ class ConstructorConsulta
 
                 $condiciones = substr($pipe->_condiciones, 7);
 
-                $registros = new self($atributosClaseUnion);
+                $registros = new self($propiedadesClaseUnion);
                 $registros->unir(
                     $tablaUnion,
-                    $atributosClaseUnion['tabla'].'.'
-                    .$atributosClaseUnion['llavePrimaria'],
+                    $propiedadesClaseUnion['tabla'].'.'
+                    .$propiedadesClaseUnion['llavePrimaria'],
                     $tablaUnion.'.'.$llaveForaneaUnion
                 );
                 $registros->donde(
@@ -1985,11 +1986,11 @@ class ConstructorConsulta
      */
     private function _configurarRegistroTiempo()
     {
-        $tiempo = $this->_atributos['registroTiempo'] === true 
+        $tiempo = $this->_propiedades['registroTiempo'] === true 
             ? $this->_obtenerFechaHoraActual() : null;
 
-        $this->{$this->_atributos['creadoEn']} = $tiempo;
-        $this->{$this->_atributos['actualizadoEn']} = $tiempo;
+        $this->{$this->_propiedades['creadoEn']} = $tiempo;
+        $this->{$this->_propiedades['actualizadoEn']} = $tiempo;
     }
 
     /**
@@ -2002,7 +2003,7 @@ class ConstructorConsulta
     private function _obtenerCamposInsercionP($registro)
     {
         $registroFiltrado = $this->_filtrarRegistros(
-            $registro, $this->_atributos['insertables']
+            $registro, $this->_propiedades['insertables']
         );
 
         $campos = array_keys($registroFiltrado);
@@ -2021,7 +2022,7 @@ class ConstructorConsulta
     private function _obtenerParametrosInsercionP($registro)
     {
         $registroFiltrado = $this->_filtrarRegistros(
-            $registro, $this->_atributos['insertables']
+            $registro, $this->_propiedades['insertables']
         );
 
         $parametros = '';
@@ -2029,7 +2030,7 @@ class ConstructorConsulta
         $camposTabla = $this->_obtenerCamposTabla($campos);
 
         foreach ($camposTabla as $campo) {
-            if ($this->_atributos['llavePrimaria'] == $campo 
+            if ($this->_propiedades['llavePrimaria'] == $campo 
                 && $registroFiltrado[$campo] === 'default'
             ) {
                 $parametros .= $registroFiltrado[$campo].',';
@@ -2051,7 +2052,7 @@ class ConstructorConsulta
     private function _obtenerValoresInsercionP($registro)
     {
         $registroFiltrado = $this->_filtrarRegistros(
-            $registro, $this->_atributos['insertables']
+            $registro, $this->_propiedades['insertables']
         );
 
         $valores = [];
@@ -2059,11 +2060,11 @@ class ConstructorConsulta
         $camposTabla = $this->_obtenerCamposTabla($campos);
 
         foreach ($camposTabla as $campo) {
-            if (!($this->_atributos['llavePrimaria'] == $campo) 
+            if (!($this->_propiedades['llavePrimaria'] == $campo) 
                 || !($registroFiltrado[$campo] === 'default')
             ) {
-                if ($this->_atributos['creadoEn'] == $campo
-                    || $this->_atributos['actualizadoEn'] == $campo
+                if ($this->_propiedades['creadoEn'] == $campo
+                    || $this->_propiedades['actualizadoEn'] == $campo
                 ) {
                     $valores[] = $this->_obtenerFechaHoraActual();
                 } else {
@@ -2084,7 +2085,9 @@ class ConstructorConsulta
      */
     private function _obtenerCamposInsercion()
     {
-        $camposTabla = $this->_obtenerCamposTabla($this->_atributos['insertables']);
+        $camposTabla = $this->_obtenerCamposTabla(
+            $this->_propiedades['insertables']
+        );
 
         foreach ($camposTabla as $campo) {
             if (!property_exists($this, $campo)) {
@@ -2105,10 +2108,12 @@ class ConstructorConsulta
     private function _obtenerParametrosInsercion()
     {
         $parametros = '';
-        $camposTabla = $this->_obtenerCamposTabla($this->_atributos['insertables']);
+        $camposTabla = $this->_obtenerCamposTabla(
+            $this->_propiedades['insertables']
+        );
 
         foreach ($camposTabla as $campo) {
-            if ($this->_atributos['llavePrimaria'] == $campo 
+            if ($this->_propiedades['llavePrimaria'] == $campo 
                 && $this->{$campo} === 'default'
             ) {
                 $parametros .= $this->{$campo}.',';
@@ -2128,17 +2133,19 @@ class ConstructorConsulta
     private function _obtenerValoresInsercion()
     {
         $valores = [];
-        $camposTabla = $this->_obtenerCamposTabla($this->_atributos['insertables']);
+        $camposTabla = $this->_obtenerCamposTabla(
+            $this->_propiedades['insertables']
+        );
 
         foreach ($camposTabla as $campo) {
-            if (!($this->_atributos['llavePrimaria'] == $campo) 
+            if (!($this->_propiedades['llavePrimaria'] == $campo) 
                 || !($this->{$campo} === 'default')
             ) {
                 $valores[$campo] = $this->{$campo};
             }
         }
 
-        if ($this->_atributos['claseLlamada'] != self::class && $valores) {
+        if ($this->_propiedades['claseLlamada'] != self::class && $valores) {
             $valores = $this->_mutarRegistros('asignar', [$valores]);
             $valores = array_values($valores[0]);
         } else {
@@ -2158,10 +2165,10 @@ class ConstructorConsulta
     private function _obtenerParametrosActualizacionP($registro)
     {
         $registroFiltrado = $this->_filtrarRegistros(
-            $registro, $this->_atributos['actualizables']
+            $registro, $this->_propiedades['actualizables']
         );
 
-        if ($this->_atributos['claseLlamada'] != self::class && $registroFiltrado) {
+        if ($this->_propiedades['claseLlamada'] != self::class && $registroFiltrado) {
             $registroFiltrado = $this->_mutarRegistros(
                 'asignar', [$registroFiltrado]
             );
@@ -2191,14 +2198,14 @@ class ConstructorConsulta
     private function _obtenerParametrosActualizacion()
     {
         if (Configuracion::config('BD_CONTROLADOR') == 'sqlsrv') {
-            unset($this->{$this->_atributos['llavePrimaria']});
+            unset($this->{$this->_propiedades['llavePrimaria']});
         }
 
         $camposTabla = $this->_obtenerCamposTabla(
-            $this->_atributos['actualizables']
+            $this->_propiedades['actualizables']
         );
 
-        if ($this->_atributos['claseLlamada'] != self::class) {
+        if ($this->_propiedades['claseLlamada'] != self::class) {
             $valores = $this->primero(PIPE::OBJETO);
         } else {
             $consultaSQL = $this->seleccionar(...$camposTabla)->obtener(PIPE::SQL);
@@ -2219,7 +2226,7 @@ class ConstructorConsulta
             }
         }
 
-        if ($this->_atributos['claseLlamada'] != self::class && $valoresPivote) {
+        if ($this->_propiedades['claseLlamada'] != self::class && $valoresPivote) {
             $valoresPivote = $this->_mutarRegistros('asignar', [$valoresPivote]);
             $valoresPivote = $valoresPivote[0];
         }
@@ -2274,9 +2281,9 @@ class ConstructorConsulta
     {
         $camposTabla = $this->_obtenerCamposTabla();
 
-        if ($this->_atributos['registroTiempo'] === true 
-            && in_array($this->_atributos['creadoEn'], $camposTabla) 
-            && in_array($this->_atributos['actualizadoEn'], $camposTabla)
+        if ($this->_propiedades['registroTiempo'] === true 
+            && in_array($this->_propiedades['creadoEn'], $camposTabla) 
+            && in_array($this->_propiedades['actualizadoEn'], $camposTabla)
         ) {
             return true;
         }

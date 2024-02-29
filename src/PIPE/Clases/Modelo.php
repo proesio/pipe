@@ -8,12 +8,14 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.4
+ * @version   GIT:  5.1.6
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
 
 namespace PIPE\Clases;
+
+use ReflectionClass;
 
 abstract class Modelo
 {
@@ -33,8 +35,8 @@ abstract class Modelo
      */
     public static function alias($alias)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->alias(...func_get_args());
     }
@@ -49,8 +51,8 @@ abstract class Modelo
      */
     public static function todo($campos = [], $tipoRetorno = null)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->todo(...func_get_args());
     }
@@ -64,8 +66,8 @@ abstract class Modelo
      */
     public static function seleccionar($campos = ['*'])
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->seleccionar(...func_get_args());
     }
@@ -77,8 +79,8 @@ abstract class Modelo
      */
     public static function distinto()
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->distinto(...func_get_args());
     }
@@ -96,8 +98,8 @@ abstract class Modelo
     public static function unir(
         $tablaUnion, $llaveForanea, $union, $llavePrimaria = null
     ) {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->unir(...func_get_args());
     }
@@ -118,8 +120,8 @@ abstract class Modelo
     public static function unirDerecha(
         $tablaUnion, $llaveForanea, $union, $llavePrimaria = null
     ) {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->unirDerecha(...func_get_args());
     }
@@ -138,8 +140,8 @@ abstract class Modelo
     public static function unirIzquierda(
         $tablaUnion, $llaveForanea, $union, $llavePrimaria = null
     ) {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->unirIzquierda(...func_get_args());
     }
@@ -154,8 +156,8 @@ abstract class Modelo
      */
     public static function donde($condicion, $parametros = [])
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->donde(...func_get_args());
     }
@@ -169,8 +171,8 @@ abstract class Modelo
      */
     public static function agruparPor($grupos)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->agruparPor(...func_get_args());
     }
@@ -184,8 +186,8 @@ abstract class Modelo
      */
     public static function teniendo($condicion)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->teniendo(...func_get_args());
     }
@@ -200,8 +202,8 @@ abstract class Modelo
      */
     public static function ordenarPor($ordenes, $tipo = 'asc')
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->ordenarPor(...func_get_args());
     }
@@ -216,8 +218,8 @@ abstract class Modelo
      */
     public static function limite($inicio, $cantidad = null)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->limite(...func_get_args());
     }
@@ -241,8 +243,8 @@ abstract class Modelo
      */
     public static function primero($limite = 1, $tipoRetorno = null)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->primero(...func_get_args());
     }
@@ -261,8 +263,8 @@ abstract class Modelo
     public static function ultimo(
         $llavePrimaria = 'id', $limite = 1, $tipoRetorno = null
     ) {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->ultimo(...func_get_args());
     }
@@ -276,8 +278,8 @@ abstract class Modelo
      */
     public static function contar($campo = '*')
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->contar(...func_get_args());
     }
@@ -291,8 +293,8 @@ abstract class Modelo
      */
     public static function maximo($campo)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->maximo(...func_get_args());
     }
@@ -306,8 +308,8 @@ abstract class Modelo
      */
     public static function minimo($campo)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->minimo(...func_get_args());
     }
@@ -321,8 +323,8 @@ abstract class Modelo
      */
     public static function promedio($campo)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->promedio(...func_get_args());
     }
@@ -336,8 +338,8 @@ abstract class Modelo
      */
     public static function suma($campo)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->suma(...func_get_args());
     }
@@ -349,8 +351,8 @@ abstract class Modelo
      */
     public static function existe()
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->existe(...func_get_args());
     }
@@ -362,8 +364,8 @@ abstract class Modelo
      */
     public static function noExiste()
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->noExiste(...func_get_args());
     }
@@ -378,8 +380,8 @@ abstract class Modelo
      */
     public static function incrementar($campo, $incremento = 1)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->incrementar(...func_get_args());
     }
@@ -394,8 +396,8 @@ abstract class Modelo
      */
     public static function decrementar($campo, $decremento = 1)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->decrementar(...func_get_args());
     }
@@ -411,8 +413,8 @@ abstract class Modelo
      */
     public static function encontrar($valor = [], $llavePrimaria = 'id')
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->encontrar(...func_get_args());
     }
@@ -430,8 +432,8 @@ abstract class Modelo
      */
     public function insertar($registros = [])
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         foreach ($this as $clave => $valor) {
             if (!property_exists($pipe, $clave)) {
@@ -451,8 +453,8 @@ abstract class Modelo
      */
     public function insertarObtenerId($registros = [])
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         foreach ($this as $clave => $valor) {
             if (!property_exists($pipe, $clave)) {
@@ -472,8 +474,8 @@ abstract class Modelo
      */
     public static function actualizar($registro = [])
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->actualizar(...func_get_args());
     }
@@ -481,15 +483,15 @@ abstract class Modelo
     /**
      * Actualiza o inserta un nuevo registro en la base de datos.
      *
-     * @param array $atributos atributos
-     * @param array $valores   valores
+     * @param array $propiedades propiedades
+     * @param array $valores     valores
      * 
      * @return int
      */
-    public static function actualizarOInsertar($atributos, $valores = [])
+    public static function actualizarOInsertar($propiedades, $valores = [])
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->actualizarOInsertar(...func_get_args());
     }
@@ -501,8 +503,8 @@ abstract class Modelo
      */
     public static function eliminar()
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->eliminar(...func_get_args());
     }
@@ -517,8 +519,8 @@ abstract class Modelo
      */
     public static function vaciar($forzado = false)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->vaciar(...func_get_args());
     }
@@ -536,8 +538,8 @@ abstract class Modelo
      */
     public static function crear($registros)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
         $registros = $pipe->obtenerRegistrosInsertar($registros);
 
         $inserciones = [];
@@ -564,14 +566,14 @@ abstract class Modelo
      */
     public static function editar($ids, $valores)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
         $ids = is_array($ids) ? $ids : [$ids];
 
         $actualizaciones = [];
 
         foreach ($ids as $id) {
-            $pipe->donde($atributosClase['llavePrimaria'].' = ?', [$id]);
+            $pipe->donde($propiedadesClase['llavePrimaria'].' = ?', [$id]);
 
             if ($pipe->existe()) {
                 $pipe->actualizar($valores);
@@ -597,14 +599,14 @@ abstract class Modelo
      */
     public static function destruir($ids)
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
         $ids = is_array($ids) ? $ids : [$ids];
 
         $eliminaciones = [];
 
         foreach ($ids as $id) {
-            $pipe->donde($atributosClase['llavePrimaria'].' = ?', [$id]);
+            $pipe->donde($propiedadesClase['llavePrimaria'].' = ?', [$id]);
 
             if ($pipe->existe()) {
                 $eliminaciones[] = clone $pipe->encontrar($id);
@@ -631,42 +633,52 @@ abstract class Modelo
      */
     public static function relaciones()
     {
-        $atributosClase = self::obtenerAtributosClase(get_called_class());
-        $pipe = new ConstructorConsulta($atributosClase);
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
 
         return $pipe->relaciones(...func_get_args());
     }
 
     /**
-     * Obtiene los atributos de la clase (modelo) instanciada.
+     * Obtiene los propiedades de la clase (modelo) instanciada.
      *
      * @param string $claseLlamada claseLlamada
      * 
      * @return array
      */
-    public static function obtenerAtributosClase($claseLlamada)
+    public static function obtenerPropiedadesClase($claseLlamada)
     {
-        $atributosClase = get_class_vars($claseLlamada);
+        $reflectionClass = new ReflectionClass($claseLlamada);
+        $propiedades = $reflectionClass->getProperties();
+
+        $propiedadesClase = [];
+
+        foreach ($propiedades as $valor) {
+            $propiedadesClase[$valor->getName()] = $valor->getValue(
+                new $claseLlamada()
+            );
+        }
+
         $modelo = self::obtenerClaseLlamada($claseLlamada);
         $tabla = self::convertirModeloTabla($modelo);
 
         return [
-            'conexion' => $atributosClase['conexion'] ?? null,
+            'conexion' => $propiedadesClase['conexion'] ?? null,
             'claseLlamada' => $claseLlamada,
             'clase' => $modelo,
-            'tabla' => $atributosClase['tabla'] ?? $tabla,
-            'llavePrimaria' => $atributosClase['llavePrimaria'] ?? 'id',
-            'registroTiempo' => $atributosClase['registroTiempo'] ?? true,
-            'creadoEn' => $atributosClase['creadoEn'] ?? 'creado_en',
-            'actualizadoEn' => $atributosClase['actualizadoEn'] ?? 'actualizado_en',
-            'tieneUno' => $atributosClase['tieneUno'] ?? [],
-            'tieneMuchos' => $atributosClase['tieneMuchos'] ?? [],
-            'perteneceAUno' => $atributosClase['perteneceAUno'] ?? [],
-            'perteneceAMuchos' => $atributosClase['perteneceAMuchos'] ?? [],
-            'insertables' => $atributosClase['insertables'] ?? [],
-            'actualizables' => $atributosClase['actualizables'] ?? [],
-            'visibles' => $atributosClase['visibles'] ?? [],
-            'ocultos' => $atributosClase['ocultos'] ?? []
+            'tabla' => $propiedadesClase['tabla'] ?? $tabla,
+            'llavePrimaria' => $propiedadesClase['llavePrimaria'] ?? 'id',
+            'registroTiempo' => $propiedadesClase['registroTiempo'] ?? true,
+            'creadoEn' => $propiedadesClase['creadoEn'] ?? 'creado_en',
+            'actualizadoEn' => $propiedadesClase['actualizadoEn'] ?? 'actualizado_en',
+            'tieneUno' => $propiedadesClase['tieneUno'] ?? [],
+            'tieneMuchos' => $propiedadesClase['tieneMuchos'] ?? [],
+            'perteneceAUno' => $propiedadesClase['perteneceAUno'] ?? [],
+            'perteneceAMuchos' => $propiedadesClase['perteneceAMuchos'] ?? [],
+            'insertables' => $propiedadesClase['insertables'] ?? [],
+            'actualizables' => $propiedadesClase['actualizables'] ?? [],
+            'visibles' => $propiedadesClase['visibles'] ?? [],
+            'ocultos' => $propiedadesClase['ocultos'] ?? []
         ];
     }
 
