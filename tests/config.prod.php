@@ -8,12 +8,12 @@
  * En el directorio ./SQL encontrará las sentencias SQL para
  * crear las tablas por cada controlador.
  * 
- * PHP versions 7 and 8 
+ * PHP versión 8. 
  * 
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.6
+ * @version   GIT:  6.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -28,6 +28,7 @@ return [
         'BD_USUARIO' => 'root',
         'BD_CONTRASENA' => '',
         'BD_BASEDATOS' => 'pipe',
+        'BD_DATOS_DSN' => '',
         'IDIOMA' => 'es',
         'RUTA_MODELOS' => __DIR__.'/Modelos',
         'ZONA_HORARIA' => 'America/Bogota',
@@ -44,6 +45,7 @@ return [
         'BD_USUARIO' => 'root',
         'BD_CONTRASENA' => '',
         'BD_BASEDATOS' => 'pipe',
+        'BD_DATOS_DSN' => '',
         'IDIOMA' => 'es',
         'RUTA_MODELOS' => __DIR__.'/Modelos',
         'ZONA_HORARIA' => 'America/Bogota',
@@ -68,6 +70,7 @@ return [
         'BD_USUARIO' => 'sa',
         'BD_CONTRASENA' => '',
         'BD_BASEDATOS' => 'pipe',
+        'BD_DATOS_DSN' => '',
         'IDIOMA' => 'es',
         'RUTA_MODELOS' => __DIR__.'/Modelos',
         'ZONA_HORARIA' => 'America/Bogota',

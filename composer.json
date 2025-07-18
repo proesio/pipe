@@ -16,14 +16,14 @@
             "name": "Juan Felipe Valencia Murillo",
             "email": "juanfe0245@gmail.com",
             "homepage": "https://jfvalenciam.proes.io",
-            "role": "Developer"
+            "role": "lead"
         }
     ],
     "require": {
-        "php": ">=7.3"
+        "php": ">=8.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9"
+        "phpunit/phpunit": "^10.5"
     },
     "autoload": {
         "files": ["src/PIPE/inicializador.php"]

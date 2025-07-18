@@ -13,11 +13,15 @@
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
 
-namespace PIPE\Clases\Excepciones;
+namespace Modelos\EliminacionSuave;
 
-use Exception;
+use PIPE\Clases\Modelo;
+use AllowDynamicProperties;
 
-class ORM extends Exception 
+#[AllowDynamicProperties]
+class Telefono extends Modelo
 {
+    public $tieneUno = Usuario::class;
 
+    public $eliminacionSuave = true;
 }

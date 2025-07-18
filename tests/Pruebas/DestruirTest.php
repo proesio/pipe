@@ -3,12 +3,12 @@
 /**
  * Este archivo es parte del proyecto PIPE.
  * 
- * PHP versions 7 and 8 
+ * PHP versión 8. 
  * 
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.6
+ * @version   GIT:  6.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -16,9 +16,11 @@
 namespace PIPE\Tests\Pruebas;
 
 use Modelos\Telefono;
+use PIPE\Clases\PIPE;
 use PIPE\Clases\Configuracion;
 use PHPUnit\Framework\TestCase;
 use PIPE\Clases\ConstructorConsulta;
+use Modelos\EliminacionSuave\Telefono as Telefono1;
 
 class DestruirTest extends TestCase
 {
@@ -32,9 +34,7 @@ class DestruirTest extends TestCase
 
     public function setUp(): void
     {
-        global $configGlobal;
-
-        $this->configGlobal = $configGlobal;
+        $this->configGlobal = $GLOBALS['CONFIG_GLOBAL'];
     }
 
     public function testDeDestruccionDeRegistro()
@@ -50,6 +50,22 @@ class DestruirTest extends TestCase
         foreach ($this->conexiones as $conexion) {
             $this->conexion = $conexion;
             $this->baseTestDeDestruccionDeVariosRegistros();
+        }
+    }
+
+    public function testDeDestruccionSuaveDeRegistro()
+    {
+        foreach ($this->conexiones as $conexion) {
+            $this->conexion = $conexion;
+            $this->baseTestDeDestruccionSuaveDeRegistro();
+        }
+    }
+
+    public function testDeDestruccionSuaveDeVariosRegistros()
+    {
+        foreach ($this->conexiones as $conexion) {
+            $this->conexion = $conexion;
+            $this->baseTestDeDestruccionSuaveDeVariosRegistros();
         }
     }
 
@@ -83,6 +99,50 @@ class DestruirTest extends TestCase
         $this->assertObjectHasProperty('numero', $telefonos[0]);
         $this->assertObjectHasProperty('creado_en', $telefonos[0]);
         $this->assertObjectHasProperty('actualizado_en', $telefonos[0]);
+    }
+
+    private function baseTestDeDestruccionSuaveDeRegistro()
+    {
+        Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        $this->generarRegistrosTest1();
+
+        $telefono1 = Telefono1::destruir(1);
+
+        $telefonos1 = Telefono1::todo(PIPE::OBJETO);
+
+        $telefonos = Telefono::todo(PIPE::OBJETO);
+
+        $this->assertInstanceOf(ConstructorConsulta::class, $telefono1);
+        $this->assertObjectHasProperty('id', $telefono1);
+        $this->assertObjectHasProperty('numero', $telefono1);
+        $this->assertObjectHasProperty('creado_en', $telefono1);
+        $this->assertObjectHasProperty('actualizado_en', $telefono1);
+        $this->assertCount(0, $telefonos1);
+        $this->assertCount(1, $telefonos);
+    }
+
+    private function baseTestDeDestruccionSuaveDeVariosRegistros()
+    {
+        Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        $this->generarRegistrosTest2();
+
+        $telefonos1 = Telefono1::destruir([1, 3, 2]);
+
+        $telefonos2 = Telefono1::todo(PIPE::OBJETO);
+
+        $telefonos = Telefono::todo(PIPE::OBJETO);
+
+        $this->assertCount(3, $telefonos1);
+        $this->assertInstanceOf(ConstructorConsulta::class, $telefonos1[0]);
+        $this->assertNull($telefonos1[1]);
+        $this->assertObjectHasProperty('id', $telefonos1[0]);
+        $this->assertObjectHasProperty('numero', $telefonos1[0]);
+        $this->assertObjectHasProperty('creado_en', $telefonos1[0]);
+        $this->assertObjectHasProperty('actualizado_en', $telefonos1[0]);
+        $this->assertCount(0, $telefonos2);
+        $this->assertCount(2, $telefonos);
     }
 
     private function generarRegistrosTest1()

@@ -3,12 +3,12 @@
 /**
  * Este archivo es parte del proyecto PIPE.
  * 
- * PHP versions 7 and 8 
+ * PHP versión 8. 
  * 
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.6
+ * @version   GIT:  6.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -421,7 +421,7 @@ abstract class Modelo
 
     // Fin consultas básicas por medio de métodos.
 
-    // Inicio instrucciones insertar, actualizar, eliminar y vaciar.
+    // Inicio instrucciones insertar, actualizar, eliminar, vaciar y restaurar.
 
     /**
      * Inserta un nuevo registro en la base de datos.
@@ -498,10 +498,12 @@ abstract class Modelo
 
     /**
      * Elimina un registro en la base de datos.
+     * 
+     * @param boolean $forzado forzado
      *
      * @return int
      */
-    public static function eliminar()
+    public static function eliminar($forzado = false)
     {
         $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
         $pipe = new ConstructorConsulta($propiedadesClase);
@@ -525,7 +527,20 @@ abstract class Modelo
         return $pipe->vaciar(...func_get_args());
     }
 
-    // Fin instrucciones insertar, actualizar, eliminar y vaciar.
+    /**
+     * Restaura los registros que han sido eliminados de forma suave.
+     * 
+     * @return int
+     */
+    public static function restaurar()
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->restaurar();
+    }
+
+    // Fin instrucciones insertar, actualizar, eliminar, vaciar y restaurar.
 
     // Inicio instrucciones crear, editar y destruir.
 
@@ -593,11 +608,12 @@ abstract class Modelo
     /**
      * Destruye un registro en la base de datos y obtiene el objeto destruido.
      *
-     * @param array|int|string $ids ids
+     * @param array|int|string $ids     ids
+     * @param boolean          $forzado forzado
      * 
      * @return object|array
      */
-    public static function destruir($ids)
+    public static function destruir($ids, $forzado = false)
     {
         $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
         $pipe = new ConstructorConsulta($propiedadesClase);
@@ -671,6 +687,8 @@ abstract class Modelo
             'registroTiempo' => $propiedadesClase['registroTiempo'] ?? true,
             'creadoEn' => $propiedadesClase['creadoEn'] ?? 'creado_en',
             'actualizadoEn' => $propiedadesClase['actualizadoEn'] ?? 'actualizado_en',
+            'eliminadoEn' => $propiedadesClase['eliminadoEn'] ?? 'eliminado_en',
+            'eliminacionSuave' => $propiedadesClase['eliminacionSuave'] ?? false,
             'tieneUno' => $propiedadesClase['tieneUno'] ?? [],
             'tieneMuchos' => $propiedadesClase['tieneMuchos'] ?? [],
             'perteneceAUno' => $propiedadesClase['perteneceAUno'] ?? [],

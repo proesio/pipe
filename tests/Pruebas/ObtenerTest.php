@@ -3,12 +3,12 @@
 /**
  * Este archivo es parte del proyecto PIPE.
  * 
- * PHP versions 7 and 8 
+ * PHP versión 8.
  * 
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.6
+ * @version   GIT:  6.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -17,10 +17,12 @@ namespace PIPE\Tests\Pruebas;
 
 use DateTime;
 use PIPE\Clases\PIPE;
+use Modelos\Telefono;
 use Modelos\Documento;
 use PIPE\Clases\Configuracion;
 use PHPUnit\Framework\TestCase;
 use PIPE\Clases\ConstructorConsulta;
+use Modelos\EliminacionSuave\Telefono as Telefono1;
 
 class ObtenerTest extends TestCase
 {
@@ -34,9 +36,7 @@ class ObtenerTest extends TestCase
 
     public function setUp(): void
     {
-        global $configGlobal;
-
-        $this->configGlobal = $configGlobal;
+        $this->configGlobal = $GLOBALS['CONFIG_GLOBAL'];
     }
 
     public function testDeObtencionDeRegistros()
@@ -84,6 +84,14 @@ class ObtenerTest extends TestCase
         foreach ($this->conexiones as $conexion) {
             $this->conexion = $conexion;
             $this->baseTestDeObtencionDeRegistrosConMutador();
+        }
+    }
+
+    public function testDeObtencionDeRegistrosConEliminacionSuave()
+    {
+        foreach ($this->conexiones as $conexion) {
+            $this->conexion = $conexion;
+            $this->baseTestDeObtencionDeRegistrosConEliminacionSuave();
         }
     }
 
@@ -162,6 +170,23 @@ class ObtenerTest extends TestCase
 
         $this->assertInstanceOf(DateTime::class, $documentos[0]->actualizado_en);
         $this->assertInstanceOf(DateTime::class, $documentos[1]->actualizado_en);
+    }
+
+    private function baseTestDeObtencionDeRegistrosConEliminacionSuave()
+    {
+        Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        $this->generarRegistros();
+
+        $telefono1 = Telefono1::encontrar(1)->eliminar();
+
+        $telefonos1 = Telefono1::todo();
+
+        $telefonos = Telefono::todo();
+
+        $this->assertEquals(1, $telefono1);
+        $this->assertCount(1, $telefonos1);
+        $this->assertCount(2, $telefonos);
     }
 
     private function generarRegistros()

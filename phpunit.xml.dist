@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
-         backupStaticAttributes="false"
          beStrictAboutTestsThatDoNotTestAnything="false"
          bootstrap="./tests/inicializador.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnError="false"
          stopOnFailure="false"
-         verbose="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnPhpunitDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
 >
     <testsuites>
         <testsuite name="Banco de pruebas PIPE">

@@ -6,4 +6,5 @@
 /phpunit.xml
 /composer.phar
 /composer.lock
+/.phpunit.cache
 /.phpunit.result.cache

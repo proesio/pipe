@@ -15,12 +15,12 @@
 
 namespace PIPE\Tests\Pruebas;
 
-use Modelos\Telefono;
+use PIPE\Clases\PIPE;
 use PIPE\Clases\Configuracion;
 use PHPUnit\Framework\TestCase;
-use PIPE\Clases\ConstructorConsulta;
+use Modelos\EliminacionSuave\Telefono as Telefono1;
 
-class EditarTest extends TestCase
+class RestaurarTest extends TestCase
 {
     public $conexiones = [
         'mysql', 'pgsql', 'sqlite', 'sqlsrv'
@@ -35,50 +35,62 @@ class EditarTest extends TestCase
         $this->configGlobal = $GLOBALS['CONFIG_GLOBAL'];
     }
 
-    public function testDeEdicionDeRegistro()
+    public function testDeRestauracionDeRegistro()
     {
         foreach ($this->conexiones as $conexion) {
             $this->conexion = $conexion;
-            $this->baseTestDeEdicionDeRegistro();
+            $this->baseTestDeRestauracionDeRegistro();
         }
     }
 
-    public function testDeEdicionDeVariosRegistros()
+    public function testDeRestauracionMasivaDeRegistros()
     {
         foreach ($this->conexiones as $conexion) {
             $this->conexion = $conexion;
-            $this->baseTestDeEdicionDeVariosRegistros();
+            $this->baseTestDeRestauracionMasivaDeRegistros();
         }
     }
 
-    private function baseTestDeEdicionDeRegistro()
+    private function baseTestDeRestauracionDeRegistro()
     {
         Configuracion::inicializar($this->configGlobal, $this->conexion);
+
+        // Prueba de modelo.
 
         $this->generarRegistrosTest1();
 
-        $telefono = Telefono::editar(1, ['numero' => 1234567890]);
+        Telefono1::donde('id = ?', [1])->eliminar();
 
-        $this->assertInstanceOf(ConstructorConsulta::class, $telefono);
-        $this->assertEquals(1234567890, $telefono->numero);
+        $telefono1 = Telefono1::encontrar(1);
+
+        $this->assertNull($telefono1);
+
+        Telefono1::donde('id = ?', [1])->restaurar();
+
+        $telefono1 = Telefono1::encontrar(1);
+
+        $this->assertNotNull($telefono1);
     }
 
-    private function baseTestDeEdicionDeVariosRegistros()
+    private function baseTestDeRestauracionMasivaDeRegistros()
     {
         Configuracion::inicializar($this->configGlobal, $this->conexion);
 
+        // Prueba de modelo.
+
         $this->generarRegistrosTest2();
 
-        $telefonos = Telefono::editar(
-            [1, 3, 2],
-            ['numero' => 1234567890]
-        );
+        Telefono1::eliminar();
 
-        $this->assertCount(3, $telefonos);
-        $this->assertInstanceOf(ConstructorConsulta::class, $telefonos[0]);
-        $this->assertNull($telefonos[1]);
-        $this->assertEquals(1234567890, $telefonos[0]->numero);
-        $this->assertEquals(1234567890, $telefonos[2]->numero);
+        $telefonos1 = Telefono1::todo(PIPE::OBJETO);
+
+        $this->assertCount(0, $telefonos1);
+
+        Telefono1::restaurar();
+
+        $telefonos1 = Telefono1::todo(PIPE::OBJETO);
+
+        $this->assertCount(2, $telefonos1);
     }
 
     private function generarRegistrosTest1()

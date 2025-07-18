@@ -3,12 +3,12 @@
 /**
  * Este archivo es parte del proyecto PIPE.
  * 
- * PHP versions 7 and 8 
+ * PHP versión 8. 
  * 
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.6
+ * @version   GIT:  6.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -18,9 +18,9 @@ namespace PIPE\Clases;
 use PDO;
 use DateTime;
 use AllowDynamicProperties;
-use PIPE\Rasgos\Encadenable;
 use PIPE\Clases\Conectores\MySQL;
 use PIPE\Clases\Conectores\SQLite;
+use PIPE\Clases\Rasgos\Encadenable;
 use PIPE\Clases\Conectores\SQLServer;
 use PIPE\Clases\Conectores\PostgreSQL;
 
@@ -159,6 +159,8 @@ class ConstructorConsulta
             'registroTiempo' => $propiedades['registroTiempo'] ?? true,
             'creadoEn' => $propiedades['creadoEn'] ?? 'creado_en',
             'actualizadoEn' => $propiedades['actualizadoEn'] ?? 'actualizado_en',
+            'eliminadoEn' => $propiedades['eliminadoEn'] ?? 'eliminado_en',
+            'eliminacionSuave' => $propiedades['eliminacionSuave'] ?? false,
             'tieneUno' => $propiedades['tieneUno'] ?? [],
             'tieneMuchos' => $propiedades['tieneMuchos'] ?? [],
             'perteneceAUno' => $propiedades['perteneceAUno'] ?? [],
@@ -745,7 +747,7 @@ class ConstructorConsulta
 
     // Fin consultas básicas por medio de métodos.
 
-    // Inicio instrucciones insertar, actualizar, eliminar y vaciar.
+    // Inicio instrucciones insertar, actualizar, eliminar, vaciar y restaurar.
 
     /**
      * Inserta un nuevo registro en la base de datos.
@@ -894,14 +896,29 @@ class ConstructorConsulta
 
     /**
      * Elimina un registro en la base de datos.
+     * 
+     * @param boolean $forzado forzado
      *
      * @return int
      */
-    public function eliminar()
+    public function eliminar($forzado = false)
     {
-        return $this->_procesarConsultaSQL(
-            'delete from '.$this->_tabla.' '.$this->_condiciones, $this->_parametros
-        );
+        if ($this->_verificarCampoEliminacionSuave() && $forzado === false) {
+            return $this->_procesarConsultaSQL(
+                'update '.$this->_tabla
+                .' set '.$this->_propiedades['eliminadoEn']
+                ." = '".$this->_obtenerFechaHoraActual()
+                ."'".$this->_condiciones
+                .($this->_condiciones ? 'and ' : ' where ')
+                .$this->_propiedades['eliminadoEn'].' is null',
+                $this->_parametros
+            );
+        } else {
+            return $this->_procesarConsultaSQL(
+                'delete from '.$this->_tabla
+                .' '.$this->_condiciones, $this->_parametros
+            );
+        }
     }
 
     /**
@@ -944,7 +961,28 @@ class ConstructorConsulta
         return true;
     }
 
-    // Fin instrucciones insertar, actualizar, eliminar y vaciar.
+    /**
+     * Restaura los registros que han sido eliminados de forma suave.
+     * 
+     * @return int
+     */
+    public function restaurar()
+    {
+        if ($this->_verificarCampoEliminacionSuave()) {
+            return $this->_procesarConsultaSQL(
+                'update '.$this->_tabla
+                .' set '.$this->_propiedades['eliminadoEn']
+                .' = null'.$this->_condiciones
+                .($this->_condiciones ? 'and ' : ' where ')
+                .$this->_propiedades['eliminadoEn'].' is not null',
+                $this->_parametros
+            );
+        }
+
+        return 0;
+    }
+
+    // Fin instrucciones insertar, actualizar, eliminar, vaciar y restaurar.
 
     /**
      * Realiza una consulta SQL en español.
@@ -1307,6 +1345,12 @@ class ConstructorConsulta
 
         $alias = $this->_alias ? 'as '.$this->_alias : '';
 
+        $condicion = $this->_verificarCampoEliminacionSuave()
+            ? (
+                ($this->_condiciones ? 'and ' : ' where ')
+                .$this->_propiedades['eliminadoEn'].' is null'
+            ) : '';
+
         $sql = 'select '.$this->_distinto
             .' '.$campos
             .' from '.$this->_tabla
@@ -1315,6 +1359,7 @@ class ConstructorConsulta
             .' '.$this->_unirDerecha
             .' '.$this->_unirIzquierda
             .' '.$this->_condiciones
+            .' '.$condicion
             .' '.$this->_agrupar
             .' '.$this->_teniendo
             .' '.$this->_ordenar
@@ -1374,6 +1419,10 @@ class ConstructorConsulta
             if ($this->_verificarCamposRegistroTiempo()) {
                 array_push($camposHabilitados, $this->_propiedades['creadoEn']);
                 array_push($camposHabilitados, $this->_propiedades['actualizadoEn']);
+            }
+
+            if ($this->_verificarCampoEliminacionSuave()) {
+                array_push($camposHabilitados, $this->_propiedades['eliminadoEn']);
             }
 
             return $camposHabilitados;
@@ -1991,6 +2040,7 @@ class ConstructorConsulta
 
         $this->{$this->_propiedades['creadoEn']} = $tiempo;
         $this->{$this->_propiedades['actualizadoEn']} = $tiempo;
+        $this->{$this->_propiedades['eliminadoEn']} = null;
     }
 
     /**
@@ -2284,6 +2334,25 @@ class ConstructorConsulta
         if ($this->_propiedades['registroTiempo'] === true 
             && in_array($this->_propiedades['creadoEn'], $camposTabla) 
             && in_array($this->_propiedades['actualizadoEn'], $camposTabla)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Verifica si el campo de eliminación suave 
+     * está definido en la tabla de la base de datos.
+     *
+     * @return boolean
+     */
+    private function _verificarCampoEliminacionSuave()
+    {
+        $camposTabla = $this->_obtenerCamposTabla();
+
+        if ($this->_propiedades['eliminacionSuave'] === true 
+            && in_array($this->_propiedades['eliminadoEn'], $camposTabla)
         ) {
             return true;
         }

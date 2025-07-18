@@ -4,7 +4,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  5.1.6
+ * @version   GIT:  6.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -18,14 +18,15 @@ drop table if exists telefonos;
 
 create table telefonos (
 	id integer primary key autoincrement not null,
-	numero bigint,
+	numero integer,
 	creado_en timestamp null,
-	actualizado_en timestamp null
+	actualizado_en timestamp null,
+	eliminado_en timestamp null
 );
 
 create table usuarios (
 	id integer primary key autoincrement not null,
-    telefono_id int not null,
+    telefono_id integer not null,
 	nombres varchar(50),
 	apellidos varchar(50),
 	creado_en timestamp null,
@@ -42,7 +43,7 @@ create table roles (
 
 create table temas (
 	id integer primary key autoincrement not null,
-    usuario_id int,
+    usuario_id integer,
 	titulo varchar(100),
 	descripcion varchar(1000),
 	creado_en timestamp null,
@@ -51,15 +52,15 @@ create table temas (
 );
 
 create table role_usuario (
-    role_id int not null,
-    usuario_id int not null,
+    role_id integer not null,
+    usuario_id integer not null,
     constraint fk_role_usuario_role_id foreign key (role_id) references roles (id),
     constraint fk_role_usuario_usuario_id foreign key (usuario_id) references usuarios (id)
 );
 
 create table documentos (
 	id integer primary key autoincrement not null,
-    usuario_id int not null,
+    usuario_id integer not null,
 	numero varchar(20),
 	creado_en timestamp null,
 	actualizado_en timestamp null,
