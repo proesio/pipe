@@ -1,0 +1,128 @@
+<?php
+
+/**
+ * Este archivo es parte del proyecto PIPE.
+ * 
+ * PHP version 8.
+ * 
+ * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
+ * @copyright 2018 - presente  Juan Felipe Valencia Murillo
+ * @license   https://opensource.org/licenses/MIT  MIT License
+ * @version   GIT:  7.0.0
+ * @link      https://pipe.proes.io
+ * @since     Fecha inicio de creación del proyecto  2018-09-13
+ */
+
+namespace PIPE\Conectores;
+
+use PIPE\Configuracion;
+
+class MySQL
+{
+    /**
+     * Obtiene el dsn para la conexión.
+     *
+     * @return string
+     */
+    public static function obtenerDSN()
+    {
+        $controlador = Configuracion::config('BD_CONTROLADOR');
+        $host = Configuracion::config('BD_HOST');
+        $puerto = Configuracion::config('BD_PUERTO');
+        $basedatos = Configuracion::config('BD_BASEDATOS');
+        $datosDsn = Configuracion::config('BD_DATOS_DSN');
+
+        $host = $host ? 'host='.$host.';' : '';
+        $puerto = $puerto ? 'port='.$puerto.';' : '';
+        $basedatos = $basedatos ? 'dbname='.$basedatos.';' : '';
+
+        $dsn = $controlador.':'.$host.$puerto.$basedatos.$datosDsn;
+
+        return $dsn;
+    }
+
+    /**
+     * Obtiene sentencia para cláusula limit.
+     *
+     * @param int      $cantidad cantidad
+     * @param int|null $inicio   inicio
+     * 
+     * @return string
+     */
+    public static function obtenerCadenaLimite($cantidad, $inicio = null)
+    {
+        $limite = 'limit '.$cantidad;
+
+        if ($inicio) {
+            $limite = 'limit '.$inicio.', '.$cantidad;
+        }
+
+        return $limite;
+    }
+
+    /**
+     * Obtiene sentencias para cláusula truncate.
+     *
+     * @param string $tabla   tabla
+     * @param bool   $forzado forzado
+     * 
+     * @return array
+     */
+    public static function obtenerSentenciasTruncar($tabla, $forzado = false)
+    {
+        $sentencias = [];
+
+        if ($forzado) {
+            $sentencias[] = 'set foreign_key_checks = 0';
+        }
+
+        $sentencias[] = 'truncate table '.$tabla;
+
+        if ($forzado) {
+            $sentencias[] = 'set foreign_key_checks = 1';
+        }
+
+        return $sentencias;
+    }
+
+    /**
+     * Obtiene el atributo para que un campo sea autoincrementable.
+     * 
+     * @return string
+     */
+    public static function obtenerAtributoAutoincrementable()
+    {
+        return 'auto_increment';
+    }
+
+    /**
+     * Obtiene la sentencia para borrar un índice.
+     * 
+     * @param string $nombre nombre
+     * @param string $tabla  tabla
+     * 
+     * @return string
+     */
+    public static function obtenerSentenciaBorrarIndice($nombre, $tabla)
+    {
+        return 'drop index '.$nombre.' on '.$tabla;
+    }
+
+    /**
+     * Obtiene la sentencia para cambiar un campo.
+     * 
+     * @param string $tabla        tabla
+     * @param string $nombreActual nombreActual
+     * @param string $nombreNuevo  nombreNuevo
+     * @param string $tipo         tipo
+     * @param string $atributos    atributos
+     * 
+     * @return string
+     */
+    public static function obtenerSentenciaCambiarCampo(
+        $tabla, $nombreActual, $nombreNuevo, $tipo, $atributos
+    ) {
+        return 'alter table '.$tabla.' change column '
+            .$nombreActual.' '.$nombreNuevo.' '.$tipo.' '.$atributos;
+    }
+}

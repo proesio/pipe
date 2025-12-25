@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Este archivo es parte del proyecto PIPE.
+ * 
+ * PHP version 8.
+ * 
+ * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
+ * @copyright 2018 - presente  Juan Felipe Valencia Murillo
+ * @license   https://opensource.org/licenses/MIT  MIT License
+ * @version   GIT:  7.0.0
+ * @link      https://pipe.proes.io
+ * @since     Fecha inicio de creación del proyecto  2018-09-13
+ */
+
+require_once __DIR__.'/inicializador.php';
+
+$argumentos = $_SERVER['argv'] ?? [];
+
+if (isset($argumentos[1]) && in_array($argv[1], ['migrar'])) {
+    migrar();
+
+    echo "\033[0;30;42m Tablas migradas exitosamente en la conexión de mysql, pgsql, sqlite y sqlsrv.\033[0m".PHP_EOL;
+} else {
+    echo "\033[0;37;44m Argumentos admitidos: migrar.\033[0m".PHP_EOL;
+    exit();
+}

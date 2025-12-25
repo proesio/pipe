@@ -3,12 +3,12 @@
 /**
  * Este archivo es parte del proyecto PIPE.
  * 
- * PHP versión 8. 
+ * PHP version 8.
  * 
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  6.0.0
+ * @version   GIT:  7.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -16,21 +16,19 @@
 namespace PIPE\Tests\Pruebas;
 
 use PDO;
+use PIPE\PIPE;
 use Modelos\Role;
 use Modelos\Tema;
 use Modelos\Telefono;
-use PIPE\Clases\PIPE;
 use Modelos\Documento;
-use PIPE\Clases\Configuracion;
+use PIPE\Configuracion;
+use PIPE\Excepciones\ORM;
+use PIPE\ConstructorConsulta;
 use PHPUnit\Framework\TestCase;
-use PIPE\Clases\Excepciones\ORM;
-use PIPE\Clases\ConstructorConsulta;
 
 class ModeloTest extends TestCase
 {
-    public $conexiones = [
-        'mysql', 'pgsql', 'sqlite', 'sqlsrv'
-    ];
+    public $conexiones = [];
 
     public $conexion = '';
 
@@ -38,6 +36,7 @@ class ModeloTest extends TestCase
 
     public function setUp(): void
     {
+        $this->conexiones = $GLOBALS['CONEXIONES'];
         $this->configGlobal = $GLOBALS['CONFIG_GLOBAL'];
     }
 

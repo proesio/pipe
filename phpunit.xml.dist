@@ -3,7 +3,7 @@
          beStrictAboutTestsThatDoNotTestAnything="false"
          bootstrap="./tests/inicializador.php"
          colors="true"
-         processIsolation="false"
+         processIsolation="true"
          stopOnError="false"
          stopOnFailure="false"
          displayDetailsOnTestsThatTriggerDeprecations="true"

@@ -5,20 +5,28 @@
  * 
  * Cree una copia de este archivo con el nombre config.php 
  * para sobrescribir la configuración en modo desarrollo.
- * En el directorio ./SQL encontrará las sentencias SQL para
- * crear las tablas por cada controlador.
+ * Ejecute el siguiente comando en la raíz del directorio de pruebas
+ * tests/ para realizar la migración automática: php pipe migrar
+ * En el directorio tests/Migraciones/SQL encontrará las sentencias SQL
+ * para ejecutar la migración de manera manual.
  * 
- * PHP versión 8. 
+ * PHP version 8.
  * 
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  6.0.0
+ * @version   GIT:  7.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
 
-use PIPE\Clases\Configuracion;
+use PIPE\Configuracion;
+
+if (PHP_VERSION_ID >= 80500) {
+    $mysqlOpciones = [Pdo\Mysql::ATTR_LOCAL_INFILE => 1];
+} else {
+    $mysqlOpciones = [PDO::MYSQL_ATTR_LOCAL_INFILE => 1];
+}
 
 return [
     'mysql' => [
@@ -34,9 +42,7 @@ return [
         'ZONA_HORARIA' => 'America/Bogota',
         'COMANDO_INICIAL' => 'set names utf8mb4 collate utf8mb4_unicode_ci',
         'TIPO_RETORNO' => Configuracion::CLASE,
-        'OPCIONES' => [
-            PDO::MYSQL_ATTR_LOCAL_INFILE => 1
-        ]
+        'OPCIONES' => $mysqlOpciones
     ],
     'pgsql' => [
         'BD_CONTROLADOR' => 'pgsql',
