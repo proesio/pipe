@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.0.0
+ * @version   GIT:  7.1.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -694,12 +694,24 @@ class ConstructorConsulta
      */
     public function incrementar($campo, $incremento = 1)
     {
-        return $this->_procesarConsultaSQL(
+        $resultado = $this->_procesarConsultaSQL(
             'update '.$this->_tabla
             .' set '.$campo.' = '.$campo.' + '.$incremento.' '
             .$this->_condiciones,
             $this->_parametros
         );
+
+        if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
+            $this->_procesarConsultaSQL(
+                'update '.$this->_tabla
+                .' set '.$this->_propiedades['actualizadoEn']
+                ." = '".$this->_obtenerFechaHoraActual()
+                ."' ".$this->_condiciones,
+                $this->_parametros
+            );
+        }
+
+        return $resultado;
     }
 
     /**
@@ -712,12 +724,24 @@ class ConstructorConsulta
      */
     public function decrementar($campo, $decremento = 1)
     {
-        return $this->_procesarConsultaSQL(
+        $resultado = $this->_procesarConsultaSQL(
             'update '.$this->_tabla
             .' set '.$campo.' = '.$campo.' - '.$decremento.' '
             .$this->_condiciones,
             $this->_parametros
         );
+
+        if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
+            $this->_procesarConsultaSQL(
+                'update '.$this->_tabla
+                .' set '.$this->_propiedades['actualizadoEn']
+                ." = '".$this->_obtenerFechaHoraActual()
+                ."' ".$this->_condiciones,
+                $this->_parametros
+            );
+        }
+
+        return $resultado;
     }
 
     /**
@@ -2289,7 +2313,9 @@ class ConstructorConsulta
             $registro, $this->_propiedades['actualizables']
         );
 
-        if ($this->_propiedades['claseLlamada'] != self::class && $registroFiltrado) {
+        if ($this->_propiedades['claseLlamada'] != self::class
+            && $registroFiltrado
+        ) {
             $registroFiltrado = $this->_mutarRegistros(
                 'asignar', [$registroFiltrado]
             );

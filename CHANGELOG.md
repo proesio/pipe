@@ -2,6 +2,10 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [v7.1.0](https://github.com/proesio/pipe/compare/v7.0.0...v7.1.0) - 2026-03-30
+
+- Implementación de registro de actualización para el método <code>incrementar</code> y <code>decrementar</code> de la clase <code>PIPE\ConstructorConsulta</code>.
+
 ## [v7.0.0](https://github.com/proesio/pipe/compare/v6.0.0...v7.0.0) - 2025-12-25
 
 - Implementación de soporte para <code>PHP</code> 8.2 o superior.
