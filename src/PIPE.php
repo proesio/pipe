@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.1.0
+ * @version   GIT:  7.2.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -33,7 +33,7 @@ class PIPE
      *
      * @var string
      */
-    public const VERSION = '7.1.0';
+    public const VERSION = '7.2.0';
 
     /**
      * Indica el retorno de resultados de una consulta SQL como una clase.

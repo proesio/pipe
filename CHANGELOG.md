@@ -2,6 +2,11 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [v7.2.0](https://github.com/proesio/pipe/compare/v7.1.0...v7.2.0) - 2026-04-21
+
+- Implementación de método <code>valor</code> para obtener el valor de un campo seleccionado.
+- Implementación de traducción de palabras reservadas, <code>case</code> por <code>caso</code>, <code>when</code> por <code>cuando</code>, <code>then</code> por <code>entonces</code>, <code>else</code> por <code>sino</code> y <code>end</code> por <code>fin</code>.
+
 ## [v7.1.0](https://github.com/proesio/pipe/compare/v7.0.0...v7.1.0) - 2026-03-30
 
 - Implementación de registro de actualización para el método <code>incrementar</code> y <code>decrementar</code> de la clase <code>PIPE\ConstructorConsulta</code>.

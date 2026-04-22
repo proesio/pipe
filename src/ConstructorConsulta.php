@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.1.0
+ * @version   GIT:  7.2.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -1201,6 +1201,26 @@ class ConstructorConsulta
         );
     }
 
+    /**
+     * Obtiene el valor del campo seleccionado.
+     *
+     * @param string $campo campo
+     *
+     * @return mixed|null
+     */
+    public function valor($campo)
+    {
+        $datos = $this->extraer($campo);
+
+        if (isset($datos[0]) && $datos[0]
+            && (is_numeric($datos[0]) || is_string($datos[0]))
+        ) {
+            return $datos[0];
+        }
+
+        return null;
+    }
+
     // Fin métodos públicos.
 
     // Inicio métodos privados.
@@ -1620,20 +1640,21 @@ class ConstructorConsulta
 
         $consultaUsuario = $consulta;
         $consulta = ' '.$consulta.' ';
-        $consulta = str_ireplace('seleccionar', ' seleccionar ', $consulta);
         $palabras = explode(' ', $consulta);
         $cantPalabras = count($palabras);
 
         $clausulas = [
             'select' => 'seleccionar', 'distinct' => 'distinto', '*' => 'todo',
             'as' => 'alias', 'from' => 'de', 'join' => 'unir', 'right' => 'derecha',
-            'left' => 'izquierda', 'on' => 'en', 'where' => 'donde', 
+            'left' => 'izquierda', 'on' => 'en', 'where' => 'donde',
             'group' => 'agrupar', 'having' => 'teniendo', 'order' => 'ordenar',
             'limit' => 'limite', 'by' => 'por', 'exists' => 'existe', 'is' => 'es',
             'null' => 'nulo', 'or' => 'o', 'xor' => 'xo', 'and' => 'y',
             'not' => 'no', 'between' => 'entre', 'like' => 'como',
-            'insert' => 'insertar', 'into' => 'dentro', 'values' => 'valores',
-            'update' => 'actualizar', 'set' => 'asignar', 'delete' => 'eliminar'
+            'case' => 'caso', 'when' => 'cuando', 'then' => 'entonces',
+            'else' => 'sino', 'end' => 'fin', 'insert' => 'insertar',
+            'into' => 'dentro', 'values' => 'valores', 'update' => 'actualizar',
+            'set' => 'asignar', 'delete' => 'eliminar'
         ];
 
         for ($i = 0; $i < $cantPalabras; $i++) {
@@ -1652,7 +1673,7 @@ class ConstructorConsulta
 
         $consulta = implode(' ', $palabras);
 
-        // Funciones
+        // Funciones.
 
         $consulta = str_ireplace('concatenar', 'concat', $consulta);
         $consulta = str_ireplace('promedio', 'avg', $consulta);
@@ -1660,9 +1681,10 @@ class ConstructorConsulta
         $consulta = str_ireplace('maximo', 'max', $consulta);
         $consulta = str_ireplace('minimo', 'min', $consulta);
         $consulta = str_ireplace('suma', 'sum', $consulta);
+
         $consultaTraducida = $consulta;
 
-        // Traducir solo lo que esta fuera de comillas.
+        // Traducir solo lo que está fuera de comillas.
 
         $partesUsuario = [];
         $partesTraducido = [];
@@ -1671,7 +1693,7 @@ class ConstructorConsulta
 
         $i = 0;
 
-        while (strpos($consultaUsuario, "'") > -1 
+        while (strpos($consultaUsuario, "'") > -1
             || strpos($consultaUsuario, '"') > -1
         ) {
             $consultaUsuario = $this->remplazarPrimeraCadena(
@@ -1695,10 +1717,10 @@ class ConstructorConsulta
 
             if ($j % 2 == 0) {
                 $partesUsuario[$k] = "'".substr(
-                    $consultaUsuario, 
-                    strpos($consultaUsuario, "?$in") + 2, 
+                    $consultaUsuario,
+                    strpos($consultaUsuario, "?$in") + 2,
                     (
-                        strpos($consultaUsuario, "?$fn") 
+                        strpos($consultaUsuario, "?$fn")
                         - strpos($consultaUsuario, "?$in") - 2
                     )
                 )."'";
@@ -1708,7 +1730,7 @@ class ConstructorConsulta
         }
 
         /**
-         * Buscamos todo lo que se encuentre dentro 
+         * Buscamos todo lo que se encuentre dentro
          * de comillas dobles o simples en la consulta traducida.
          */
 
@@ -1721,7 +1743,7 @@ class ConstructorConsulta
         }
 
         /**
-         * Guardamos en un arreglo lo que se encuentre 
+         * Guardamos en un arreglo lo que se encuentre
          * dentro de comillas en la consulta traducida.
          */
 
@@ -1733,8 +1755,8 @@ class ConstructorConsulta
 
             if ($j % 2 == 0) {
                 $partesTraducido[$k] = substr(
-                    $consulta, 
-                    strpos($consulta, "?$in") + 2, 
+                    $consulta,
+                    strpos($consulta, "?$in") + 2,
                     (strpos($consulta, "?$fn") - strpos($consulta, "?$in") - 2)
                 );
 
@@ -1743,7 +1765,7 @@ class ConstructorConsulta
         }
 
         /**
-         * Remplazamos lo que esta dentro de comillas 
+         * Remplazamos lo que está dentro de comillas
          * traducido por lo que ingreso el usuario entre comillas.
          */
 
@@ -1752,14 +1774,14 @@ class ConstructorConsulta
         for ($i = 0; $i < $cantPartesTraducido; $i++) {
             if (strpos($consultaTraducida, "'".$partesTraducido[$i])."'" > -1) {
                 $consultaTraducida = str_replace(
-                    "'".$partesTraducido[$i]."'", 
+                    "'".$partesTraducido[$i]."'",
                     $partesUsuario[$i], $consultaTraducida
                 );
             }
 
             if (strpos($consultaTraducida, '"'.$partesTraducido[$i]).'"' > -1) {
                 $consultaTraducida = str_replace(
-                    '"'.$partesTraducido[$i].'"', 
+                    '"'.$partesTraducido[$i].'"',
                     $partesUsuario[$i], $consultaTraducida
                 );
             }
