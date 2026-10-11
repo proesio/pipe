@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -32,11 +32,11 @@ class MySQL
         $basedatos = Configuracion::config('BD_BASEDATOS');
         $datosDsn = Configuracion::config('BD_DATOS_DSN');
 
-        $host = $host ? 'host='.$host.';' : '';
-        $puerto = $puerto ? 'port='.$puerto.';' : '';
-        $basedatos = $basedatos ? 'dbname='.$basedatos.';' : '';
+        $host = $host ? 'host=' . $host . ';' : '';
+        $puerto = $puerto ? 'port=' . $puerto . ';' : '';
+        $basedatos = $basedatos ? 'dbname=' . $basedatos . ';' : '';
 
-        $dsn = $controlador.':'.$host.$puerto.$basedatos.$datosDsn;
+        $dsn = $controlador . ':' . $host . $puerto . $basedatos . $datosDsn;
 
         return $dsn;
     }
@@ -51,10 +51,10 @@ class MySQL
      */
     public static function obtenerCadenaLimite($cantidad, $inicio = null)
     {
-        $limite = 'limit '.$cantidad;
+        $limite = 'limit ' . $cantidad;
 
         if ($inicio) {
-            $limite = 'limit '.$inicio.', '.$cantidad;
+            $limite = 'limit ' . $inicio . ', ' . $cantidad;
         }
 
         return $limite;
@@ -76,7 +76,7 @@ class MySQL
             $sentencias[] = 'set foreign_key_checks = 0';
         }
 
-        $sentencias[] = 'truncate table '.$tabla;
+        $sentencias[] = 'truncate table ' . $tabla;
 
         if ($forzado) {
             $sentencias[] = 'set foreign_key_checks = 1';
@@ -87,7 +87,7 @@ class MySQL
 
     /**
      * Obtiene el atributo para que un campo sea autoincrementable.
-     * 
+     *
      * @return string
      */
     public static function obtenerAtributoAutoincrementable()
@@ -97,7 +97,7 @@ class MySQL
 
     /**
      * Obtiene la sentencia para borrar un índice.
-     * 
+     *
      * @param string $nombre nombre
      * @param string $tabla  tabla
      * 
@@ -105,12 +105,12 @@ class MySQL
      */
     public static function obtenerSentenciaBorrarIndice($nombre, $tabla)
     {
-        return 'drop index '.$nombre.' on '.$tabla;
+        return 'drop index ' . $nombre.' on ' . $tabla;
     }
 
     /**
      * Obtiene la sentencia para cambiar un campo.
-     * 
+     *
      * @param string $tabla        tabla
      * @param string $nombreActual nombreActual
      * @param string $nombreNuevo  nombreNuevo
@@ -122,7 +122,20 @@ class MySQL
     public static function obtenerSentenciaCambiarCampo(
         $tabla, $nombreActual, $nombreNuevo, $tipo, $atributos
     ) {
-        return 'alter table '.$tabla.' change column '
-            .$nombreActual.' '.$nombreNuevo.' '.$tipo.' '.$atributos;
+        return 'alter table ' . $tabla . ' change column '
+            . $nombreActual . ' ' . $nombreNuevo . ' ' . $tipo . ' ' . $atributos;
+    }
+
+    /**
+     * Obtiene la sentencia para extraer una propiedad JSON como valor escalar.
+     *
+     * @param string $campo       campo
+     * @param array  $propiedades propiedades
+     * 
+     * @return string
+     */
+    public static function obtenerSentenciaExtraccionJSON($campo, $propiedades)
+    {
+        return $campo . '->>' . "'$." . implode('.', $propiedades) . "'";
     }
 }

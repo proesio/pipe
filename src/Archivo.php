@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -38,20 +38,32 @@ class Archivo
      *
      * @return void
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public function importarModelos()
     {
-        if ($rutaModelos = Configuracion::config('RUTA_MODELOS')) {
-            if (!file_exists($rutaModelos)) {
+        $config = Configuracion::obtenerConfig();
+
+        $rutas = [];
+
+        if (isset($config['RUTA_MODELOS'])) {
+            $rutas[] = $config['RUTA_MODELOS'];
+        } else {
+            foreach ($config as $valor) {
+                $rutas[] = $valor['RUTA_MODELOS'];
+            }
+        }
+
+        foreach ($rutas as $ruta) {
+            if (!file_exists($ruta)) {
                 Error::mostrar(
                     Mensaje::$mensajes['RUTA_MODELOS_NO_ENCONTRADA']
-                    .': '.$rutaModelos
+                        . ': ' . $ruta
                 );
             }
 
             $iterador =  new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($rutaModelos),
+                new RecursiveDirectoryIterator($ruta),
                 RecursiveIteratorIterator::SELF_FIRST
             );
 

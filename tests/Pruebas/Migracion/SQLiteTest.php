@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -16,10 +16,10 @@
 namespace PIPE\Tests\Pruebas\Migracion;
 
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PIPE\Migracion\Atributo;
 use PIPE\Migracion\Migracion;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class SQLiteTest extends TestCase
 {
@@ -34,13 +34,13 @@ class SQLiteTest extends TestCase
 
     public function testDeMigracion()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         Migracion::tabla(
             ['tabla_tres', 'tabla_dos', 'tabla_uno', 'tabla']
         )->borrarTabla(true);
 
-        Migracion::tabla('tabla')
+        Migracion::conexion('sqlite')->tabla('tabla')
             ->entero('entero', (new Atributo)->llavePrimaria()->autoincrementable())
             ->numerico('numerico', null, null, (new Atributo)->nulo())
             ->real('campo_real', null, null, (new Atributo)->chequeo('campo_real > 1')->noNulo())
@@ -113,9 +113,9 @@ class SQLiteTest extends TestCase
 
     public function testDeFalloAlEstablecerTipoDeAtributoIncorrecto()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Migracion::tabla('tabla')->entero('entero', 'not null');
     }

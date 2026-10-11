@@ -4,7 +4,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -17,38 +17,39 @@ drop table if exists usuarios;
 drop table if exists telefonos;
 
 create table telefonos (
-	id int primary key auto_increment not null,
-	numero bigint,
-	creado_en timestamp null,
-	actualizado_en timestamp null,
-	eliminado_en timestamp null
+    id int primary key auto_increment not null,
+    numero bigint null,
+    creado_en timestamp null,
+    actualizado_en timestamp null,
+    eliminado_en timestamp null
 );
 
 create table usuarios (
-	id int primary key auto_increment not null,
+    id int primary key auto_increment not null,
     telefono_id int not null,
-	nombres varchar(50),
-	apellidos varchar(50),
-	creado_en timestamp null,
-	actualizado_en timestamp null
+    nombres varchar(50) null,
+    apellidos varchar(50) null,
+    config json null,
+    creado_en timestamp null,
+    actualizado_en timestamp null
 );
 
 alter table usuarios add constraint fk_usuarios_telefono_id foreign key (telefono_id) references telefonos (id) on delete cascade;
 
 create table roles (
-	id int primary key auto_increment not null,
-    nombre varchar(50),
-	creado_en timestamp null,
-	actualizado_en timestamp null
+    id int primary key auto_increment not null,
+    nombre varchar(50) null,
+    creado_en timestamp null,
+    actualizado_en timestamp null
 );
 
 create table temas (
-	id int primary key auto_increment not null,
-    usuario_id int,
-	titulo varchar(100),
-	descripcion varchar(1000),
-	creado_en timestamp null,
-	actualizado_en timestamp null
+    id int primary key auto_increment not null,
+    usuario_id int null,
+    titulo varchar(100) null,
+    descripcion varchar(1000) null,
+    creado_en timestamp null,
+    actualizado_en timestamp null
 );
 
 alter table temas add constraint fk_temas_usuario_id foreign key (usuario_id) references usuarios (id) on delete cascade;
@@ -62,11 +63,11 @@ alter table role_usuario add constraint fk_role_usuario_role_id foreign key (rol
 alter table role_usuario add constraint fk_role_usuario_usuario_id foreign key (usuario_id) references usuarios (id) on delete cascade;
 
 create table documentos (
-	id int primary key auto_increment not null,
+    id int primary key auto_increment not null,
     usuario_id int not null,
-	numero varchar(20),
-	creado_en timestamp null,
-	actualizado_en timestamp null
+    numero varchar(20) null,
+    creado_en timestamp null,
+    actualizado_en timestamp null
 );
 
 alter table documentos add constraint fk_documentos_usuario_id foreign key (usuario_id) references usuarios (id) on delete cascade;

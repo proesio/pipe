@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -85,14 +85,14 @@ class EliminarTest extends TestCase
 
     private function baseTestDeEliminacionDeRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
         $this->generarRegistrosTest1();
 
         $resultado = PIPE::tabla('telefonos')
-            ->donde('id = ?', [1])
+            ->dondeCrudo('id = ?', [1])
             ->eliminar();
 
         $telefono = PIPE::tabla('telefonos')->primero(PIPE::OBJETO);
@@ -104,7 +104,7 @@ class EliminarTest extends TestCase
 
         $this->generarRegistrosTest1();
 
-        $resultado = Telefono::donde('id = ?', [1])
+        $resultado = Telefono::dondeCrudo('id = ?', [1])
             ->eliminar();
 
         $telefono = Telefono::primero(PIPE::OBJETO);
@@ -115,7 +115,7 @@ class EliminarTest extends TestCase
 
     private function baseTestDeEliminacionMasivaDeRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -142,13 +142,13 @@ class EliminarTest extends TestCase
 
     private function baseTestDeEliminacionSuaveDeRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
         $this->generarRegistrosTest1();
 
-        $resultado1 = Telefono1::donde('id = ?', [1])
+        $resultado1 = Telefono1::dondeCrudo('id = ?', [1])
             ->eliminar();
 
         $telefono1 = Telefono1::primero(PIPE::OBJETO);
@@ -162,13 +162,13 @@ class EliminarTest extends TestCase
 
     private function baseTestDeEliminacionSuaveForzadaDeRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
         $this->generarRegistrosTest1();
 
-        $resultado1 = Telefono1::donde('id = ?', [1])
+        $resultado1 = Telefono1::dondeCrudo('id = ?', [1])
             ->eliminar(true);
 
         $telefono1 = Telefono1::primero(PIPE::OBJETO);
@@ -182,7 +182,7 @@ class EliminarTest extends TestCase
 
     private function baseTestDeEliminacionSuaveMasivaDeRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
@@ -201,7 +201,7 @@ class EliminarTest extends TestCase
 
     private function baseTestDeEliminacionSuaveMasivaForzadaDeRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
@@ -220,15 +220,15 @@ class EliminarTest extends TestCase
 
     private function generarRegistrosTest1()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
     }
 
     private function generarRegistrosTest2()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros('telefonos', 2);
     }
 }

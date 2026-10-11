@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -42,22 +42,22 @@ class Mensaje
      *
      * @return void
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     private function _asignarMensajes()
     {
         $idioma = Configuracion::config('IDIOMA', 'es');
 
-        switch($idioma){
+        switch ($idioma) {
         case 'es':
-            self::$mensajes = include_once __DIR__.'/Idiomas/es.php';
+            self::$mensajes = include __DIR__ . '/Idiomas/es.php';
             break;
         case 'en':
-            self::$mensajes = include_once __DIR__.'/Idiomas/en.php';
+            self::$mensajes = include __DIR__ . '/Idiomas/en.php';
             break;
         default:
             Error::mostrar(
-                'IDIOMA '.$idioma.' desconocido. Idiomas admitidos: es, en.'
+                'IDIOMA ' . $idioma . ' desconocido. Idiomas admitidos: es, en.'
             );
             break;
         }

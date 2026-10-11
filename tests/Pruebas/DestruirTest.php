@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -70,7 +70,7 @@ class DestruirTest extends TestCase
 
     private function baseTestDeDestruccionDeRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistrosTest1();
 
@@ -85,7 +85,7 @@ class DestruirTest extends TestCase
 
     private function baseTestDeDestruccionDeVariosRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistrosTest2();
 
@@ -102,7 +102,7 @@ class DestruirTest extends TestCase
 
     private function baseTestDeDestruccionSuaveDeRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistrosTest1();
 
@@ -123,7 +123,7 @@ class DestruirTest extends TestCase
 
     private function baseTestDeDestruccionSuaveDeVariosRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistrosTest2();
 
@@ -146,15 +146,15 @@ class DestruirTest extends TestCase
 
     private function generarRegistrosTest1()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
     }
 
     private function generarRegistrosTest2()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros('telefonos', 2);
     }
 }

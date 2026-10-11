@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -19,8 +19,8 @@ use PDO;
 use Exception;
 use PIPE\PIPE;
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class ConfiguracionTest extends TestCase
 {
@@ -44,25 +44,25 @@ class ConfiguracionTest extends TestCase
 
     public function testDeMultiplesConexiones()
     {
-        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['mysql']);
+        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['mysql'], true);
 
         $pdo = PIPE::obtenerPDO();
 
         $this->assertEquals('mysql', $pdo->getAttribute(PDO::ATTR_DRIVER_NAME));
 
-        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['pgsql']);
+        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['pgsql'], true);
 
         $pdo = PIPE::obtenerPDO();
 
         $this->assertEquals('pgsql', $pdo->getAttribute(PDO::ATTR_DRIVER_NAME));
 
-        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['sqlite']);
+        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['sqlite'], true);
 
         $pdo = PIPE::obtenerPDO();
 
         $this->assertEquals('sqlite', $pdo->getAttribute(PDO::ATTR_DRIVER_NAME));
 
-        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['sqlsrv']);
+        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL']['sqlsrv'], true);
 
         $pdo = PIPE::obtenerPDO();
 
@@ -106,7 +106,7 @@ class ConfiguracionTest extends TestCase
 
     public function testDeControladorDesconocido()
     {  
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $configGlobalPivote = $GLOBALS['CONFIG_GLOBAL'];
         $configGlobalPivote['mysql']['BD_CONTROLADOR'] = 'oci';
@@ -116,7 +116,7 @@ class ConfiguracionTest extends TestCase
 
     public function testDeFalloAlDetectarIdiomaDesconocido()
     {  
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $configGlobalPivote = $GLOBALS['CONFIG_GLOBAL'];
         $configGlobalPivote['mysql']['IDIOMA'] = 'fr';
@@ -126,10 +126,10 @@ class ConfiguracionTest extends TestCase
 
     public function testDeFalloAlDetectarRutaModelosInexistente()
     {  
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $configGlobalPivote = $GLOBALS['CONFIG_GLOBAL'];
-        $configGlobalPivote['mysql']['RUTA_MODELOS'] = __DIR__.'/Modelos';
+        $configGlobalPivote['mysql']['RUTA_MODELOS'] = __DIR__ . '/Modelos';
 
         Configuracion::inicializar($configGlobalPivote, 'mysql'); 
     }

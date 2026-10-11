@@ -8,13 +8,14 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
 
 namespace PIPE;
 
+use PIPE\PIPE;
 use PIPE\Error;
 use PIPE\Archivo;
 use PIPE\Mensaje;
@@ -22,20 +23,6 @@ use PIPE\Conexion;
 
 class Configuracion
 {
-    /**
-     * Configuraciones del ORM PIPE.
-     *
-     * @var array
-     */
-    public static $configs = [];
-
-    /**
-     * Configuración del ORM PIPE.
-     *
-     * @var array
-     */
-    private static $_config = [];
-
     /**
      * Indica el retorno de resultados de una consulta SQL como una clase.
      *
@@ -72,26 +59,56 @@ class Configuracion
     public const SQL = 'sql';
 
     /**
+     * Configuraciones del ORM PIPE.
+     *
+     * @var array
+     */
+    private static $_configs = [];
+
+    /**
+     * Configuración del ORM PIPE.
+     *
+     * @var array
+     */
+    private static $_config = [];
+
+    /**
      * Inicializa la configuración del ORM PIPE.
      *
-     * @param array  $configs        config
-     * @param string $predeterminado predeterminado
+     * @param array $configs           config
+     * @param mixed $predeterminado    predeterminado
+     * @param bool  $reiniciarConexion reiniciarConexion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
-    public static function inicializar($configs, $predeterminado = '')
-    {
+    public static function inicializar(
+        $configs, $predeterminado = null, $reiniciarConexion = false
+    ) {
+        if ($predeterminado === true || $reiniciarConexion === true) {
+            Conexion::$conexion = null;
+
+            self::$_configs = [];
+
+            self::$_config = [];
+        }
+
         if (is_array($configs)) {
+            $predeterminado ??= '';
+
             if (self::_validarMatrizBidimencional($configs) 
                 && array_key_exists($predeterminado, $configs)
             ) {
-                self::$configs = $configs;
+                if (!self::$_config) {
+                    PIPE::$conexionPredeterminada['nombre'] = $predeterminado;
+                }
+
+                self::$_configs = $configs;
                 self::$_config = $configs[$predeterminado];
                 self::_instanciarClases();
             } elseif (!self::_validarMatrizBidimencional($configs)) {
-                self::$configs = $configs;
+                self::$_configs = $configs;
                 self::$_config = $configs;
                 self::_instanciarClases();
             } else {
@@ -128,7 +145,7 @@ class Configuracion
     }
 
     /**
-     * Inicializa la configuración del ORM PIPE definiendo un nombre.
+     * Inicializa la configuración del ORM PIPE definiendo un nombre de conexión.
      *
      * @param string $nombre nombre
      * 
@@ -136,7 +153,36 @@ class Configuracion
      */
     public static function inicializarConfig($nombre)
     {
-        self::inicializar(self::$configs, $nombre);
+        self::inicializar(self::$_configs, $nombre);
+    }
+
+    /**
+     * Obtiene la configuración del ORM PIPE definiendo un nombre de conexión.
+     *
+     * @param string $nombre nombre
+     * 
+     * @return array
+     */
+    public static function obtenerConfig($nombre = '')
+    {
+        return self::$_configs[$nombre] ?? self::$_configs;
+    }
+
+    /**
+     * Establece la configuración del ORM PIPE definiendo
+     * un nombre de conexión sin reasignar la instancia de PDO.
+     *
+     * @param string $nombre nombre
+     * 
+     * @return void
+     */
+    public static function establecerConfig($nombre)
+    {
+        if (self::_validarMatrizBidimencional(self::$_configs)
+            && array_key_exists($nombre, self::$_configs)
+        ) {
+            self::$_config = self::$_configs[$nombre];
+        }
     }
 
     /**

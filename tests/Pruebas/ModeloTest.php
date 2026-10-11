@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -22,9 +22,9 @@ use Modelos\Tema;
 use Modelos\Telefono;
 use Modelos\Documento;
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PIPE\ConstructorConsulta;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class ModeloTest extends TestCase
 {
@@ -42,10 +42,12 @@ class ModeloTest extends TestCase
 
     public function testDeDefinicionDeConexion()
     {
-        vaciarTablas('mysql');
-        vaciarTablas('pgsql');
-
         Configuracion::inicializar($this->configGlobal, 'mysql');
+
+        $pdoMysql = PIPE::obtenerPDO();
+        $pdoMysql->exec('SET FOREIGN_KEY_CHECKS = 0');
+        $pdoMysql->exec('truncate table telefonos');
+        $pdoMysql->exec('SET FOREIGN_KEY_CHECKS = 1');
 
         $propiedades = [
             'tabla' => 'telefonos',
@@ -56,19 +58,21 @@ class ModeloTest extends TestCase
         $pipe->insertar(['numero' => 123456789]);
         $telefono = $pipe->primero(PIPE::OBJETO);
 
-        $pdo = PIPE::obtenerPDO();
-
-        $this->assertEquals('mysql', $pdo->getAttribute(PDO::ATTR_DRIVER_NAME));
+        $this->assertEquals('mysql', $pdoMysql->getAttribute(PDO::ATTR_DRIVER_NAME));
         $this->assertEquals(123456789, $telefono->numero);
 
+        $pdoPgsql = PIPE::conexion('pgsql')->obtenerPDO();
+        $pdoPgsql->exec('alter table telefonos disable trigger all');
+        $pdoPgsql->exec('truncate table telefonos restart identity cascade');
+        $pdoPgsql->exec('alter table telefonos enable trigger all');
+
         $propiedades['conexion'] = 'pgsql';
+
         $pipe = new ConstructorConsulta($propiedades);
         $pipe->insertar(['numero' => 987654321]);
         $telefono = $pipe->primero(PIPE::OBJETO);
 
-        $pdo = PIPE::obtenerPDO();
-
-        $this->assertEquals('pgsql', $pdo->getAttribute(PDO::ATTR_DRIVER_NAME));
+        $this->assertEquals('pgsql', $pdoPgsql->getAttribute(PDO::ATTR_DRIVER_NAME));
         $this->assertEquals(987654321, $telefono->numero);
     }
 
@@ -76,7 +80,7 @@ class ModeloTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $propiedades = [
             'tabla' => 'tabla_inexistente',
@@ -90,7 +94,7 @@ class ModeloTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $propiedades = [
             'tabla' => 'tabla_inexistente',
@@ -104,7 +108,7 @@ class ModeloTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $propiedades = [
             'tabla' => 'tabla_inexistente',
@@ -118,7 +122,7 @@ class ModeloTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $propiedades = [
             'tabla' => 'tabla_inexistente',
@@ -218,11 +222,11 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeLlavePrimaria()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
 
         $propiedades = [
             'tabla' => 'telefonos',
@@ -242,9 +246,9 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeRegistroTiempo()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
         $propiedades = [
             'tabla' => 'telefonos',
@@ -265,9 +269,9 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeCreadoEnYActualizadoEn()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
         $propiedades = [
             'tabla' => 'telefonos',
@@ -289,13 +293,13 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeRelacionTieneUno()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
-        generarRegistros($this->conexion, 'usuarios');
-        generarRegistros($this->conexion, 'documentos');
+        generarRegistros('telefonos');
+        generarRegistros('usuarios');
+        generarRegistros('documentos');
 
         $propiedades = [
             'tabla' => 'usuarios',
@@ -341,13 +345,13 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeRelacionTieneMuchos()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
-        generarRegistros($this->conexion, 'usuarios');
-        generarRegistros($this->conexion, 'temas');
+        generarRegistros('telefonos');
+        generarRegistros('usuarios');
+        generarRegistros('temas');
 
         $propiedades = [
             'tabla' => 'usuarios',
@@ -397,12 +401,12 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeRelacionPerteneceAUno()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
-        generarRegistros($this->conexion, 'usuarios');
+        generarRegistros('telefonos');
+        generarRegistros('usuarios');
 
         $propiedades = [
             'tabla' => 'usuarios',
@@ -448,14 +452,14 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeRelacionPerteneceAMuchos()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
-        generarRegistros($this->conexion, 'usuarios');
-        generarRegistros($this->conexion, 'roles');
-        generarRegistros($this->conexion, 'role_usuario');
+        generarRegistros('telefonos');
+        generarRegistros('usuarios');
+        generarRegistros('roles');
+        generarRegistros('role_usuario');
 
         $propiedades = [
             'tabla' => 'usuarios',
@@ -515,11 +519,11 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeInsertables()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
 
         $propiedades = [
             'tabla' => 'usuarios',
@@ -542,11 +546,11 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeActualizables()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
 
         $propiedades = [
             'tabla' => 'usuarios',
@@ -573,11 +577,11 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeVisibles()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
 
         $propiedades = [
             'tabla' => 'usuarios',
@@ -599,11 +603,11 @@ class ModeloTest extends TestCase
 
     private function baseTestDeDefinicionDeOcultos()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
 
         $propiedades = [
             'tabla' => 'usuarios',

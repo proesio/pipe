@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -85,7 +85,7 @@ class ActualizarTest extends TestCase
 
     private function baseTestDeActualizacionDeRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de contructor de consulta.
 
@@ -110,14 +110,14 @@ class ActualizarTest extends TestCase
 
     private function baseTestDeActualizacionDeRegistroConCondicional()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de contructor de consulta.
 
         $this->generarRegistros();
 
         $resultado = PIPE::tabla('telefonos')
-            ->donde('id in(?, ?)', [1, 2])
+            ->dondeCrudo('id in(?, ?)', [1, 2])
             ->actualizar(['numero' => 1234567890]);
 
         $this->assertEquals(2, $resultado);
@@ -126,7 +126,7 @@ class ActualizarTest extends TestCase
 
         $this->generarRegistros();
 
-        $resultado = Telefono::donde('id in(?, ?)', [1, 2])
+        $resultado = Telefono::dondeCrudo('id in(?, ?)', [1, 2])
             ->actualizar(['numero' => 1234567890]);
 
         $this->assertEquals(2, $resultado);
@@ -134,7 +134,7 @@ class ActualizarTest extends TestCase
 
     private function baseTestDeActualizacionMasivaDeRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de contructor de consulta.
 
@@ -156,15 +156,15 @@ class ActualizarTest extends TestCase
 
     private function baseTestDeActualizacionDeRegistroConMutador()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 1);
-        generarRegistros($this->conexion, 'usuarios', 1);
-        generarRegistros($this->conexion, 'documentos', 1);
+        generarRegistros('telefonos', 1);
+        generarRegistros('usuarios', 1);
+        generarRegistros('documentos', 1);
 
         $documento = Documento::encontrar(1);
         $documento->numero = 1234567890;
@@ -177,17 +177,17 @@ class ActualizarTest extends TestCase
 
     private function baseTestDeActualizacionDeRegistroConCondicionalYMutador()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 1);
-        generarRegistros($this->conexion, 'usuarios', 1);
-        generarRegistros($this->conexion, 'documentos', 1);
+        generarRegistros('telefonos', 1);
+        generarRegistros('usuarios', 1);
+        generarRegistros('documentos', 1);
 
-        Documento::donde('id = ?', [1])
+        Documento::dondeCrudo('id = ?', [1])
             ->actualizar(['numero' => 1234567890]);
 
         $documento = Documento::encontrar(1);
@@ -197,15 +197,15 @@ class ActualizarTest extends TestCase
 
     private function baseTestDeActualizacionMasivaDeRegistrosConMutador()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 2);
-        generarRegistros($this->conexion, 'usuarios', 2);
-        generarRegistros($this->conexion, 'documentos', 2);
+        generarRegistros('telefonos', 2);
+        generarRegistros('usuarios', 2);
+        generarRegistros('documentos', 2);
 
         Documento::actualizar(['numero' => 1234567890]);
 
@@ -217,8 +217,8 @@ class ActualizarTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 3);
+        generarRegistros('telefonos', 3);
     }
 }

@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -17,9 +17,9 @@ namespace PIPE\Tests\Pruebas;
 
 use PIPE\PIPE;
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PIPE\ConstructorConsulta;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class ConsultaTest extends TestCase
 {
@@ -109,7 +109,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanol()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -120,7 +120,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanolConParametros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -133,7 +133,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanolConTipoRetornoOBJETO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -146,7 +146,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanolConTipoRetornoARREGLO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -159,7 +159,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanolConTipoRetornoJSON()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -172,7 +172,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanolConParametrosYTipoRetornoOBJETO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -185,7 +185,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanolConParametrosYTipoRetornoARREGLO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -198,7 +198,7 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeConsultaEnEspanolConParametrosYTipoRetornoJSON()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $this->generarRegistros();
 
@@ -211,9 +211,9 @@ class ConsultaTest extends TestCase
 
     private function baseTestDeFalloAlDefinirTipoRetornoSQL()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::consulta(
             'seleccionar todo de telefonos', PIPE::SQL
@@ -222,8 +222,8 @@ class ConsultaTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
     }
 }

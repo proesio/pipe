@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -52,7 +52,7 @@ class UnirIzquierdaTest extends TestCase
 
     private function baseTestDeUnionHaciaLaIzquierdaDeTablas()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -85,7 +85,7 @@ class UnirIzquierdaTest extends TestCase
 
     private function baseTestDeUnionHaciaLaIzquierdaDeTablasDefiniendoTipoUnion()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -118,11 +118,11 @@ class UnirIzquierdaTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
-        generarRegistros($this->conexion, 'usuarios');
-        generarRegistros($this->conexion, 'temas');
+        generarRegistros('telefonos');
+        generarRegistros('usuarios');
+        generarRegistros('temas');
 
         $pdo = PIPE::obtenerPDO();
 

@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -17,9 +17,9 @@ namespace PIPE\Tests\Pruebas;
 
 use PIPE\PIPE;
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PIPE\ConstructorConsulta;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class TablaTest extends TestCase
 {
@@ -47,7 +47,7 @@ class TablaTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('tabla_inexistente');
     }
@@ -56,7 +56,7 @@ class TablaTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('tabla_inexistente');
     }
@@ -65,7 +65,7 @@ class TablaTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('tabla_inexistente');
     }
@@ -74,14 +74,14 @@ class TablaTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('tabla_inexistente');
     }
 
     private function baseTestDeDefinicionDeTabla()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $pipe = PIPE::tabla('usuarios');
 

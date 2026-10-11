@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -32,15 +32,15 @@ class SQLServer
         $basedatos = Configuracion::config('BD_BASEDATOS');
         $datosDsn = Configuracion::config('BD_DATOS_DSN');
 
-        $basedatos = $basedatos ? 'database='.$basedatos.';' : '';
+        $basedatos = $basedatos ? 'database=' . $basedatos . ';' : '';
 
         if ($host && $puerto) {
-            $host = 'server='.$host.','.$puerto.';';
+            $host = 'server=' . $host . ',' . $puerto . ';';
         } elseif ($host) {
-            $host = 'server='.$host.';';
+            $host = 'server=' . $host . ';';
         }
 
-        $dsn = $controlador.':'.$host.$basedatos.$datosDsn;
+        $dsn = $controlador . ':' . $host . $basedatos . $datosDsn;
 
         return $dsn;
     }
@@ -61,12 +61,12 @@ class SQLServer
         $inicio = $inicio ? $inicio : 0;
 
         if ($ordenar) {
-            $limite = 'offset '.$inicio.' rows '
-                .'fetch next '.$cantidad.' rows only';
+            $limite = 'offset ' . $inicio . ' rows '
+                .'fetch next ' . $cantidad . ' rows only';
         } else {
-            $limite = 'order by '.$llavePrimaria.' asc '
-                .'offset '.$inicio.' rows '
-                .'fetch next '.$cantidad.' rows only';
+            $limite = 'order by ' . $llavePrimaria . ' asc '
+                . 'offset ' . $inicio . ' rows '
+                . 'fetch next ' . $cantidad . ' rows only';
         }
 
         return $limite;
@@ -85,14 +85,15 @@ class SQLServer
         $sentencias = [];
 
         if ($forzado) {
-            $sentencias[] = 'alter table '.$tabla.' nocheck constraint all';
+            $sentencias[] = 'alter table ' . $tabla . ' nocheck constraint all';
         }
 
-        $sentencias[] = 'delete from '.$tabla;
-        $sentencias[] = 'dbcc checkident('.$tabla.', reseed, 0)';
+        $sentencias[] = 'delete from ' . $tabla;
+        $sentencias[] = 'dbcc checkident(' . $tabla . ', reseed, 0)';
 
         if ($forzado) {
-            $sentencias[] = 'alter table '.$tabla.' with check check constraint all';
+            $sentencias[] = 'alter table ' . $tabla
+                . ' with check check constraint all';
         }
 
         return $sentencias;
@@ -100,7 +101,7 @@ class SQLServer
 
     /**
      * Obtiene el atributo para que un campo sea autoincrementable.
-     * 
+     *
      * @param int $inicio     inicio
      * @param int $incremento incremento
      * 
@@ -109,12 +110,12 @@ class SQLServer
     public static function obtenerAtributoAutoincrementable(
         $inicio = 1, $incremento = 1
     ) {
-        return 'identity('.$inicio.','.$incremento.')';
+        return 'identity(' . $inicio . ',' . $incremento . ')';
     }
 
     /**
      * Obtiene la sentencia para borrar un índice.
-     * 
+     *
      * @param string $nombre nombre
      * @param string $tabla  tabla
      * 
@@ -122,12 +123,12 @@ class SQLServer
      */
     public static function obtenerSentenciaBorrarIndice($nombre, $tabla)
     {
-        return 'drop index '.$nombre.' on '.$tabla;
+        return 'drop index ' . $nombre . ' on ' . $tabla;
     }
 
     /**
      * Obtiene la sentencia para cambiar un campo.
-     * 
+     *
      * @param string $tabla        tabla
      * @param string $nombreActual nombreActual
      * @param string $nombreNuevo  nombreNuevo
@@ -139,10 +140,22 @@ class SQLServer
     public static function obtenerSentenciaCambiarCampo(
         $tabla, $nombreActual, $nombreNuevo, $tipo, $atributos
     ) {
-
         return "exec sp_rename '{$tabla}.{$nombreActual}', "
-                ."'{$nombreNuevo}', 'column'; "
-                ."alter table ".$tabla." alter column "
-                .$nombreNuevo." ".$tipo." ".$atributos;
+                . "'{$nombreNuevo}', 'column'; "
+                . "alter table " . $tabla . " alter column "
+                . $nombreNuevo . " " . $tipo . " " . $atributos;
+    }
+
+    /**
+     * Obtiene la sentencia para extraer una propiedad JSON como valor escalar.
+     *
+     * @param string $campo       campo
+     * @param array  $propiedades propiedades
+     * 
+     * @return string
+     */
+    public static function obtenerSentenciaExtraccionJSON($campo, $propiedades)
+    {
+        return 'json_value(' . $campo . ", '$." . implode('.', $propiedades) . "')";
     }
 }

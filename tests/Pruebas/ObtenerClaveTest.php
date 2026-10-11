@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -18,8 +18,8 @@ namespace PIPE\Tests\Pruebas;
 use PIPE\PIPE;
 use Modelos\Telefono;
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class ObtenerClaveTest extends TestCase
 {
@@ -47,7 +47,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::CLASE);
     }
@@ -56,7 +56,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::SQL);
     }
@@ -65,7 +65,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::CLASE);
     }
@@ -74,7 +74,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::SQL);
     }
@@ -83,7 +83,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::CLASE);
     }
@@ -92,7 +92,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::SQL);
     }
@@ -101,7 +101,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::CLASE);
     }
@@ -110,7 +110,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->obtenerClave('numero', PIPE::SQL);
     }
@@ -119,7 +119,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::CLASE);
     }
@@ -128,7 +128,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::SQL);
     }
@@ -137,7 +137,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::CLASE);
     }
@@ -146,7 +146,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::SQL);
     }
@@ -155,7 +155,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::CLASE);
     }
@@ -164,7 +164,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::SQL);
     }
@@ -173,7 +173,7 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::CLASE);
     }
@@ -182,14 +182,14 @@ class ObtenerClaveTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::seleccionar()->obtenerClave('numero', PIPE::SQL);
     }
 
     private function baseTestDeObtencionDeRegistrosDefiniendoClavePersonalizada()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -226,8 +226,8 @@ class ObtenerClaveTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros('telefonos', 2);
     }
 }

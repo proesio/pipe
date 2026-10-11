@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -19,6 +19,7 @@ use PIPE\PIPE;
 use PIPE\Error;
 use PDOException;
 use PIPE\Mensaje;
+use PIPE\Conexion;
 use PIPE\Configuracion;
 use PIPE\Conectores\MySQL;
 use PIPE\Conectores\SQLite;
@@ -56,17 +57,30 @@ class Migracion
      */
     private $_espacioTabla = null;
 
+    /**
+     * Indica si la conexión ha sido reasignada.
+     *
+     * @var bool
+     */
+    private static $_conexionReasignada = false;
+
     // Inicio métodos públicos.
 
     /**
      * Establece el nombre de una o varias tablas.
      *
-     * @param string $tabla tabla
+     * @param array|string $tabla tabla
      * 
      * @return self
      */
     public static function tabla($tabla)
     {
+        if (self::$_conexionReasignada) {
+            self::$_conexionReasignada = false;
+        } else {
+            PIPE::conexion(PIPE::$conexionPredeterminada['nombre']);
+        }
+
         $self = new self();
 
         $self->_tabla = is_array($tabla) ? $tabla : [$tabla];
@@ -83,7 +97,7 @@ class Migracion
      */
     public function restriccion($nombre)
     {
-        $this->_sentencia .= 'constraint '.$nombre.' ';
+        $this->_sentencia .= 'constraint ' . $nombre . ' ';
 
         return $this;
     }
@@ -100,7 +114,7 @@ class Migracion
         $campo = is_array($campo) ? $campo : [$campo];
         $campo = implode(',', $campo);
 
-        $this->_sentencia .= 'primary key ('.$campo.'), ';
+        $this->_sentencia .= 'primary key (' . $campo . '), ';
 
         return $this;
     }
@@ -122,18 +136,18 @@ class Migracion
         $alEliminar = Atributo::NO_ACCION
     ) {
         $alActualizar = (
-                $alActualizar ? ' on update '.$alActualizar.' ' : ''
+                $alActualizar ? ' on update ' . $alActualizar . ' ' : ''
         );
 
         $alEliminar = (
-            $alEliminar ? ' on delete '.$alEliminar.' ' : ''
+            $alEliminar ? ' on delete ' . $alEliminar . ' ' : ''
         );
 
         $this->_sentencia .= (
-            'foreign key ('.$llaveForanea.') references '
-            .$tablaPrimaria.'('.$llavePrimaria.') '
-            .$alActualizar.' '
-            .$alEliminar.', '
+            'foreign key (' . $llaveForanea . ') references '
+            . $tablaPrimaria . '(' . $llavePrimaria . ') '
+            . $alActualizar . ' '
+            . $alEliminar . ', '
         );
 
         return $this;
@@ -148,7 +162,7 @@ class Migracion
      */
     public function motor($nombre)
     {
-        $this->_motor = 'engine = '.$nombre.' ';
+        $this->_motor = 'engine = ' . $nombre . ' ';
 
         return $this;
     }
@@ -162,7 +176,7 @@ class Migracion
      */
     public function espacioTabla($nombre)
     {
-        $this->_espacioTabla = 'tablespace '.$nombre.' ';
+        $this->_espacioTabla = 'tablespace ' . $nombre . ' ';
 
         return $this;
     }
@@ -176,7 +190,7 @@ class Migracion
      */
     public function personalizado($sentencia)
     {
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -199,7 +213,7 @@ class Migracion
             $nombre, Atributo::ENTERO_MUY_PEQUENO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -218,7 +232,7 @@ class Migracion
             $nombre, Atributo::ENTERO_PEQUENO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia). ', ';
 
         return $this;
     }
@@ -237,7 +251,7 @@ class Migracion
             $nombre, Atributo::ENTERO_MEDIANO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -256,7 +270,7 @@ class Migracion
             $nombre, Atributo::ENTERO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -275,7 +289,7 @@ class Migracion
             $nombre, Atributo::ENTERO_GRANDE, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -294,7 +308,7 @@ class Migracion
             $nombre, Atributo::SERIAL_PEQUENO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -313,7 +327,7 @@ class Migracion
             $nombre, Atributo::SERIAL, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -332,7 +346,7 @@ class Migracion
             $nombre, Atributo::SERIAL_GRANDE, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -368,7 +382,7 @@ class Migracion
             $nombre, Atributo::DECIMAL, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -400,7 +414,7 @@ class Migracion
             $nombre, Atributo::NUMERICO, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -432,7 +446,7 @@ class Migracion
             $nombre, Atributo::FLOTANTE, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -464,7 +478,7 @@ class Migracion
             $nombre, Atributo::DOBLE, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -496,7 +510,7 @@ class Migracion
             $nombre, Atributo::DOBLE_PRECISION, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -528,7 +542,7 @@ class Migracion
             $nombre, Atributo::REAL, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -548,7 +562,7 @@ class Migracion
             $nombre, Atributo::MONETARIO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -568,7 +582,7 @@ class Migracion
             $nombre, Atributo::MONETARIO_PEQUENO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -594,7 +608,7 @@ class Migracion
             $nombre, Atributo::CARACTER, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -616,7 +630,7 @@ class Migracion
             $nombre, Atributo::CADENA, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -638,7 +652,7 @@ class Migracion
             $nombre, Atributo::N_CARACTER, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -660,7 +674,7 @@ class Migracion
             $nombre, Atributo::N_CADENA, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -679,7 +693,7 @@ class Migracion
             $nombre, Atributo::TEXTO_MUY_PEQUENO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -698,7 +712,7 @@ class Migracion
             $nombre, Atributo::TEXTO_MEDIANO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -720,7 +734,7 @@ class Migracion
             $nombre, Atributo::TEXTO, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -739,7 +753,7 @@ class Migracion
             $nombre, Atributo::TEXTO_LARGO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -762,7 +776,7 @@ class Migracion
             $nombre, Atributo::FECHA, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -781,7 +795,7 @@ class Migracion
             $nombre, Atributo::FECHA_HORA, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -800,7 +814,7 @@ class Migracion
             $nombre, Atributo::FECHA_HORA_2, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -819,7 +833,7 @@ class Migracion
             $nombre, Atributo::MARCA_TIEMPO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -838,7 +852,7 @@ class Migracion
             $nombre, Atributo::HORA, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -857,7 +871,7 @@ class Migracion
             $nombre, Atributo::ANIO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -880,7 +894,7 @@ class Migracion
             $nombre, Atributo::BOOLEANO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -899,7 +913,7 @@ class Migracion
             $nombre, Atributo::DIGITO_BINARIO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -925,7 +939,7 @@ class Migracion
             $nombre, Atributo::BINARIO, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -947,7 +961,7 @@ class Migracion
             $nombre, Atributo::BINARIO_VARIABLE, $longitud, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -966,7 +980,7 @@ class Migracion
             $nombre, Atributo::BINARIO_GRANDE, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -985,7 +999,7 @@ class Migracion
             $nombre, Atributo::BINARIO_MATRIZ, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1008,7 +1022,7 @@ class Migracion
             $nombre, Atributo::COORDENADA, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1027,7 +1041,7 @@ class Migracion
             $nombre, Atributo::COORDENADA_LINEA, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1046,7 +1060,7 @@ class Migracion
             $nombre, Atributo::POLIGONO, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1069,7 +1083,7 @@ class Migracion
         $valores = array_map(
             function ($elemento) {
                 if (is_string($elemento)) {
-                    return "'".$elemento."'";
+                    return "'" . $elemento . "'";
                 } elseif (is_bool($elemento)) {
                     return $elemento === true ? 'true' : 'false';
                 } elseif (is_null($elemento)) {
@@ -1084,7 +1098,7 @@ class Migracion
             $nombre, Atributo::ENUMERADO, $valores, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1103,7 +1117,7 @@ class Migracion
         $valores = array_map(
             function ($elemento) {
                 if (is_string($elemento)) {
-                    return "'".$elemento."'";
+                    return "'" . $elemento . "'";
                 } elseif (is_bool($elemento)) {
                     return $elemento === true ? 'true' : 'false';
                 } elseif (is_null($elemento)) {
@@ -1118,7 +1132,7 @@ class Migracion
             $nombre, Atributo::CONJUNTO, $valores, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1137,7 +1151,7 @@ class Migracion
             $nombre, Atributo::JSON, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1156,7 +1170,7 @@ class Migracion
             $nombre, Atributo::JSONB, null, $atributo
         );
 
-        $this->_sentencia .= trim($sentencia).', ';
+        $this->_sentencia .= trim($sentencia) . ', ';
 
         return $this;
     }
@@ -1174,19 +1188,20 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function crearTabla($siNoExiste = false)
     {
         try {
             $siNoExiste = $siNoExiste ? ' if not exists ' : '';
 
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             $sentencia = substr(trim($this->_sentencia), 0, -1);
 
             foreach ($this->_tabla as $valor) {    
-                $sql = 'create table '.$siNoExiste.$valor.' ('.$sentencia.') ';
+                $sql = 'create table ' . $siNoExiste
+                    . $valor . ' (' . $sentencia . ') ';
 
                 if (isset($this->_motor)) {
                     $sql .= $this->_motor;
@@ -1199,7 +1214,11 @@ class Migracion
                 $pdo->exec($sql);
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1211,24 +1230,28 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function borrarTabla($siExiste = false, $cascada = false)
     {
         try {
             $siExiste = $siExiste ? ' if exists ' : '';
 
-            $cascada = $cascada ? ' '.(Atributo::CASCADA) : '';
+            $cascada = $cascada ? ' ' . (Atributo::CASCADA) : '';
 
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             foreach ($this->_tabla as $valor) {
                 $pdo->exec(
-                    'drop table '.$siExiste.' '.$valor.$cascada
+                    'drop table ' . $siExiste . ' ' . $valor . $cascada
                 );
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1240,7 +1263,7 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function crearIndice($campo, $nombre = null)
     {
@@ -1248,20 +1271,24 @@ class Migracion
             $campo = is_array($campo) ? $campo : [$campo];
             $campo = implode(',', $campo);
 
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             foreach ($this->_tabla as $valor) {
 
                 $nombre = (
-                    $nombre ?? 'indice_'.str_replace(',', '_', $campo)
+                    $nombre ?? 'indice_' . str_replace(',', '_', $campo)
                 );
 
                 $pdo->exec(
-                    'create index '.$nombre.' on '.$valor.'('.$campo.')'
+                    'create index ' . $nombre . ' on ' . $valor . '(' . $campo . ')'
                 );
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1273,7 +1300,7 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function crearIndiceUnico($campo, $nombre = null)
     {
@@ -1281,20 +1308,25 @@ class Migracion
             $campo = is_array($campo) ? $campo : [$campo];
             $campo = implode(',', $campo);
 
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             foreach ($this->_tabla as $valor) {
 
                 $nombre = (
-                    $nombre ?? 'indice_unico_'.str_replace(',', '_', $campo)
+                    $nombre ?? 'indice_unico_' . str_replace(',', '_', $campo)
                 );
 
                 $pdo->exec(
-                    'create unique index '.$nombre.' on '.$valor.'('.$campo.')'
+                    'create unique index ' . $nombre
+                        . ' on ' . $valor . '('.$campo.')'
                 );
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1305,36 +1337,32 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function borrarIndice($nombre)
     {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             foreach ($this->_tabla as $valor) {
-                switch (Configuracion::config('BD_CONTROLADOR')) {
-                case 'mysql':
-                    $sql = MySQL::obtenerSentenciaBorrarIndice($nombre, $valor);
-                    break;
+                $sql = match (Configuracion::config('BD_CONTROLADOR')) {
+                    'mysql' => MySQL::obtenerSentenciaBorrarIndice($nombre, $valor),
+                    'pgsql' => PostgreSQL::obtenerSentenciaBorrarIndice($nombre),
+                    'sqlite' => SQLite::obtenerSentenciaBorrarIndice($nombre),
+                    'sqlsrv' => SQLServer::obtenerSentenciaBorrarIndice(
+                        $nombre, $valor
+                    ),
+                    default => ''
+                };
 
-                case 'pgsql':
-                    $sql = PostgreSQL::obtenerSentenciaBorrarIndice($nombre);
-                    break;
-
-                case 'sqlite':
-                    $sql = SQLite::obtenerSentenciaBorrarIndice($nombre);
-                    break;
-
-                case 'sqlsrv':
-                    $sql = SQLServer::obtenerSentenciaBorrarIndice($nombre, $valor);
-                    break;
-                }
-
-                $pdo->exec($sql);
+                $pdo->exec($sql ?? '');
             }    
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1347,25 +1375,29 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function borrarRestriccion($nombre, $siExiste = false, $cascada = false)
     {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             $siExiste = $siExiste ? ' if exists ' : '';
 
-            $cascada = $cascada ? ' '.(Atributo::CASCADA) : '';
+            $cascada = $cascada ? ' ' . (Atributo::CASCADA) : '';
 
             foreach ($this->_tabla as $valor) {
                 $pdo->exec(
-                    'alter table '.$valor.' drop constraint '
+                    'alter table ' . $valor . ' drop constraint '
                     .$siExiste.$nombre.$cascada
                 );
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1377,7 +1409,7 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function crearLlavePrimaria($campo, $nombre = null)
     {
@@ -1385,17 +1417,22 @@ class Migracion
             $campo = is_array($campo) ? $campo : [$campo];
             $campo = implode(',', $campo);
 
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
-            $nombre = $nombre ? ' constraint '.$nombre.' ' : ' ';
+            $nombre = $nombre ? ' constraint ' . $nombre . ' ' : ' ';
 
             foreach ($this->_tabla as $valor) {
                 $pdo->exec(
-                    'alter table '.$valor.' add'.$nombre.'primary key ('.$campo.')'
+                    'alter table ' . $valor . ' add'
+                        . $nombre . 'primary key (' . $campo . ')'
                 );
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1404,18 +1441,22 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function borrarLlavePrimaria()
     {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             foreach ($this->_tabla as $valor) {
-                $pdo->exec('alter table '.$valor.' drop primary key');
+                $pdo->exec('alter table ' . $valor . ' drop primary key');
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1431,7 +1472,7 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function crearLlaveForanea(
         $llaveForanea, $tablaPrimaria, $llavePrimaria,
@@ -1439,28 +1480,32 @@ class Migracion
         $alEliminar = Atributo::NO_ACCION
     ) {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             $alActualizar = (
-                $alActualizar ? ' on update '.$alActualizar.' ' : ''
+                $alActualizar ? ' on update ' . $alActualizar . ' ' : ''
             );
 
             $alEliminar = (
-                $alEliminar ? ' on delete '.$alEliminar.' ' : ''
+                $alEliminar ? ' on delete ' . $alEliminar . ' ' : ''
             );
 
             foreach ($this->_tabla as $valor) {
-                $sql = 'alter table '.$valor.' add '
-                    .'constraint '.$nombre.' '
-                    .'foreign key ('.$llaveForanea.') references '
-                    .$tablaPrimaria.' ('.$llavePrimaria.') '
-                    .$alActualizar.' '
-                    .$alEliminar;
+                $sql = 'alter table ' . $valor . ' add '
+                    . 'constraint ' . $nombre . ' '
+                    . 'foreign key (' . $llaveForanea . ') references '
+                    . $tablaPrimaria . ' (' . $llavePrimaria . ') '
+                    . $alActualizar . ' '
+                    . $alEliminar;
 
                 $pdo->exec($sql);
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1471,18 +1516,22 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function borrarLlaveForanea($nombre)
     {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             foreach ($this->_tabla as $valor) {
-                $pdo->exec('alter table '.$valor.' drop foreign key '.$nombre);
+                $pdo->exec('alter table ' . $valor . ' drop foreign key ' . $nombre);
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1497,13 +1546,13 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function crearCampo(
         $nombre, $tipo, $atributo = null, $longitud = 255, $despuesDe = null
     ) {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             $columna = Configuracion::config('BD_CONTROLADOR') != 'sqlsrv'
                 ? ' column ' : ' ';
@@ -1516,7 +1565,7 @@ class Migracion
                 $longitud = array_map(
                     function ($elemento) {
                         if (is_string($elemento)) {
-                            return "'".$elemento."'";
+                            return "'" . $elemento . "'";
                         } elseif (is_bool($elemento)) {
                             return $elemento === true ? 'true' : 'false';
                         } elseif (is_null($elemento)) {
@@ -1528,7 +1577,7 @@ class Migracion
                 );
 
                 $longitud = (
-                    is_array($longitud) ? '('.implode(',', $longitud).')' : ''
+                    is_array($longitud) ? '(' . implode(',', $longitud) . ')' : ''
                 );
             } else {
                 $longitud = '';
@@ -1539,21 +1588,26 @@ class Migracion
             if ($despuesDe === true) {
                 $despuesDe = 'first';
             } elseif (is_string($despuesDe)) {
-                $despuesDe = 'after '.$despuesDe;
+                $despuesDe = 'after ' . $despuesDe;
             } else {
                 $despuesDe = '';
             }
 
             foreach ($this->_tabla as $valor) {
                 $sql = (
-                    'alter table '.$valor.' add'.$columna
-                    .$nombre.' '.$tipo.$longitud.' '.$atributos.' '.$despuesDe
+                    'alter table ' . $valor . ' add' . $columna
+                        . $nombre . ' ' . $tipo . $longitud
+                        . ' ' . $atributos . ' ' . $despuesDe
                 );
 
                 $pdo->exec($sql);
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1568,13 +1622,13 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function cambiarCampo(
         $nombreActual, $nombreNuevo, $tipo, $atributo = null, $longitud = null
     ) {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             if ($longitud) {
                 if (!is_array($longitud)) {
@@ -1584,7 +1638,7 @@ class Migracion
                 $longitud = array_map(
                     function ($elemento) {
                         if (is_string($elemento)) {
-                            return "'".$elemento."'";
+                            return "'" . $elemento . "'";
                         } elseif (is_bool($elemento)) {
                             return $elemento === true ? 'true' : 'false';
                         } elseif (is_null($elemento)) {
@@ -1596,7 +1650,7 @@ class Migracion
                 );
 
                 $longitud = (
-                    is_array($longitud) ? '('.implode(',', $longitud).')' : ''
+                    is_array($longitud) ? '(' . implode(',', $longitud) . ')' : ''
                 );
             } else {
                 $longitud = '';
@@ -1607,36 +1661,30 @@ class Migracion
             $atributos = $atributo ? $atributo->obtenerSentencia() : '';
 
             foreach ($this->_tabla as $valor) {
-                switch (Configuracion::config('BD_CONTROLADOR')) {
-                case 'mysql':
-                    $sql = MySQL::obtenerSentenciaCambiarCampo(
+                $sql = match (Configuracion::config('BD_CONTROLADOR')) {
+                    'mysql' => MySQL::obtenerSentenciaCambiarCampo(
                         $valor, $nombreActual, $nombreNuevo, $tipo, $atributos
-                    );
-                    break;
-
-                case 'pgsql':
-                    $sql = PostgreSQL::obtenerSentenciaCambiarCampo(
+                    ),
+                    'pgsql' => PostgreSQL::obtenerSentenciaCambiarCampo(
                         $valor, $nombreActual, $nombreNuevo, $tipo, $atributos
-                    );
-                    break;
-
-                case 'sqlite':
-                    $sql = SQLite::obtenerSentenciaCambiarCampo(
+                    ),
+                    'sqlite' => SQLite::obtenerSentenciaCambiarCampo(
                         $valor, $nombreActual, $nombreNuevo, $tipo, $atributos
-                    );
-                    break;
-
-                case 'sqlsrv':
-                    $sql = SQLServer::obtenerSentenciaCambiarCampo(
+                    ),
+                    'sqlsrv' => SQLServer::obtenerSentenciaCambiarCampo(
                         $valor, $nombreActual, $nombreNuevo, $tipo, $atributos
-                    );
-                    break;
-                }
+                    ),
+                    default => ''
+                };
 
-                $pdo->exec($sql);
+                $pdo->exec($sql ?? '');
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
@@ -1647,22 +1695,42 @@ class Migracion
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\SQLExcepcion
      */
     public function borrarCampo($nombre)
     {
         try {
-            $pdo = PIPE::obtenerPDO();
+            $pdo = Conexion::$conexion;
 
             foreach ($this->_tabla as $valor) {
-                $pdo->exec('alter table '.$valor.' drop column '.$nombre);
+                $pdo->exec('alter table ' . $valor . ' drop column ' . $nombre);
             }
         } catch (PDOException $e) {
-            Error::mostrar($e->getMessage(), true);
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
     }
 
     // Fin de métodos para representar las cláusulas crear y borrar.
+
+    /**
+     * Establece la conexión según el nombre definido.
+     *
+     * @param string $nombre nombre
+     * 
+     * @return self
+     */
+    public static function conexion($nombre)
+    {
+        self::$_conexionReasignada = true;
+
+        PIPE::conexion($nombre);
+
+        return new self();
+    }
 
     // Fin métodos públicos.
 
@@ -1678,7 +1746,7 @@ class Migracion
      * 
      * @return string
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     private function _procesarSentencia(
         $nombre, $tipo, $longitud = null, $atributo = null
@@ -1688,13 +1756,14 @@ class Migracion
         }
 
         $longitud = (
-            $longitud && is_array($longitud) ? '('.implode(',', $longitud).')' : ''
+            $longitud && is_array($longitud)
+                ? '(' . implode(',', $longitud) . ')' : ''
         );
 
-        $sentencia = $nombre.' '.$tipo.$longitud.' ';
+        $sentencia = $nombre . ' ' . $tipo.$longitud . ' ';
 
         if ($atributo) {
-            $sentencia .= $atributo->obtenerSentencia().' ';
+            $sentencia .= $atributo->obtenerSentencia() . ' ';
         }
 
         return $sentencia;

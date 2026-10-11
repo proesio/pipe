@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -52,7 +52,7 @@ class PromedioTest extends TestCase
 
     private function baseTestDeObtencionDePromedio()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -73,7 +73,7 @@ class PromedioTest extends TestCase
 
     private function baseTestDeObtencionDePromedioDefiniendoCondicion()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -86,7 +86,7 @@ class PromedioTest extends TestCase
         }
 
         $cantidad = PIPE::tabla('telefonos')
-            ->donde('numero in(?, ?)', [2, 3])
+            ->dondeCrudo('numero in(?, ?)', [2, 3])
             ->promedio('numero');
 
         $this->assertEquals($valorEsperado, $cantidad);
@@ -101,7 +101,7 @@ class PromedioTest extends TestCase
             $valorEsperado = 2;
         }
 
-        $cantidad = Telefono::donde('numero in(?, ?)', [2, 3])
+        $cantidad = Telefono::dondeCrudo('numero in(?, ?)', [2, 3])
             ->promedio('numero');
 
         $this->assertEquals($valorEsperado, $cantidad);
@@ -109,7 +109,7 @@ class PromedioTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
         $pdo = PIPE::obtenerPDO();
 

@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -28,7 +28,7 @@ class SQLServer
      */
     public static function migrar()
     {
-        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL'], 'sqlsrv');
+        Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL'], 'sqlsrv', true);
 
         Migracion::tabla(
             [
@@ -50,6 +50,7 @@ class SQLServer
             ->entero('telefono_id', (new Atributo)->noNulo())
             ->cadena('nombres', 255, (new Atributo)->nulo())
             ->cadena('apellidos', 255, (new Atributo)->nulo())
+            ->personalizado('config nvarchar(max) null check (isjson(config) = 1)')
             ->fechaHora2('creado_en', (new Atributo)->nulo())
             ->fechaHora2('actualizado_en', (new Atributo)->nulo())
             ->fechaHora2('eliminado_en', (new Atributo)->nulo())

@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -23,5 +23,6 @@ return [
     'TABLA_NO_EXISTE' => 'La siguiente tabla no existe',
     'METODO_NO_SOPORTADO' => 'El siguiente método no es soportado',
     'RETORNO_NO_SOPORTADO' => 'Tipo de retorno no soportado.',
-    'INSTANCIA_ATRIBUTO_NO_DEFINIDA' => 'El parámetro debe ser una instancia de PIPE\Migracion\Atributo.'
+    'INSTANCIA_ATRIBUTO_NO_DEFINIDA' => 'El parámetro debe ser una instancia de PIPE\Migracion\Atributo.',
+    'INSTANCIA_CLOSURE_NO_DEFINIDA' => 'El parámetro debe ser una instancia de Closure.'
 ];

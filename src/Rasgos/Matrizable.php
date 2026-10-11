@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -25,7 +25,7 @@ trait Matrizable
      * 
      * @return array
      */
-    function obtenerDatosClavePersonalizada($datos, $claves)
+    public function obtenerDatosClavePersonalizada($datos, $claves)
     {
         $datosPivote = [];
 
@@ -41,9 +41,9 @@ trait Matrizable
 
                 foreach ($claves as $valorClave) {
                     if ($esArreglo) {
-                        $clavePivote .= ($valor[$valorClave] ?? $clave).'_';
+                        $clavePivote .= ($valor[$valorClave] ?? $clave) . '_';
                     } elseif ($esObjeto) {
-                        $clavePivote .= ($valor->{$valorClave} ?? $clave).'_';
+                        $clavePivote .= ($valor->{$valorClave} ?? $clave) . '_';
                     }
                 }
 
@@ -63,7 +63,7 @@ trait Matrizable
      * 
      * @return array
      */
-    function extraerClave($datos, $clave)
+    public function extraerClave($datos, $clave)
     {
         $datosExtraidos = [];
 

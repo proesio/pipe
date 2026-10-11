@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -60,7 +60,7 @@ class ContarTest extends TestCase
 
     private function baseTestDeConteoDeRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -81,7 +81,7 @@ class ContarTest extends TestCase
 
     private function baseTestDeConteoDeRegistrosDefiniendoCampo()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -102,14 +102,14 @@ class ContarTest extends TestCase
 
     private function baseTestDeConteoDeRegistrosDefiniendoCondicion()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
         $this->generarRegistros();
 
         $cantidad = PIPE::tabla('telefonos')
-            ->donde('numero es no nulo')
+            ->dondeCrudo('numero es no nulo')
             ->contar();
 
         $this->assertEquals(2, $cantidad);
@@ -118,7 +118,7 @@ class ContarTest extends TestCase
 
         $this->generarRegistros();
 
-        $cantidad = Telefono::donde('numero es no nulo')
+        $cantidad = Telefono::dondeCrudo('numero es no nulo')
             ->contar();
 
         $this->assertEquals(2, $cantidad);
@@ -126,9 +126,9 @@ class ContarTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros('telefonos', 2);
 
         $pdo = PIPE::obtenerPDO();
 

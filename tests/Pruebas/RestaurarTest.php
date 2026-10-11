@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -52,19 +52,19 @@ class RestaurarTest extends TestCase
 
     private function baseTestDeRestauracionDeRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
         $this->generarRegistrosTest1();
 
-        Telefono1::donde('id = ?', [1])->eliminar();
+        Telefono1::dondeCrudo('id = ?', [1])->eliminar();
 
         $telefono1 = Telefono1::encontrar(1);
 
         $this->assertNull($telefono1);
 
-        Telefono1::donde('id = ?', [1])->restaurar();
+        Telefono1::dondeCrudo('id = ?', [1])->restaurar();
 
         $telefono1 = Telefono1::encontrar(1);
 
@@ -73,7 +73,7 @@ class RestaurarTest extends TestCase
 
     private function baseTestDeRestauracionMasivaDeRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de modelo.
 
@@ -94,15 +94,15 @@ class RestaurarTest extends TestCase
 
     private function generarRegistrosTest1()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
     }
 
     private function generarRegistrosTest2()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros('telefonos', 2);
     }
 }

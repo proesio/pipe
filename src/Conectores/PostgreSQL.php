@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -32,11 +32,11 @@ class PostgreSQL
         $basedatos = Configuracion::config('BD_BASEDATOS');
         $datosDsn = Configuracion::config('BD_DATOS_DSN');
 
-        $host = $host ? 'host='.$host.';' : '';
-        $puerto = $puerto ? 'port='.$puerto.';' : '';
-        $basedatos = $basedatos ? 'dbname='.$basedatos.';' : '';
+        $host = $host ? 'host=' . $host . ';' : '';
+        $puerto = $puerto ? 'port=' . $puerto . ';' : '';
+        $basedatos = $basedatos ? 'dbname=' . $basedatos . ';' : '';
 
-        $dsn = $controlador.':'.$host.$puerto.$basedatos.$datosDsn;
+        $dsn = $controlador . ':' . $host . $puerto . $basedatos . $datosDsn;
 
         return $dsn;
     }
@@ -51,10 +51,10 @@ class PostgreSQL
      */
     public static function obtenerCadenaLimite($cantidad, $inicio = null)
     {
-        $limite = 'limit '.$cantidad;
+        $limite = 'limit ' . $cantidad;
 
         if ($inicio) {
-            $limite = 'limit '.$cantidad.' offset '.$inicio;
+            $limite = 'limit ' . $cantidad . ' offset ' . $inicio;
         }
 
         return $limite;
@@ -75,13 +75,13 @@ class PostgreSQL
 
         if ($forzado) {
             $cascada = 'cascade';
-            $sentencias[] = 'alter table '.$tabla.' disable trigger all';
+            $sentencias[] = 'alter table ' . $tabla . ' disable trigger all';
         }
 
-        $sentencias[] = 'truncate table '.$tabla.' restart identity '.$cascada;
+        $sentencias[] = 'truncate table ' . $tabla . ' restart identity ' . $cascada;
 
         if ($forzado) {
-            $sentencias[] = 'alter table '.$tabla.' enable trigger all';
+            $sentencias[] = 'alter table ' . $tabla . ' enable trigger all';
         }
 
         return $sentencias;
@@ -89,7 +89,7 @@ class PostgreSQL
 
     /**
      * Obtiene el atributo para que un campo sea autoincrementable.
-     * 
+     *
      * @return string
      */
     public static function obtenerAtributoAutoincrementable()
@@ -99,19 +99,19 @@ class PostgreSQL
 
     /**
      * Obtiene la sentencia para borrar un índice.
-     * 
+     *
      * @param string $nombre nombre
      * 
      * @return string
      */
     public static function obtenerSentenciaBorrarIndice($nombre)
     {
-        return 'drop index '.$nombre;
+        return 'drop index ' . $nombre;
     }
 
     /**
      * Obtiene la sentencia para cambiar un campo.
-     * 
+     *
      * @param string $tabla        tabla
      * @param string $nombreActual nombreActual
      * @param string $nombreNuevo  nombreNuevo
@@ -123,10 +123,25 @@ class PostgreSQL
     public static function obtenerSentenciaCambiarCampo(
         $tabla, $nombreActual, $nombreNuevo, $tipo, $atributos
     ) {
-        return 'alter table '.$tabla.' rename column '
-            .$nombreActual.' to '.$nombreNuevo.'; '
-            .'alter table '.$tabla.' alter column '
-            .$nombreNuevo.' type '.$tipo.' '.$atributos.' '
-            .'using '.$nombreNuevo.'::'.$tipo;
+        return 'alter table ' . $tabla . ' rename column '
+            . $nombreActual . ' to ' . $nombreNuevo . '; '
+            . 'alter table ' . $tabla . ' alter column '
+            . $nombreNuevo . ' type ' . $tipo . ' ' . $atributos . ' '
+            . 'using ' . $nombreNuevo . '::' . $tipo;
+    }
+
+    /**
+     * Obtiene la sentencia para extraer una propiedad JSON como valor escalar.
+     *
+     * @param string $campo       campo
+     * @param array  $propiedades propiedades
+     * 
+     * @return string
+     */
+    public static function obtenerSentenciaExtraccionJSON($campo, $propiedades)
+    {
+        $propiedades = str_replace('.', ',', implode('.', $propiedades));
+
+        return $campo . ' #>>' . " '{" . $propiedades . "}'";
     }
 }

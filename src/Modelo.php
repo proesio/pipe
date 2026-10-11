@@ -8,13 +8,14 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
 
 namespace PIPE;
 
+use PIPE\PIPE;
 use ReflectionClass;
 use PIPE\ConstructorConsulta;
 
@@ -116,7 +117,7 @@ abstract class Modelo
      * 
      * @return \PIPE\ConstructorConsulta
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public static function unirDerecha(
         $tablaUnion, $llaveForanea, $union, $llavePrimaria = null
@@ -148,19 +149,329 @@ abstract class Modelo
     }
 
     /**
-     * Establece una condición con cláusula where en la consulta SQL.
+     * Establece una condición con cláusula where y operador and en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function donde($campo, $operador = '=', $parametro = null)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->donde(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula where y operador or en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDonde($campo, $operador = '=', $parametro = null)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDonde(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeNo($campo, $operador = '=', $parametro = null)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeNo(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeNo($campo, $operador = '=', $parametro = null)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeNo(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeEn($campo, $valores, $parametros = [])
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeEn(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeEn($campo, $valores, $parametros = [])
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeEn(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeNoEn($campo, $valores, $parametros = [])
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeNoEn(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeNoEn($campo, $valores, $parametros = [])
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeNoEn(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeEntre($campo, $valores)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeEntre(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeEntre($campo, $valores)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeEntre(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeNoEntre($campo, $valores)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeNoEntre(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeNoEntre($campo, $valores)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeNoEntre(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeNulo($campo)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeNulo(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeNulo($campo)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeNulo(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeNoNulo($campo)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeNoNulo(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeNoNulo($campo)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeNoNulo(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and en la consulta SQL.
+     *
+     * @param mixed $columna1 columna1
+     * @param mixed $operador operador
+     * @param mixed $columna2 columna2
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function dondeColumna($columna1, $operador = '=', $columna2 = null)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->dondeColumna(...func_get_args());
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or en la consulta SQL.
+     *
+     * @param mixed $columna1 columna1
+     * @param mixed $operador operador
+     * @param mixed $columna2 columna2
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function oDondeColumna($columna1, $operador = '=', $columna2 = null)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+        $pipe = new ConstructorConsulta($propiedadesClase);
+
+        return $pipe->oDondeColumna(...func_get_args());
+    }
+
+    /**
+     * Establece una condición personalizada con cláusula where en la consulta SQL.
      *
      * @param string $condicion  condicion
      * @param array  $parametros parametros
      * 
      * @return \PIPE\ConstructorConsulta
      */
-    public static function donde($condicion, $parametros = [])
+    public static function dondeCrudo($condicion, $parametros = [])
     {
         $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
         $pipe = new ConstructorConsulta($propiedadesClase);
 
-        return $pipe->donde(...func_get_args());
+        return $pipe->dondeCrudo(...func_get_args());
     }
 
     /**
@@ -240,7 +551,7 @@ abstract class Modelo
      * 
      * @return object|array|string|null
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public static function primero($limite = 1, $tipoRetorno = null)
     {
@@ -259,7 +570,7 @@ abstract class Modelo
      * 
      * @return object|array|string|null
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public static function ultimo(
         $llavePrimaria = 'id', $limite = 1, $tipoRetorno = null
@@ -589,7 +900,7 @@ abstract class Modelo
         $actualizaciones = [];
 
         foreach ($ids as $id) {
-            $pipe->donde($propiedadesClase['llavePrimaria'].' = ?', [$id]);
+            $pipe->dondeCrudo($propiedadesClase['llavePrimaria'] . ' = ?', [$id]);
 
             if ($pipe->existe()) {
                 $pipe->actualizar($valores);
@@ -623,7 +934,7 @@ abstract class Modelo
         $eliminaciones = [];
 
         foreach ($ids as $id) {
-            $pipe->donde($propiedadesClase['llavePrimaria'].' = ?', [$id]);
+            $pipe->dondeCrudo($propiedadesClase['llavePrimaria'] . ' = ?', [$id]);
 
             if ($pipe->existe()) {
                 $eliminaciones[] = clone $pipe->encontrar($id);
@@ -641,6 +952,22 @@ abstract class Modelo
     }
 
     // Fin instrucciones crear, editar y destruir.
+
+    /**
+     * Establece la conexión según el nombre definido.
+     *
+     * @param string $nombre nombre
+     * 
+     * @return \PIPE\ConstructorConsulta
+     */
+    public static function conexion($nombre)
+    {
+        $propiedadesClase = self::obtenerPropiedadesClase(get_called_class());
+
+        $propiedadesClase['conexion'] = $nombre;
+
+        return new ConstructorConsulta($propiedadesClase);
+    }
 
     /**
      * Obtiene el nombre de la conexión definida.
@@ -886,6 +1213,10 @@ abstract class Modelo
         $modelo = self::obtenerClaseLlamada($claseLlamada);
         $tabla = self::convertirModeloTabla($modelo);
 
+        if (!isset($propiedadesClase['conexion'])) {
+            $propiedadesClase['conexion'] = PIPE::$conexionPredeterminada['nombre'];
+        }
+
         return [
             'conexion' => $propiedadesClase['conexion'] ?? null,
             'claseLlamada' => $claseLlamada,
@@ -942,13 +1273,13 @@ abstract class Modelo
         foreach ($alfabeto as $alfa) {
             foreach ($letras as $letra) {
                 if ($letra == $alfa) {
-                    $modelo = str_replace($letra, '_'.$letra, $modelo);
+                    $modelo = str_replace($letra, '_' . $letra, $modelo);
                     break;
                 }
             }
         }
 
-        return strtolower(substr($modelo, 1).'s');
+        return strtolower(substr($modelo, 1) . 's');
     }
 
     // Fin métodos públicos.

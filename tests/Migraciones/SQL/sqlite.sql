@@ -4,7 +4,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -17,37 +17,38 @@ drop table if exists usuarios;
 drop table if exists telefonos;
 
 create table telefonos (
-	id integer primary key autoincrement not null,
-	numero integer,
-	creado_en timestamp null,
-	actualizado_en timestamp null,
-	eliminado_en timestamp null
+    id integer primary key autoincrement not null,
+    numero integer null,
+    creado_en timestamp null,
+    actualizado_en timestamp null,
+    eliminado_en timestamp null
 );
 
 create table usuarios (
-	id integer primary key autoincrement not null,
+    id integer primary key autoincrement not null,
     telefono_id integer not null,
-	nombres varchar(50),
-	apellidos varchar(50),
-	creado_en timestamp null,
-	actualizado_en timestamp null,
+    nombres varchar(50) null,
+    apellidos varchar(50) null,
+    config text null,
+    creado_en timestamp null,
+    actualizado_en timestamp null,
     constraint fk_usuarios_telefono_id foreign key (telefono_id) references telefonos (id)
 );
 
 create table roles (
-	id integer primary key autoincrement not null,
-    nombre varchar(50),
-	creado_en timestamp null,
-	actualizado_en timestamp null
+    id integer primary key autoincrement not null,
+    nombre varchar(50) null,
+    creado_en timestamp null,
+    actualizado_en timestamp null
 );
 
 create table temas (
-	id integer primary key autoincrement not null,
-    usuario_id integer,
-	titulo varchar(100),
-	descripcion varchar(1000),
-	creado_en timestamp null,
-	actualizado_en timestamp null,
+    id integer primary key autoincrement not null,
+    usuario_id integer null,
+    titulo varchar(100) null,
+    descripcion varchar(1000) null,
+    creado_en timestamp null,
+    actualizado_en timestamp null,
     constraint fk_temas_usuario_id foreign key (usuario_id) references usuarios (id)
 );
 
@@ -59,10 +60,10 @@ create table role_usuario (
 );
 
 create table documentos (
-	id integer primary key autoincrement not null,
+    id integer primary key autoincrement not null,
     usuario_id integer not null,
-	numero varchar(20),
-	creado_en timestamp null,
-	actualizado_en timestamp null,
+    numero varchar(20) null,
+    creado_en timestamp null,
+    actualizado_en timestamp null,
     constraint fk_documentos_usuario_id foreign key (usuario_id) references usuarios (id)
 );

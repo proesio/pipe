@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -29,7 +29,7 @@ class SQLite
         $controlador = Configuracion::config('BD_CONTROLADOR');
         $basedatos = Configuracion::config('BD_BASEDATOS');
 
-        $dsn = $controlador.':'.$basedatos;
+        $dsn = $controlador . ':' . $basedatos;
 
         return $dsn;
     }
@@ -44,10 +44,10 @@ class SQLite
      */
     public static function obtenerCadenaLimite($cantidad, $inicio = null)
     {
-        $limite = 'limit '.$cantidad;
+        $limite = 'limit ' . $cantidad;
 
         if ($inicio) {
-            $limite = 'limit '.$inicio.', '.$cantidad;
+            $limite = 'limit ' . $inicio . ', ' . $cantidad;
         }
 
         return $limite;
@@ -64,14 +64,14 @@ class SQLite
     public static function obtenerSentenciasTruncar($tabla, $forzado = false)
     {
         return [
-            'delete from '.$tabla,
-            'update sqlite_sequence set seq = 0 where name = '."'".$tabla."'"
+            'delete from ' . $tabla,
+            'update sqlite_sequence set seq = 0 where name = ' . "'" . $tabla . "'"
         ];
     }
 
     /**
      * Obtiene el atributo para que un campo sea autoincrementable.
-     * 
+     *
      * @return string
      */
     public static function obtenerAtributoAutoincrementable()
@@ -81,19 +81,19 @@ class SQLite
 
     /**
      * Obtiene la sentencia para borrar un índice.
-     * 
+     *
      * @param string $nombre nombre
      * 
      * @return string
      */
     public static function obtenerSentenciaBorrarIndice($nombre)
     {
-        return 'drop index if exists '.$nombre;
+        return 'drop index if exists ' . $nombre;
     }
 
     /**
      * Obtiene la sentencia para cambiar un campo.
-     * 
+     *
      * @param string $tabla        tabla
      * @param string $nombreActual nombreActual
      * @param string $nombreNuevo  nombreNuevo
@@ -105,7 +105,20 @@ class SQLite
     public static function obtenerSentenciaCambiarCampo(
         $tabla, $nombreActual, $nombreNuevo, $tipo, $atributos
     ) {
-        return 'alter table '.$tabla.' rename column '
-            .$nombreActual.' to '.$nombreNuevo;
+        return 'alter table ' . $tabla . ' rename column '
+            . $nombreActual . ' to ' . $nombreNuevo;
+    }
+
+    /**
+     * Obtiene la sentencia para extraer una propiedad JSON como valor escalar.
+     *
+     * @param string $campo       campo
+     * @param array  $propiedades propiedades
+     * 
+     * @return string
+     */
+    public static function obtenerSentenciaExtraccionJSON($campo, $propiedades)
+    {
+        return $campo . '->>' . "'$." . implode('.', $propiedades) . "'";
     }
 }

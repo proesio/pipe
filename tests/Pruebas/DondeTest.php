@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -16,15 +16,13 @@
 namespace PIPE\Tests\Pruebas;
 
 use PIPE\PIPE;
-use Modelos\Telefono;
+use Modelos\Usuario;
 use PIPE\Configuracion;
 use PHPUnit\Framework\TestCase;
 
 class DondeTest extends TestCase
 {
     public $conexiones = [];
-
-    public $conexion = '';
 
     public $configGlobal = [];
 
@@ -34,74 +32,172 @@ class DondeTest extends TestCase
         $this->configGlobal = $GLOBALS['CONFIG_GLOBAL'];
     }
 
-    public function testDeDefinicionDeCondicional()
+    public function testDeDefinicionDeCondicionalJSON()
     {
         foreach ($this->conexiones as $conexion) {
-            $this->conexion = $conexion;
-            $this->baseTestDeDefinicionDeCondicional();
+            Configuracion::inicializar($this->configGlobal, $conexion, true);
+
+            $this->_generarRegistros();
+
+            // Prueba de constructor de consulta.
+
+            $usuario = PIPE::tabla('usuarios')
+                ->donde('config->propiedad->subpropiedad', 'Valor1')
+                ->primero(PIPE::OBJETO);
+
+            $config = json_decode($usuario->config);
+
+            $this->assertEquals('Valor1', $config->propiedad->subpropiedad);
+
+            $usuario = PIPE::tabla('usuarios')
+                ->donde('config->propiedad->subpropiedad', '=', 'Valor2')
+                ->primero(PIPE::OBJETO);
+
+            $config = json_decode($usuario->config);
+
+            $this->assertEquals('Valor2', $config->propiedad->subpropiedad);
+
+            // Prueba de modelo.
+
+            $usuario = Usuario::donde('config->propiedad->subpropiedad', 'Valor1')
+                ->primero(PIPE::OBJETO);
+
+            $config = json_decode($usuario->config);
+
+            $this->assertEquals('Valor1', $config->propiedad->subpropiedad);
+
+            $usuario = Usuario::donde(
+                'config->propiedad->subpropiedad', '=', 'Valor2'
+            )->primero(PIPE::OBJETO);
+
+            $config = json_decode($usuario->config);
+
+            $this->assertEquals('Valor2', $config->propiedad->subpropiedad);
         }
     }
 
-    public function testDeDefinicionDeCondicionalConParametros()
+    public function testDeDefinicionDeCondicionalBasico()
     {
         foreach ($this->conexiones as $conexion) {
-            $this->conexion = $conexion;
-            $this->baseTestDeDefinicionDeCondicionalConParametros();
+            Configuracion::inicializar($this->configGlobal, $conexion, true);
+
+            $this->_generarRegistros();
+
+            // Prueba de constructor de consulta.
+
+            $usuario = PIPE::tabla('usuarios')
+                ->donde('id', 1)
+                ->primero(PIPE::OBJETO);
+
+            $this->assertEquals('Nombre1', $usuario->nombres);
+
+            $usuario = PIPE::tabla('usuarios')
+                ->donde('id', '>', 1)
+                ->primero(PIPE::OBJETO);
+
+            $this->assertEquals('Nombre2', $usuario->nombres);
+
+            // Prueba de modelo.
+
+            $usuario = Usuario::donde('id', 1)
+                ->primero(PIPE::OBJETO);
+
+            $this->assertEquals('Nombre1', $usuario->nombres);
+
+            $usuario = Usuario::donde('id', '>', 1)
+                ->primero(PIPE::OBJETO);
+
+            $this->assertEquals('Nombre2', $usuario->nombres);
         }
     }
 
-    private function baseTestDeDefinicionDeCondicional()
+    public function testDeDefinicionDeCondicionalArreglo()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        foreach ($this->conexiones as $conexion) {
+            Configuracion::inicializar($this->configGlobal, $conexion, true);
 
-        // Prueba de constructor de consulta.
+            $this->_generarRegistros();
 
-        $this->generarRegistros();
+            // Prueba de constructor de consulta.
 
-        $telefonos = PIPE::tabla('telefonos')
-            ->donde('id = 1')
-            ->obtener(PIPE::OBJETO);
+            $usuario = PIPE::tabla('usuarios')
+                ->donde([['id', 1], ['nombres', '=', 'Nombre1']])
+                ->primero(PIPE::OBJETO);
 
-        $this->assertCount(1, $telefonos);
+            $this->assertEquals('Apellido1', $usuario->apellidos);
 
-        // Prueba de modelo.
+            // Prueba de modelo.
 
-        $this->generarRegistros();
+            $usuario = Usuario::donde([['id', 1], ['nombres', '=', 'Nombre1']])
+                ->primero(PIPE::OBJETO);
 
-        $telefonos = Telefono::donde('id = 1')
-            ->obtener(PIPE::OBJETO);
-
-        $this->assertCount(1, $telefonos);
+            $this->assertEquals('Apellido1', $usuario->apellidos);
+        }
     }
 
-    private function baseTestDeDefinicionDeCondicionalConParametros()
+    public function testDeDefinicionDeCondicionalMatriz()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        foreach ($this->conexiones as $conexion) {
+            Configuracion::inicializar($this->configGlobal, $conexion, true);
 
-        // Prueba de constructor de consulta.
+            $this->_generarRegistros();
 
-        $this->generarRegistros();
+            // Prueba de constructor de consulta.
 
-        $telefonos = PIPE::tabla('telefonos')
-            ->donde('id = ?', [1])
-            ->obtener(PIPE::OBJETO);
+            $usuario = PIPE::tabla('usuarios')
+                ->donde(['id' => 1, 'nombres' => 'Nombre1'])
+                ->primero(PIPE::OBJETO);
 
-        $this->assertCount(1, $telefonos);
+            $this->assertEquals('Apellido1', $usuario->apellidos);
 
-        // Prueba de modelo.
+            // Prueba de modelo.
 
-        $this->generarRegistros();
+            $usuario = Usuario::donde(['id' => 1, 'nombres' => 'Nombre1'])
+                ->primero(PIPE::OBJETO);
 
-        $telefonos = Telefono::donde('id = ?', [1])
-            ->obtener(PIPE::OBJETO);
-
-        $this->assertCount(1, $telefonos);
+            $this->assertEquals('Apellido1', $usuario->apellidos);
+        }
     }
 
-    private function generarRegistros()
+    public function testDeDefinicionDeCondicionalClosure()
     {
-        vaciarTablas($this->conexion);
+        foreach ($this->conexiones as $conexion) {
+            Configuracion::inicializar($this->configGlobal, $conexion, true);
 
-        generarRegistros($this->conexion, 'telefonos');
+            $this->_generarRegistros();
+
+            // Prueba de constructor de consulta.
+
+            $usuario = PIPE::tabla('usuarios')
+                ->donde('id', 1)
+                ->donde(
+                    function ($consulta) {
+                        $consulta->donde('nombres', 'Nombre1')
+                            ->oDonde('nombres', 'Nombre2');
+                    }
+                )->primero(PIPE::OBJETO);
+
+            $this->assertEquals('Nombre1', $usuario->nombres);
+
+            // Prueba de modelo.
+
+            $usuario = Usuario::donde('id', 1)
+                ->donde(
+                    function ($consulta) {
+                        $consulta->donde('nombres', 'Nombre1')
+                            ->oDonde('nombres', 'Nombre2');
+                    }
+                )->primero(PIPE::OBJETO);
+
+            $this->assertEquals('Nombre1', $usuario->nombres);
+        }
+    }
+
+    private function _generarRegistros()
+    {
+        vaciarTablas();
+
+        generarRegistros('telefonos', 2);
+        generarRegistros('usuarios', 2);
     }
 }

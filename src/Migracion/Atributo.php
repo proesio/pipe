@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -375,7 +375,7 @@ class Atributo
     /**
      * Obtiene la sentencia SQL generada.
      * 
-     * @return self
+     * @return string
      */
     public function obtenerSentencia()
     {
@@ -440,14 +440,14 @@ class Atributo
     public function predeterminado($valor)
     {
         if (is_string($valor)) {
-            $valor = "'".$valor."'";
+            $valor = "'" . $valor . "'";
         } elseif (is_bool($valor)) {
             $valor = $valor === true ? 'true' : 'false';
         } elseif (is_null($valor)) {
             $valor = 'null';
         }
 
-        $this->_sentencia .= 'default '.$valor.' ';
+        $this->_sentencia .= 'default ' . $valor . ' ';
 
         return $this;
     }
@@ -474,7 +474,7 @@ class Atributo
      */
     public function identidad($inicio = 1, $incremento = 1)
     {
-        $this->_sentencia .= 'identity('.$inicio.','.$incremento.') ';
+        $this->_sentencia .= 'identity(' . $inicio . ',' . $incremento . ') ';
 
         return $this;
     }
@@ -488,19 +488,27 @@ class Atributo
     {
         switch (Configuracion::config('BD_CONTROLADOR')) {
         case 'mysql':
-            $this->_sentencia .= MySQL::obtenerAtributoAutoincrementable().' ';
+            $this->_sentencia .= (
+                MySQL::obtenerAtributoAutoincrementable() . ' '
+            );
             break;
 
         case 'pgsql':
-            $this->_sentencia .= PostgreSQL::obtenerAtributoAutoincrementable().' ';
+            $this->_sentencia .= (
+                PostgreSQL::obtenerAtributoAutoincrementable() . ' '
+            );
             break;
 
         case 'sqlite':
-            $this->_sentencia .= SQLite::obtenerAtributoAutoincrementable().' ';
+            $this->_sentencia .= (
+                SQLite::obtenerAtributoAutoincrementable() . ' '
+            );
             break;
 
         case 'sqlsrv':
-            $this->_sentencia .= SQLServer::obtenerAtributoAutoincrementable().' ';
+            $this->_sentencia .= (
+                SQLServer::obtenerAtributoAutoincrementable() . ' '
+            );
             break;
         }
 
@@ -516,7 +524,7 @@ class Atributo
      */
     public function chequeo($condicion)
     {
-        $this->_sentencia .= 'check ('.$condicion.') ';
+        $this->_sentencia .= 'check (' . $condicion . ') ';
 
         return $this;
     }
@@ -530,7 +538,7 @@ class Atributo
      */
     public function cotejamiento($nombre)
     {
-        $this->_sentencia .= 'collate '.$nombre.' ';
+        $this->_sentencia .= 'collate ' . $nombre . ' ';
 
         return $this;
     }

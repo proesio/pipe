@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -16,9 +16,9 @@
 namespace PIPE;
 
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
-use PIPE\Excepciones\SQL;
 use PIPE\Rasgos\Encadenable;
+use PIPE\Excepciones\ORMExcepcion;
+use PIPE\Excepciones\SQLExcepcion;
 
 class Error
 {
@@ -45,9 +45,9 @@ class Error
                 $mensaje = $self->_traducirErrorSQL($erroresSQL, $mensaje);
             }
 
-            throw new SQL($mensaje);
+            throw new SQLExcepcion($mensaje);
         } else {
-            throw new ORM($mensaje);
+            throw new ORMExcepcion($mensaje);
         }
     }
 
@@ -67,7 +67,7 @@ class Error
 
         foreach ($errores as $error) {
             $longitud = strlen($error['error']);
-            $longitud = $longitud.'.'.$i;
+            $longitud = $longitud . '.' . $i;
             $erroresPivote[$longitud] = $error;
             $i++;
         }
@@ -124,8 +124,8 @@ class Error
                 'traduccion' => 'Ningún operador coincide con los tipos de nombre y argumento dados. Es posible que necesite agregar conversiones de tipo explícito.'
             ],
             [
-                'error'=>"is specified twice, both as a target for 'UPDATE' and as a separate source for data",
-                'traduccion'=>"se especifica dos veces, como objetivo para 'ACTUALIZAR' y como fuente separada para datos"
+                'error' => "is specified twice, both as a target for 'UPDATE' and as a separate source for data",
+                'traduccion' => "se especifica dos veces, como objetivo para 'ACTUALIZAR' y como fuente separada para datos"
             ],
             [
                 'error' => 'Cannot delete or update a parent row: a foreign key constraint fails',
@@ -176,7 +176,7 @@ class Error
                 'traduccion' => 'el valor de la llave duplicada viola la restricción única'
             ],
             [
-                'error'=>"Column count doesn't match value count at row",
+                'error' => "Column count doesn't match value count at row",
                 'traduccion' => 'El conteo de columnas no coincide con el conteo de valores en la fila'
             ],
             [
@@ -256,7 +256,7 @@ class Error
                 'traduccion' => 'el día del mes debe estar entre'
             ],
             [
-                'error'=>"doesn't have a default value",
+                'error' => "doesn't have a default value",
                 'traduccion' => 'no tiene un valor predeterminado'
             ],
             [
@@ -400,7 +400,7 @@ class Error
                 'traduccion' => 'columna desconocida'
             ],
             [
-                'error'=>"doesn't exist",
+                'error' => "doesn't exist",
                 'traduccion' => 'no existe'
             ],
             [
@@ -463,7 +463,7 @@ class Error
             [
                 'error' => 'unknown',
                 'traduccion' => 'desconocido',
-                'sensible'=> false
+                'sensible' => false
             ],
             [
                 'error' => 'columns',

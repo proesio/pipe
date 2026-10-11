@@ -2,6 +2,38 @@
 
 Todos los cambios notables en este proyecto se documentarán en este archivo.
 
+## [v8.0.0](https://github.com/proesio/pipe/compare/v7.2.0...v8.0.0) - 2026-10-11
+
+- Implementación de soporte para <code>PHP</code> 8.3 o superior.
+- Implementación de método <code>transaccion</code> en la clase <code>PIPE\PIPE</code>.
+- Implementación de método <code>iniciarTransaccion</code> en la clase <code>PIPE\PIPE</code>.
+- Implementación de método <code>confirmar</code> en la clase <code>PIPE\PIPE</code>.
+- Implementación de método <code>revertir</code> en la clase <code>PIPE\PIPE</code>.
+- Implementación de método <code>oDonde</code>.
+- Implementación de método <code>dondeNo</code>.
+- Implementación de método <code>oDondeNo</code>.
+- Implementación de método <code>dondeEn</code>.
+- Implementación de método <code>oDondeEn</code>.
+- Implementación de método <code>dondeNoEn</code>.
+- Implementación de método <code>oDondeNoEn</code>.
+- Implementación de método <code>dondeEntre</code>.
+- Implementación de método <code>oDondeEntre</code>.
+- Implementación de método <code>dondeNoEntre</code>.
+- Implementación de método <code>oDondeNoEntre</code>.
+- Implementación de método <code>dondeNulo</code>.
+- Implementación de método <code>oDondeNulo</code>.
+- Implementación de método <code>dondeNoNulo</code>.
+- Implementación de método <code>oDondeNoNulo</code>.
+- Implementación de método <code>dondeColumna</code>.
+- Implementación de método <code>oDondeColumna</code>.
+- Implementación de método <code>dondeCrudo</code>.
+- Implementación de método <code>conexion</code> en la clase <code>PIPE\Modelo</code> y <code>PIPE\Migracion</code>.
+- Implementación de estandarización de formato de errores <code>SQL</code>.
+- Implementación de soporte para múltiples conexiones a bases de datos de forma simultánea y dinámica.
+- Implementación de obtención de modelos establecidos al iniciar la configuración de todas las conexiones de forma simultánea.
+- Actualización de excepción <code>SQL</code> por <code>SQLExcepcion</code> y <code>ORM</code> por <code>ORMExcepcion</code>.
+- Refactorización de método <code>donde</code>, estructurando una nueva sintaxis condicional.
+
 ## [v7.2.0](https://github.com/proesio/pipe/compare/v7.1.0...v7.2.0) - 2026-04-21
 
 - Implementación de método <code>valor</code> para obtener el valor de un campo seleccionado.

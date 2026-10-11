@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -16,10 +16,12 @@
 namespace PIPE;
 
 use PDO;
+use Closure;
 use DateTime;
 use PIPE\PIPE;
 use PIPE\Error;
 use PIPE\Modelo;
+use PDOException;
 use PIPE\Mensaje;
 use PIPE\Conexion;
 use PIPE\Configuracion;
@@ -149,7 +151,7 @@ class ConstructorConsulta
      * 
      * @return void
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public function __construct($propiedades = [])
     {
@@ -181,8 +183,8 @@ class ConstructorConsulta
         $this->_tabla = $this->_propiedades['tabla'];
 
         if (isset($propiedades['RETORNO_CLASE'])) {
-            $this->donde(
-                $this->_propiedades['llavePrimaria'].' = ?',
+            $this->dondeCrudo(
+                $this->_propiedades['llavePrimaria'] . ' = ?',
                 [$this->{$this->_propiedades['llavePrimaria']}]
             );
 
@@ -293,10 +295,10 @@ class ConstructorConsulta
         }
 
         $this->_unir = $this->_unir
-            .' inner join '
-            .$tablaUnion
-            .' on '
-            .$llaveForanea.' '.$union.' '.$llavePrimaria;
+            . ' inner join '
+            . $tablaUnion
+            . ' on '
+            . $llaveForanea .' ' . $union . ' ' . $llavePrimaria;
 
         return $this;
     }
@@ -312,14 +314,14 @@ class ConstructorConsulta
      * 
      * @return \PIPE\ConstructorConsulta
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public function unirDerecha(
         $tablaUnion, $llaveForanea, $union, $llavePrimaria = null
     ) {
         if (Configuracion::config('BD_CONTROLADOR') == 'sqlite') {
             Error::mostrar(
-                Mensaje::$mensajes['METODO_NO_SOPORTADO'].': '.__METHOD__
+                Mensaje::$mensajes['METODO_NO_SOPORTADO'] . ': ' . __METHOD__
             );
         }
 
@@ -329,10 +331,10 @@ class ConstructorConsulta
         }
 
         $this->_unirDerecha = $this->_unirDerecha
-            .' right join '
-            .$tablaUnion
-            .' on '
-            .$llaveForanea.' '.$union.' '.$llavePrimaria;
+            . ' right join '
+            . $tablaUnion
+            . ' on '
+            . $llaveForanea . ' ' . $union . ' ' . $llavePrimaria;
 
         return $this;
     }
@@ -357,25 +359,281 @@ class ConstructorConsulta
         }
 
         $this->_unirIzquierda = $this->_unirIzquierda
-            .' left join '
-            .$tablaUnion
-            .' on '
-            .$llaveForanea.' '.$union.' '.$llavePrimaria;
+            . ' left join '
+            . $tablaUnion
+            . ' on '
+            . $llaveForanea . ' ' . $union . ' ' . $llavePrimaria;
 
         return $this;
     }
 
     /**
-     * Establece una condición con cláusula where en la consulta SQL.
+     * Establece una condición con cláusula where y operador and en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return $this
+     */
+    public function donde($campo, $operador = '=', $parametro = null)
+    {
+        return $this->_baseDonde($campo, $operador, $parametro, 'DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula where y operador or en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return $this
+     */
+    public function oDonde($campo, $operador = '=', $parametro = null)
+    {
+        return $this->_baseDonde($campo, $operador, $parametro, 'O_DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return $this
+     */
+    public function dondeNo($campo, $operador = '=', $parametro = null)
+    {
+        return $this->_baseDonde($campo, $operador, $parametro, 'DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not en la consulta SQL.
+     *
+     * @param mixed $campo     campo
+     * @param mixed $operador  operador
+     * @param mixed $parametro parametro
+     * 
+     * @return $this
+     */
+    public function oDondeNo($campo, $operador = '=', $parametro = null)
+    {
+        return $this->_baseDonde($campo, $operador, $parametro, 'O_DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return $this
+     */
+    public function dondeEn($campo, $valores, $parametros = [])
+    {
+        return $this->_baseDondeEn($campo, $valores, $parametros, 'DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return $this
+     */
+    public function oDondeEn($campo, $valores, $parametros = [])
+    {
+        return $this->_baseDondeEn($campo, $valores, $parametros, 'O_DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return $this
+     */
+    public function dondeNoEn($campo, $valores, $parametros = [])
+    {
+        return $this->_baseDondeEn($campo, $valores, $parametros, 'DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * 
+     * @return $this
+     */
+    public function oDondeNoEn($campo, $valores, $parametros = [])
+    {
+        return $this->_baseDondeEn($campo, $valores, $parametros, 'O_DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return $this
+     */
+    public function dondeEntre($campo, $valores)
+    {
+        return $this->_baseDondeEntre($campo, $valores, 'DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return $this
+     */
+    public function oDondeEntre($campo, $valores)
+    {
+        return $this->_baseDondeEntre($campo, $valores, 'O_DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return $this
+     */
+    public function dondeNoEntre($campo, $valores)
+    {
+        return $this->_baseDondeEntre($campo, $valores, 'DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * 
+     * @return $this
+     */
+    public function oDondeNoEntre($campo, $valores)
+    {
+        return $this->_baseDondeEntre($campo, $valores, 'O_DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return $this
+     */
+    public function dondeNulo($campo)
+    {
+        return $this->_baseDondeNulo($campo, 'DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return $this
+     */
+    public function oDondeNulo($campo)
+    {
+        return $this->_baseDondeNulo($campo, 'O_DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and not null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return $this
+     */
+    public function dondeNoNulo($campo)
+    {
+        return $this->_baseDondeNulo($campo, 'DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or not null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * 
+     * @return $this
+     */
+    public function oDondeNoNulo($campo)
+    {
+        return $this->_baseDondeNulo($campo, 'O_DONDE_NO');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador and en la consulta SQL.
+     *
+     * @param mixed $columna1 columna1
+     * @param mixed $operador operador
+     * @param mixed $columna2 columna2
+     * 
+     * @return $this
+     */
+    public function dondeColumna($columna1, $operador = '=', $columna2 = null)
+    {
+        return $this->_baseDondeColumna($columna1, $operador, $columna2, 'DONDE');
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador or en la consulta SQL.
+     *
+     * @param mixed $columna1 columna1
+     * @param mixed $operador operador
+     * @param mixed $columna2 columna2
+     * 
+     * @return $this
+     */
+    public function oDondeColumna($columna1, $operador = '=', $columna2 = null)
+    {
+        return $this->_baseDondeColumna($columna1, $operador, $columna2, 'O_DONDE');
+    }
+
+    /**
+     * Establece una condición personalizada con cláusula where en la consulta SQL.
      *
      * @param string $condicion  condicion
      * @param array  $parametros parametros
      * 
      * @return $this
      */
-    public function donde($condicion, $parametros = [])
+    public function dondeCrudo($condicion, $parametros = [])
     {
-        $this->_condiciones = $this->_traducirConsultaSQL('where '.$condicion);
+        $this->_condiciones = $this->_traducirConsultaSQL('where ' . $condicion);
         $this->_parametros = $parametros;
 
         return $this;
@@ -391,7 +649,7 @@ class ConstructorConsulta
     public function agruparPor($grupos)
     {
         $agrupaciones = is_array($grupos) ? implode(', ', $grupos) : $grupos;
-        $grupo = $this->_traducirConsultaSQL('group by '.$agrupaciones);
+        $grupo = $this->_traducirConsultaSQL('group by ' . $agrupaciones);
 
         $this->_agrupar = $grupo;
 
@@ -407,7 +665,7 @@ class ConstructorConsulta
      */
     public function teniendo($condicion)
     {
-        $this->_teniendo = $this->_traducirConsultaSQL('having '.$condicion);
+        $this->_teniendo = $this->_traducirConsultaSQL('having ' . $condicion);
 
         return $this;
     }
@@ -423,7 +681,10 @@ class ConstructorConsulta
     public function ordenarPor($ordenes, $tipo = 'asc')
     {
         $ordenaciones = is_array($ordenes) ? implode(', ', $ordenes) : $ordenes;
-        $orden = $this->_traducirConsultaSQL('order by '.$ordenaciones.' '.$tipo);
+
+        $orden = $this->_traducirConsultaSQL(
+            'order by ' . $ordenaciones . ' ' . $tipo
+        );
 
         $this->_ordenar = $orden;
 
@@ -440,27 +701,17 @@ class ConstructorConsulta
      */
     public function limite($cantidad, $inicio = null)
     {
-        switch (Configuracion::config('BD_CONTROLADOR')) {
-        case 'mysql':
-            $this->_limite = MySQL::obtenerCadenaLimite($cantidad, $inicio);
-            break;
-
-        case 'pgsql':
-            $this->_limite = PostgreSQL::obtenerCadenaLimite($cantidad, $inicio);
-            break;
-
-        case 'sqlite':
-            $this->_limite = SQLite::obtenerCadenaLimite($cantidad, $inicio);
-            break;
-
-        case 'sqlsrv':
-            $this->_limite = SQLServer::obtenerCadenaLimite(
+        $this->_limite = match (Configuracion::config('BD_CONTROLADOR')) {
+            'mysql' => MySQL::obtenerCadenaLimite($cantidad, $inicio),
+            'pgsql' => PostgreSQL::obtenerCadenaLimite($cantidad, $inicio),
+            'sqlite' => SQLite::obtenerCadenaLimite($cantidad, $inicio),
+            'sqlsrv' => SQLServer::obtenerCadenaLimite(
                 $this->_ordenar, 
-                $this->_tabla.'.'.$this->_propiedades['llavePrimaria'], 
+                $this->_tabla . '.' . $this->_propiedades['llavePrimaria'],
                 $cantidad, $inicio
-            );
-            break;
-        }
+            ),
+            default => ''
+        };
 
         return $this;
     }
@@ -480,7 +731,7 @@ class ConstructorConsulta
      * 
      * @return object|array|string|null
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public function primero($limite = 1, $tipoRetorno = null)
     {
@@ -516,7 +767,7 @@ class ConstructorConsulta
      * 
      * @return object|array|string|null
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public function ultimo($llavePrimaria = 'id', $limite = 1, $tipoRetorno = null)
     {
@@ -583,9 +834,9 @@ class ConstructorConsulta
     {
         return intval(
             $this->_procesarConsultaSQL(
-                'select count('.$campo.') as conteo
-                from '.$this->_tabla.' '
-                .$this->_condiciones,
+                'select count(' . $campo . ') as conteo
+                from ' . $this->_tabla . ' '
+                . $this->_condiciones,
                 $this->_parametros,
                 PIPE::OBJETO
             )[0]->conteo
@@ -602,9 +853,9 @@ class ConstructorConsulta
     public function maximo($campo)
     {
         return $this->_procesarConsultaSQL(
-            'select max('.$campo.') as maximo
-            from '.$this->_tabla.' '
-            .$this->_condiciones,
+            'select max(' . $campo . ') as maximo
+            from ' . $this->_tabla . ' '
+            . $this->_condiciones,
             $this->_parametros,
             PIPE::OBJETO
         )[0]->maximo;
@@ -620,9 +871,9 @@ class ConstructorConsulta
     public function minimo($campo)
     {
         return $this->_procesarConsultaSQL(
-            'select min('.$campo.') as minimo
-            from '.$this->_tabla.' '
-            .$this->_condiciones,
+            'select min(' . $campo . ') as minimo
+            from ' . $this->_tabla . ' '
+            . $this->_condiciones,
             $this->_parametros,
             PIPE::OBJETO
         )[0]->minimo;
@@ -638,9 +889,9 @@ class ConstructorConsulta
     public function promedio($campo)
     {
         return $this->_procesarConsultaSQL(
-            'select avg('.$campo.') as promedio
-            from '.$this->_tabla.' '
-            .$this->_condiciones,
+            'select avg(' . $campo . ') as promedio
+            from ' . $this->_tabla . ' '
+            . $this->_condiciones,
             $this->_parametros,
             PIPE::OBJETO
         )[0]->promedio;
@@ -656,9 +907,9 @@ class ConstructorConsulta
     public function suma($campo)
     {
         return $this->_procesarConsultaSQL(
-            'select sum('.$campo.') as suma
-            from '.$this->_tabla.' '
-            .$this->_condiciones,
+            'select sum(' . $campo . ') as suma
+            from ' . $this->_tabla . ' '
+            . $this->_condiciones,
             $this->_parametros,
             PIPE::OBJETO
         )[0]->suma;
@@ -696,17 +947,17 @@ class ConstructorConsulta
     {
         $resultado = $this->_procesarConsultaSQL(
             'update '.$this->_tabla
-            .' set '.$campo.' = '.$campo.' + '.$incremento.' '
-            .$this->_condiciones,
+            . ' set ' . $campo . ' = ' . $campo . ' + ' . $incremento . ' '
+            . $this->_condiciones,
             $this->_parametros
         );
 
         if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
             $this->_procesarConsultaSQL(
-                'update '.$this->_tabla
-                .' set '.$this->_propiedades['actualizadoEn']
-                ." = '".$this->_obtenerFechaHoraActual()
-                ."' ".$this->_condiciones,
+                'update ' . $this->_tabla
+                . ' set ' . $this->_propiedades['actualizadoEn']
+                . " = '" . $this->_obtenerFechaHoraActual()
+                . "' " . $this->_condiciones,
                 $this->_parametros
             );
         }
@@ -725,18 +976,18 @@ class ConstructorConsulta
     public function decrementar($campo, $decremento = 1)
     {
         $resultado = $this->_procesarConsultaSQL(
-            'update '.$this->_tabla
-            .' set '.$campo.' = '.$campo.' - '.$decremento.' '
-            .$this->_condiciones,
+            'update ' . $this->_tabla
+            . ' set ' . $campo . ' = ' . $campo . ' - ' . $decremento . ' '
+            . $this->_condiciones,
             $this->_parametros
         );
 
         if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
             $this->_procesarConsultaSQL(
-                'update '.$this->_tabla
-                .' set '.$this->_propiedades['actualizadoEn']
-                ." = '".$this->_obtenerFechaHoraActual()
-                ."' ".$this->_condiciones,
+                'update ' . $this->_tabla
+                . ' set ' . $this->_propiedades['actualizadoEn']
+                . " = '" . $this->_obtenerFechaHoraActual()
+                . "' " . $this->_condiciones,
                 $this->_parametros
             );
         }
@@ -767,12 +1018,14 @@ class ConstructorConsulta
             $registros = [];
 
             foreach ($valor as $id) {
-                $registros[] = $this->donde($llavePrimaria.' = ?', [$id])->primero();
+                $registros[] = $this->dondeCrudo(
+                    $llavePrimaria . ' = ?', [$id]
+                )->primero();
             }
 
             return $registros;
         } else {
-            return $this->donde($llavePrimaria.' = ?', [$valor])->primero();
+            return $this->dondeCrudo($llavePrimaria . ' = ?', [$valor])->primero();
         }
     }
 
@@ -802,11 +1055,11 @@ class ConstructorConsulta
 
             foreach ($registros as $registro) {
                 $campos = (
-                    '('.$this->_obtenerCamposInsercionP($registro).')'
+                    '(' . $this->_obtenerCamposInsercionP($registro) . ')'
                 );
 
                 $parametros .= (
-                    '('.$this->_obtenerParametrosInsercionP($registro).'),'
+                    '(' . $this->_obtenerParametrosInsercionP($registro) . '),'
                 );
 
                 $valores = array_merge(
@@ -817,8 +1070,8 @@ class ConstructorConsulta
             $parametros = trim($parametros, ',');
 
             return $this->_procesarConsultaSQL(
-                'insert into '.$this->_tabla
-                .$campos.' values '.$parametros,
+                'insert into ' . $this->_tabla
+                . $campos . ' values ' . $parametros,
                 $valores
             );
         } else {
@@ -829,8 +1082,8 @@ class ConstructorConsulta
             $valores = $this->_obtenerValoresInsercion();
 
             return $this->_procesarConsultaSQL(
-                'insert into '.$this->_tabla
-                .' ('.$campos.') values ('.$parametros.')',
+                'insert into ' . $this->_tabla
+                . ' (' . $campos . ') values (' . $parametros . ')',
                 $valores
             );
         }
@@ -867,18 +1120,18 @@ class ConstructorConsulta
 
         if ($parametros) {
             $resultado = $this->_procesarConsultaSQL(
-                'update '.$this->_tabla
-                .' set '.$parametros.' '
-                .$this->_condiciones,
+                'update ' . $this->_tabla
+                . ' set ' . $parametros . ' '
+                . $this->_condiciones,
                 $this->_parametros
             );
 
             if ($resultado > 0 && $this->_verificarCamposRegistroTiempo()) {
                 $this->_procesarConsultaSQL(
-                    'update '.$this->_tabla
-                    .' set '.$this->_propiedades['actualizadoEn']
-                    ." = '".$this->_obtenerFechaHoraActual()
-                    ."' ".$this->_condiciones,
+                    'update ' . $this->_tabla
+                    . ' set ' . $this->_propiedades['actualizadoEn']
+                    . " = '" . $this->_obtenerFechaHoraActual()
+                    . "' " . $this->_condiciones,
                     $this->_parametros
                 );
             }
@@ -903,13 +1156,13 @@ class ConstructorConsulta
         $parametros = [];
 
         foreach ($propiedades as $campo => $valor) {
-            $condiciones .= $campo.' = ? y ';
+            $condiciones .= $campo . ' = ? y ';
             $parametros[] = $valor;
         }
 
         $condiciones = substr($condiciones, 0, -2);
 
-        $this->donde($condiciones, $parametros);
+        $this->dondeCrudo($condiciones, $parametros);
 
         if ($this->existe()) {
             if ($this->_verificarCamposRegistroTiempo()) {
@@ -936,18 +1189,18 @@ class ConstructorConsulta
     {
         if ($this->_verificarCampoEliminacionSuave() && $forzado === false) {
             return $this->_procesarConsultaSQL(
-                'update '.$this->_tabla
-                .' set '.$this->_propiedades['eliminadoEn']
-                ." = '".$this->_obtenerFechaHoraActual()
-                ."'".$this->_condiciones
-                .($this->_condiciones ? 'and ' : ' where ')
-                .$this->_propiedades['eliminadoEn'].' is null',
+                'update ' . $this->_tabla
+                . ' set ' . $this->_propiedades['eliminadoEn']
+                . " = '" . $this->_obtenerFechaHoraActual()
+                . "'" . $this->_condiciones
+                . ($this->_condiciones ? 'and ' : ' where ')
+                . $this->_propiedades['eliminadoEn'] . ' is null',
                 $this->_parametros
             );
         } else {
             return $this->_procesarConsultaSQL(
-                'delete from '.$this->_tabla
-                .' '.$this->_condiciones, $this->_parametros
+                'delete from ' . $this->_tabla
+                . ' ' . $this->_condiciones, $this->_parametros
             );
         }
     }
@@ -962,28 +1215,13 @@ class ConstructorConsulta
      */
     public function vaciar($forzado = false)
     {
-        switch (Configuracion::config('BD_CONTROLADOR')) {
-        case 'mysql':
-            $sentencias = MySQL::obtenerSentenciasTruncar(
-                $this->_tabla, $forzado
-            );
-            break;
-        case 'pgsql':
-            $sentencias = PostgreSQL::obtenerSentenciasTruncar(
-                $this->_tabla, $forzado
-            );
-            break;
-        case 'sqlite':
-            $sentencias = SQLite::obtenerSentenciasTruncar(
-                $this->_tabla, $forzado
-            );
-            break;
-        case 'sqlsrv':
-            $sentencias = SQLServer::obtenerSentenciasTruncar(
-                $this->_tabla, $forzado
-            );
-            break;
-        }
+        $sentencias = match (Configuracion::config('BD_CONTROLADOR')) {
+            'mysql' => MySQL::obtenerSentenciasTruncar($this->_tabla, $forzado),
+            'pgsql' => PostgreSQL::obtenerSentenciasTruncar($this->_tabla, $forzado),
+            'sqlite' => SQLite::obtenerSentenciasTruncar($this->_tabla, $forzado),
+            'sqlsrv' => SQLServer::obtenerSentenciasTruncar($this->_tabla, $forzado),
+            default => []
+        };
 
         foreach ($sentencias as $sentencia) {
             $this->_procesarConsultaSQL($sentencia);
@@ -1001,11 +1239,11 @@ class ConstructorConsulta
     {
         if ($this->_verificarCampoEliminacionSuave()) {
             return $this->_procesarConsultaSQL(
-                'update '.$this->_tabla
-                .' set '.$this->_propiedades['eliminadoEn']
-                .' = null'.$this->_condiciones
-                .($this->_condiciones ? 'and ' : ' where ')
-                .$this->_propiedades['eliminadoEn'].' is not null',
+                'update ' . $this->_tabla
+                . ' set ' . $this->_propiedades['eliminadoEn']
+                . ' = null' . $this->_condiciones
+                . ($this->_condiciones ? 'and ' : ' where ')
+                . $this->_propiedades['eliminadoEn'] . ' is not null',
                 $this->_parametros
             );
         }
@@ -1151,7 +1389,7 @@ class ConstructorConsulta
      * 
      * @return array|string
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public function obtenerClave($campo, $tipoRetorno = PIPE::ARREGLO)
     {
@@ -1180,7 +1418,7 @@ class ConstructorConsulta
      * 
      * @return array|string
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     public function extraer($campo, $tipoRetorno = PIPE::ARREGLO)
     {
@@ -1234,7 +1472,7 @@ class ConstructorConsulta
      * 
      * @return array|string
      * 
-     * @throws \PIPE\Excepciones\ORM|\PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\ORMExcepcion|\PIPE\Excepciones\SQLExcepcion
      */
     private function _obtenerDatosConsultaSQL(
         $tipoRetorno, 
@@ -1247,7 +1485,7 @@ class ConstructorConsulta
             && $tipoRetorno != PIPE::JSON
         ) {
             Error::mostrar(
-                Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'].': '.$tipoRetorno
+                Mensaje::$mensajes['TIPO_DATO_DESCONOCIDO'] . ': ' . $tipoRetorno
             );
         }
 
@@ -1266,47 +1504,42 @@ class ConstructorConsulta
             $consultaUsuario = $this->_obtenerConsultaSQL($tipoRetorno);
         }
 
-        if (is_array($parametros) && !empty($parametros)) {
-            $consulta = Conexion::$conexion->prepare($consultaUsuario);
-            $resultado = $consulta->execute($parametros);
+        try {
+            if (is_array($parametros) && !empty($parametros)) {
+                $consulta = Conexion::$conexion->prepare($consultaUsuario);
 
-            if (!$resultado) {
-                Error::mostrar(
-                    $consulta->errorInfo()[1].' - '.$consulta->errorInfo()[2], true
-                );
+                $consulta->execute($parametros);
+            } else {
+                $consulta = Conexion::$conexion->query($consultaUsuario);
             }
-        } else {
-            $consulta = Conexion::$conexion->query($consultaUsuario);
 
-            if (!$consulta) {
-                Error::mostrar(
-                    Conexion::$conexion->errorInfo()[1]
-                    .' - '.Conexion::$conexion->errorInfo()[2], 
-                    true
-                );
+            if ($tipoRetorno == PIPE::CLASE) {
+                if (!$this->_agrupar) {
+                    $this->_propiedades['RETORNO_CLASE'] = true;
+                    $this->_propiedades['relaciones'] = $this->_relaciones;
+                }
+
+                $parametros = [
+                    PDO::FETCH_CLASS,
+                    self::class,
+                    ['propiedades' => $this->_propiedades]
+                ];
+            } elseif ($tipoRetorno == PIPE::OBJETO) {
+                $parametros = [PDO::FETCH_OBJ];
+            } else {
+                $parametros = [PDO::FETCH_ASSOC];
             }
+
+            $registros = $consulta->fetchAll(...$parametros);
+
+            return $this->_convertirRegistros($registros, $tipoRetorno);
+        } catch (PDOException $e) {
+            Error::mostrar(
+                $e->errorInfo[0]
+                    . ' - ' . $e->errorInfo[1]
+                    . ' - ' . $e->errorInfo[2], true
+            );
         }
-
-        if ($tipoRetorno == PIPE::CLASE) {
-            if (!$this->_agrupar) {
-                $this->_propiedades['RETORNO_CLASE'] = true;
-                $this->_propiedades['relaciones'] = $this->_relaciones;
-            }
-
-            $parametros = [
-                PDO::FETCH_CLASS, 
-                self::class, 
-                ['propiedades' => $this->_propiedades]
-            ];
-        } elseif ($tipoRetorno == PIPE::OBJETO) {
-            $parametros = [PDO::FETCH_OBJ];
-        } else {
-            $parametros = [PDO::FETCH_ASSOC];
-        }
-
-        $registros = $consulta->fetchAll(...$parametros);
-
-        return $this->_convertirRegistros($registros, $tipoRetorno);
     }
 
     /**
@@ -1372,8 +1605,8 @@ class ConstructorConsulta
 
         foreach ($registro as $clave => $valor) {
             $metodo = strpos($clave, '_') === false
-                ? 'mutar'.$clave.$accion
-                : 'mutar'.(str_replace('_', '', $clave)).$accion;
+                ? 'mutar' . $clave . $accion
+                : 'mutar' . (str_replace('_', '', $clave)) . $accion;
 
             if (method_exists($clase, $metodo)) {
                 $valorMutado = $instancia->{$metodo}($valor);
@@ -1447,32 +1680,32 @@ class ConstructorConsulta
         ) {
             $tabla = $this->_alias ? $this->_alias : $this->_tabla;
 
-            $campos[] = $tabla.'.'.$this->_propiedades['llavePrimaria'];
+            $campos[] = $tabla . '.' . $this->_propiedades['llavePrimaria'];
         }
 
         $campos = implode(',', $campos);
 
-        $alias = $this->_alias ? 'as '.$this->_alias : '';
+        $alias = $this->_alias ? 'as ' . $this->_alias : '';
 
         $condicion = $this->_verificarCampoEliminacionSuave()
             ? (
                 ($this->_condiciones ? 'and ' : ' where ')
-                .$this->_propiedades['eliminadoEn'].' is null'
+                . $this->_propiedades['eliminadoEn'] . ' is null'
             ) : '';
 
-        $sql = 'select '.$this->_distinto
-            .' '.$campos
-            .' from '.$this->_tabla
-            .' '.$alias
-            .' '.$this->_unir
-            .' '.$this->_unirDerecha
-            .' '.$this->_unirIzquierda
-            .' '.$this->_condiciones
-            .' '.$condicion
-            .' '.$this->_agrupar
-            .' '.$this->_teniendo
-            .' '.$this->_ordenar
-            .' '.$this->_limite;
+        $sql = 'select ' . $this->_distinto
+            . ' ' . $campos
+            . ' from ' . $this->_tabla
+            . ' ' . $alias
+            . ' ' . $this->_unir
+            . ' ' . $this->_unirDerecha
+            . ' ' . $this->_unirIzquierda
+            . ' ' . $this->_condiciones
+            . ' ' . $condicion
+            . ' ' . $this->_agrupar
+            . ' ' . $this->_teniendo
+            . ' ' . $this->_ordenar
+            . ' ' . $this->_limite;
 
         $comandos = explode(' ', $sql);
 
@@ -1493,7 +1726,7 @@ class ConstructorConsulta
 
         foreach ($comandos as $comando) {
             if ($comando == '0' || !empty($comando)) {
-                $sql = $sql.$comando.' ';
+                $sql = $sql . $comando . ' ';
             }
         }
 
@@ -1503,7 +1736,7 @@ class ConstructorConsulta
             while (strpos($sql, '?') > -1) {
                 $nuevo = $this->_parametros[$contador] ?? '__PARAMETRO37812__';
                 $nuevo = is_string($nuevo) && $nuevo != '__PARAMETRO37812__' 
-                    ? "'".$nuevo."'" : $nuevo;
+                    ? "'" . $nuevo . "'" : $nuevo;
 
                 $sql = $this->remplazarPrimeraCadena('?', $nuevo, $sql);
                 $contador++;
@@ -1551,15 +1784,16 @@ class ConstructorConsulta
             from
                 information_schema.columns
             where
-                '.$campoEsquema.' = '."'".Configuracion::config('BD_BASEDATOS')."'".'
-                and table_name = '."'".$this->_tabla."'"
+                ' . $campoEsquema . ' = ' . "'"
+                . Configuracion::config('BD_BASEDATOS') . "'" . '
+                and table_name = ' . "'" . $this->_tabla . "'"
         );
 
         $columna = 0;
 
         if ($controlador == 'sqlite') {
             $columna = 1;
-            $consultaColumna = 'pragma table_info('.$this->_tabla.')';
+            $consultaColumna = 'pragma table_info(' . $this->_tabla . ')';
         }
 
         $consulta = Conexion::$conexion->query($consultaColumna);
@@ -1577,7 +1811,7 @@ class ConstructorConsulta
      * 
      * @return array|int|string
      * 
-     * @throws \PIPE\Excepciones\ORM|\PIPE\Excepciones\SQL
+     * @throws \PIPE\Excepciones\ORMExcepcion|\PIPE\Excepciones\SQLExcepcion
      */
     private function _procesarConsultaSQL(
         $consulta, $parametros = [], $tipoRetorno = null, $nativa = true
@@ -1594,35 +1828,33 @@ class ConstructorConsulta
             $consulta = $this->_traducirConsultaSQL($consulta);
         }
 
-        if ((strpos($consulta, 'select') >- 1 && strpos($consulta, 'from') >- 1)
-            && (strpos($consulta, 'select') < strpos($consulta, 'from'))
+        $posicionSelect = stripos($consulta, 'select');
+        $posicionFrom = stripos($consulta, 'from');
+
+        if ($posicionSelect !== false
+            && $posicionFrom !== false
+            && $posicionSelect < $posicionFrom
         ) {
             return $this->_obtenerDatosConsultaSQL(
                 $tipoRetorno, $consulta, $parametros
             );
         } else {
-            if (is_array($parametros) && !empty($parametros)) {
-                $consulta = Conexion::$conexion->prepare($consulta);
+            try {
+                if (is_array($parametros) && !empty($parametros)) {
+                    $pdoConsulta = Conexion::$conexion->prepare($consulta);
 
-                if ($consulta->execute($parametros)) {
-                    return $consulta->rowCount();
+                    $pdoConsulta->execute($parametros);
+
+                    return $pdoConsulta->rowCount();
+                } else {
+                    return Conexion::$conexion->exec($consulta);
                 }
-
+            } catch (PDOException $e) {
                 Error::mostrar(
-                    $consulta->errorInfo()[1].' - '.$consulta->errorInfo()[2], true
+                    $e->errorInfo[0]
+                        . ' - ' . $e->errorInfo[1]
+                        . ' - ' . $e->errorInfo[2], true
                 );
-            } else {
-                $resultado = Conexion::$conexion->exec($consulta);
-
-                if ($resultado === false) {
-                    Error::mostrar(
-                        Conexion::$conexion->errorInfo()[1]
-                        .' - '.Conexion::$conexion->errorInfo()[2], 
-                        true
-                    );
-                }
-
-                return $resultado;
             }
         }
     }
@@ -1639,7 +1871,7 @@ class ConstructorConsulta
         // Palabras reservadas para la consulta en español.
 
         $consultaUsuario = $consulta;
-        $consulta = ' '.$consulta.' ';
+        $consulta = ' ' . $consulta . ' ';
         $palabras = explode(' ', $consulta);
         $cantPalabras = count($palabras);
 
@@ -1660,12 +1892,12 @@ class ConstructorConsulta
         for ($i = 0; $i < $cantPalabras; $i++) {
             foreach ($clausulas as $clave => $valor) {
                 $condicion = $this->validarCadenaIndependiente(
-                    $valor, ' '.$palabras[$i].' ', false
+                    $valor, ' ' . $palabras[$i] . ' ', false
                 ) && strlen($palabras[$i]) > 0;
 
                 if ($condicion) {
                     $palabras[$i] = str_ireplace(
-                        $valor, ' '.$clave.' ', $palabras[$i]
+                        $valor, ' ' . $clave . ' ', $palabras[$i]
                     );
                 }
             }
@@ -1713,17 +1945,17 @@ class ConstructorConsulta
 
         for ($j = 0; $j < $i; $j++) {
             $in = $j;
-            $fn = $j+1;
+            $fn = $j + 1;
 
             if ($j % 2 == 0) {
-                $partesUsuario[$k] = "'".substr(
+                $partesUsuario[$k] = "'" . substr(
                     $consultaUsuario,
                     strpos($consultaUsuario, "?$in") + 2,
                     (
                         strpos($consultaUsuario, "?$fn")
                         - strpos($consultaUsuario, "?$in") - 2
                     )
-                )."'";
+                ) . "'";
 
                 $k++;
             }
@@ -1751,7 +1983,7 @@ class ConstructorConsulta
 
         for ($j = 0; $j < $i; $j++) {
             $in = $j;
-            $fn = $j+1;
+            $fn = $j + 1;
 
             if ($j % 2 == 0) {
                 $partesTraducido[$k] = substr(
@@ -1772,16 +2004,16 @@ class ConstructorConsulta
         $cantPartesTraducido = count($partesTraducido);
 
         for ($i = 0; $i < $cantPartesTraducido; $i++) {
-            if (strpos($consultaTraducida, "'".$partesTraducido[$i])."'" > -1) {
+            if (strpos($consultaTraducida, "'" . $partesTraducido[$i]) . "'" > -1) {
                 $consultaTraducida = str_replace(
-                    "'".$partesTraducido[$i]."'",
+                    "'" . $partesTraducido[$i] . "'",
                     $partesUsuario[$i], $consultaTraducida
                 );
             }
 
-            if (strpos($consultaTraducida, '"'.$partesTraducido[$i]).'"' > -1) {
+            if (strpos($consultaTraducida, '"' . $partesTraducido[$i]) . '"' > -1) {
                 $consultaTraducida = str_replace(
-                    '"'.$partesTraducido[$i].'"',
+                    '"' . $partesTraducido[$i] . '"',
                     $partesUsuario[$i], $consultaTraducida
                 );
             }
@@ -1884,7 +2116,7 @@ class ConstructorConsulta
      * 
      * @return array
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     private function _obtenerRelacionTieneUno(self $pipe, $nombre, $tipoRetorno)
     {
@@ -1893,7 +2125,7 @@ class ConstructorConsulta
         foreach ($propiedades['tieneUno'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
-                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
+                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'] . ': ' . $clase
                 );
             }
 
@@ -1909,19 +2141,23 @@ class ConstructorConsulta
                     Modelo::convertirModeloTabla($propiedades['clase']), 0, -1
                 );
 
-                $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea.'_id';
+                $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea . '_id';
 
                 $condiciones = substr($pipe->_condiciones, 7);
 
                 $pipe = PIPE::tabla($pipe->_tabla)
                     ->seleccionar($llavePrincipal)
-                    ->donde($condiciones, $pipe->_parametros)
+                    ->dondeCrudo($condiciones, $pipe->_parametros)
                     ->primero(PIPE::OBJETO);
 
                 $valorllavePrincipal = $pipe->{$llavePrincipal};
 
                 $registro = new self($propiedadesClaseUnion);
-                $registro->donde($llaveForanea.' = ?', [$valorllavePrincipal]);
+
+                $registro->dondeCrudo(
+                    $llaveForanea . ' = ?', [$valorllavePrincipal]
+                );
+
                 $registro = $registro->primero($tipoRetorno);
 
                 return [
@@ -1946,7 +2182,7 @@ class ConstructorConsulta
      * 
      * @return array
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     private function _obtenerRelacionTieneMuchos(self $pipe, $nombre, $tipoRetorno)
     {
@@ -1955,7 +2191,7 @@ class ConstructorConsulta
         foreach ($propiedades['tieneMuchos'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
-                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
+                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'] . ': ' . $clase
                 );
             }
 
@@ -1971,19 +2207,23 @@ class ConstructorConsulta
                     Modelo::convertirModeloTabla($propiedades['clase']), 0, -1
                 );
 
-                $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea.'_id';
+                $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea . '_id';
 
                 $condiciones = substr($pipe->_condiciones, 7);
 
                 $pipe = PIPE::tabla($pipe->_tabla)
                     ->seleccionar($llavePrincipal)
-                    ->donde($condiciones, $pipe->_parametros)
+                    ->dondeCrudo($condiciones, $pipe->_parametros)
                     ->primero(PIPE::OBJETO);
 
                 $valorllavePrincipal = $pipe->{$llavePrincipal};
 
                 $registros = new self($propiedadesClaseUnion);
-                $registros->donde($llaveForanea.' = ?', [$valorllavePrincipal]);
+
+                $registros->dondeCrudo(
+                    $llaveForanea . ' = ?', [$valorllavePrincipal]
+                );
+
                 $registros = $registros->obtener($tipoRetorno);
 
                 return [
@@ -2008,7 +2248,7 @@ class ConstructorConsulta
      * 
      * @return array
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     private function _obtenerRelacionPerteneceAUno(self $pipe, $nombre, $tipoRetorno)
     {
@@ -2017,7 +2257,7 @@ class ConstructorConsulta
         foreach ($propiedades['perteneceAUno'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
-                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
+                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'] . ': ' . $clase
                 );
             }
 
@@ -2036,19 +2276,23 @@ class ConstructorConsulta
                     ), 0, -1
                 );
 
-                $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea.'_id';
+                $llaveForanea = $valores['llaveForanea'] ?? $llaveForanea . '_id';
 
                 $condiciones = substr($pipe->_condiciones, 7);
 
                 $pipe = PIPE::tabla($pipe->_tabla)
                     ->seleccionar($llaveForanea)
-                    ->donde($condiciones, $pipe->_parametros)
+                    ->dondeCrudo($condiciones, $pipe->_parametros)
                     ->primero(PIPE::OBJETO);
 
                 $valorllavePrincipal = $pipe->{$llaveForanea};
 
                 $registro = new self($propiedadesClaseUnion);
-                $registro->donde($llavePrincipal.' = ?', [$valorllavePrincipal]);
+
+                $registro->dondeCrudo(
+                    $llavePrincipal . ' = ?', [$valorllavePrincipal]
+                );
+
                 $registro = $registro->primero($tipoRetorno);
 
                 return [
@@ -2073,7 +2317,7 @@ class ConstructorConsulta
      * 
      * @return array
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     private function _obtenerRelacionPerteneceAMuchos(
         self $pipe, $nombre, $tipoRetorno
@@ -2083,7 +2327,7 @@ class ConstructorConsulta
         foreach ($propiedades['perteneceAMuchos'] as $clase => $valores) {
             if (!class_exists($clase)) {
                 Error::mostrar(
-                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'].': '.$clase
+                    Mensaje::$mensajes['CLASE_NO_ENCONTRADA'] . ': ' . $clase
                 );
             }
 
@@ -2108,24 +2352,25 @@ class ConstructorConsulta
 
             if ($nombre == $nombreRelacion) {
                 $llaveForaneaLocal = (
-                    $valores['llaveForaneaLocal'] ?? $modeloLocal.'_id'
+                    $valores['llaveForaneaLocal'] ?? $modeloLocal . '_id'
                 );
 
                 $llaveForaneaUnion = (
-                    $valores['llaveForaneaUnion'] ?? $modeloUnion.'_id'
+                    $valores['llaveForaneaUnion'] ?? $modeloUnion . '_id'
                 );
 
                 $registros = new self($propiedadesClaseUnion);
 
                 $registros->unir(
                     $tablaUnion,
-                    $propiedadesClaseUnion['tabla'].'.'
+                    $propiedadesClaseUnion['tabla'] . '.'
                     .$propiedadesClaseUnion['llavePrimaria'],
-                    $tablaUnion.'.'.$llaveForaneaUnion
+                    $tablaUnion . '.' . $llaveForaneaUnion
                 );
 
-                $registros->donde(
-                    $tablaUnion.'.'.$llaveForaneaLocal.' = ?', $pipe->_parametros
+                $registros->dondeCrudo(
+                    $tablaUnion . '.' . $llaveForaneaLocal
+                        . ' = ?', $pipe->_parametros
                 );
 
                 $registros = $registros->obtener($tipoRetorno);
@@ -2198,7 +2443,7 @@ class ConstructorConsulta
             if ($this->_propiedades['llavePrimaria'] == $campo 
                 && $registroFiltrado[$campo] === 'default'
             ) {
-                $parametros .= $registroFiltrado[$campo].',';
+                $parametros .= $registroFiltrado[$campo] . ',';
             } else {
                 $parametros .= '?,';
             }
@@ -2233,7 +2478,7 @@ class ConstructorConsulta
                 ) {
                     $valores[] = $this->_obtenerFechaHoraActual();
                 } else {
-                    $valores[] = $registroFiltrado[$campo];
+                    $valores[] = $registroFiltrado[$campo] ?? null;
                 }
             }
         }
@@ -2246,7 +2491,7 @@ class ConstructorConsulta
      *
      * @return string
      * 
-     * @throws \PIPE\Excepciones\ORM
+     * @throws \PIPE\Excepciones\ORMExcepcion
      */
     private function _obtenerCamposInsercion()
     {
@@ -2257,7 +2502,7 @@ class ConstructorConsulta
         foreach ($camposTabla as $campo) {
             if (!property_exists($this, $campo)) {
                 Error::mostrar(
-                    Mensaje::$mensajes['PROPIEDAD_NO_DEFINIDA'].': '.$campo
+                    Mensaje::$mensajes['PROPIEDAD_NO_DEFINIDA'] . ': ' . $campo
                 );
             }
         }
@@ -2282,7 +2527,7 @@ class ConstructorConsulta
             if ($this->_propiedades['llavePrimaria'] == $campo 
                 && $this->{$campo} === 'default'
             ) {
-                $parametros .= $this->{$campo}.',';
+                $parametros .= $this->{$campo} . ',';
             } else {
                 $parametros .= '?,';
             }
@@ -2349,12 +2594,12 @@ class ConstructorConsulta
 
         foreach ($registroFiltrado as $campo => $valor) {
             if (is_string($valor)) {
-                $valor = "'".$valor."'";
+                $valor = "'" . $valor . "'";
             } elseif (is_null($valor)) {
                 $valor = 'null';
             }
 
-            $parametros .= $campo.' = '.$valor.',';
+            $parametros .= $campo . ' = ' . $valor . ',';
         }
 
         return substr($parametros, 0, -1);
@@ -2406,8 +2651,8 @@ class ConstructorConsulta
         foreach ($valoresPivote as $clave => $valor) {
             if (is_numeric($valor) || is_string($valor) || is_null($valor)) {
                 $parametros = is_null($valor)
-                    ? $parametros.$clave.' = null,'
-                    : $parametros.$clave." = '".$valor."',";
+                    ? $parametros . $clave . ' = null,'
+                    : $parametros . $clave . " = '" . $valor . "',";
             }
         }
 
@@ -2505,6 +2750,454 @@ class ConstructorConsulta
         }
 
         return $registros;
+    }
+
+    /**
+     * Establece una condición con cláusula where en la consulta SQL.
+     *
+     * @param mixed  $campo     campo
+     * @param mixed  $operador  operador
+     * @param mixed  $parametro parametro
+     * @param string $tipo      tipo
+     * 
+     * @return $this
+     */
+    private function _baseDonde(
+        $campo, $operador, $parametro, $tipo
+    ) {
+        $esquemaLogico = match ($tipo) {
+            'DONDE' => ['', 'and'],
+            'O_DONDE' => ['', 'or'],
+            'DONDE_NO' => ['not', 'and not'],
+            'O_DONDE_NO' => ['not', 'or not'],
+            default => ''
+        };
+
+        if (is_string($campo) && str_contains($campo, '->')) {
+            if ($parametro == null) {
+                $parametro = $operador;
+                $operador = '=';
+            }
+
+            $propiedades = explode('->', $campo);
+
+            $campo = array_shift($propiedades);
+
+            $sentencia = match (Configuracion::config('BD_CONTROLADOR')) {
+                'mysql' => MySQL::obtenerSentenciaExtraccionJSON(
+                    $campo, $propiedades
+                ),
+                'pgsql' => PostgreSQL::obtenerSentenciaExtraccionJSON(
+                    $campo, $propiedades
+                ),
+                'sqlite' => SQLite::obtenerSentenciaExtraccionJSON(
+                    $campo, $propiedades
+                ),
+                'sqlsrv' => SQLServer::obtenerSentenciaExtraccionJSON(
+                    $campo, $propiedades
+                ),
+                default => ''
+            };
+
+            if (isset($this->condicionesAgrupadas)) {
+                $operadorLogico = empty($this->condicionesAgrupadas)
+                    ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                $this->condicionesAgrupadas .= (
+                    $operadorLogico . ' ' . $sentencia . ' ' . $operador . ' ? '
+                );
+            } else {
+                $operadorLogico = empty($this->_condiciones)
+                    ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                if (empty($this->_condiciones)) {
+                    $this->_condiciones = 'where ';
+                }
+
+                $this->_condiciones .= (
+                    $operadorLogico . ' ' . $sentencia . ' ' . $operador . ' ? '
+                );
+            }
+
+            array_push($this->_parametros, $parametro);
+        } elseif (is_string($campo) || is_numeric($campo)) {
+            if ($parametro == null) {
+                $parametro = $operador;
+                $operador = '=';
+            }
+
+            if (isset($this->condicionesAgrupadas)) {
+                $operadorLogico = empty($this->condicionesAgrupadas)
+                    ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                $this->condicionesAgrupadas .= (
+                    $operadorLogico . ' ' . $campo . ' ' . $operador . ' ? '
+                );
+            } else {
+                $operadorLogico = empty($this->_condiciones)
+                    ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                if (empty($this->_condiciones)) {
+                    $this->_condiciones = 'where ';
+                }
+
+                $this->_condiciones .= (
+                    $operadorLogico . ' ' . $campo . ' ' . $operador . ' ? '
+                );
+            }
+
+            array_push($this->_parametros, $parametro);
+        } elseif (is_array($campo) && array_is_list($campo)) {
+            foreach ($campo as $valor) {
+                if (is_array($valor) && array_is_list($valor)) {
+                    if (isset($valor[2])) {
+                        $parametro = $valor[2];
+                        $operador = $valor[1];
+                    } else {
+                        $parametro = $valor[1];
+                        $operador = '=';
+                    }
+
+                    if (isset($this->condicionesAgrupadas)) {
+                        $operadorLogico = empty($this->condicionesAgrupadas)
+                            ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                        $this->condicionesAgrupadas .= (
+                            $operadorLogico . ' '
+                                . $valor[0] . ' ' . $operador . ' ? '
+                        );
+                    } else {
+                        $operadorLogico = empty($this->_condiciones)
+                            ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                        if (empty($this->_condiciones)) {
+                            $this->_condiciones = 'where ';
+                        }
+
+                        $this->_condiciones .= (
+                            $operadorLogico . ' '
+                                . $valor[0] . ' ' . $operador . ' ? '
+                        );
+                    }
+
+                    array_push($this->_parametros, $parametro);
+                }
+            }
+        } elseif (is_array($campo) && !array_is_list($campo)) {
+            foreach ($campo as $clave => $valor) {
+                if (isset($this->condicionesAgrupadas)) {
+                    $operadorLogico = empty($this->condicionesAgrupadas)
+                        ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                    $this->condicionesAgrupadas .= (
+                        $operadorLogico . ' '
+                            . $clave . ' = ? '
+                    );
+                } else {
+                    $operadorLogico = empty($this->_condiciones)
+                        ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                    if (empty($this->_condiciones)) {
+                        $this->_condiciones = 'where ';
+                    }
+
+                    $this->_condiciones .= (
+                        $operadorLogico . ' '
+                            . $clave . ' = ? '
+                    );
+                }
+
+                array_push($this->_parametros, $valor);
+            }
+        } elseif ($campo instanceof Closure) {
+            $this->condicionesAgrupadas = '';
+
+            $operadorLogico = empty($this->_condiciones)
+                ? $esquemaLogico[0] : $esquemaLogico[1];
+
+            if (empty($this->_condiciones)) {
+                $this->_condiciones .= 'where ';
+            }
+
+            $campo($this);
+
+            $this->_condiciones .=  (
+                $operadorLogico . ' (' .trim($this->condicionesAgrupadas) . ') '
+            );
+
+            unset($this->condicionesAgrupadas);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador in en la consulta SQL.
+     *
+     * @param string       $campo      campo
+     * @param string|array $valores    valores
+     * @param array        $parametros parametros
+     * @param string       $tipo       tipo
+     * 
+     * @return $this
+     */
+    private function _baseDondeEn($campo, $valores, $parametros, $tipo)
+    {
+        $esquemaLogico = match ($tipo) {
+            'DONDE' => ['', 'and'],
+            'O_DONDE' => ['', 'or'],
+            'DONDE_NO' => ['', 'and', 'not'],
+            'O_DONDE_NO' => ['', 'or', 'not'],
+            default => ''
+        };
+
+        $marcadores = '';
+
+        if (is_string($valores)) {
+            $marcadores = trim($this->_traducirConsultaSQL($valores));
+        } elseif (is_array($valores)) {
+            $marcadores = implode(',', array_fill(0, count($valores), '?'));
+        }
+
+        $operadorNegacion = in_array($tipo, ['DONDE_NO', 'O_DONDE_NO'])
+            ? $esquemaLogico[2] : '';
+
+        if (isset($this->condicionesAgrupadas)) {
+            $operadorLogico = empty($this->condicionesAgrupadas)
+                ? $esquemaLogico[0] : $esquemaLogico[1];
+
+            $this->condicionesAgrupadas .= (
+                $operadorLogico . ' ' . $campo . ' '
+                . $operadorNegacion . ' in (' . $marcadores . ') '
+            );
+        } else {
+            $operadorLogico = empty($this->_condiciones)
+                ? $esquemaLogico[0] : $esquemaLogico[1];
+
+            if (empty($this->_condiciones)) {
+                $this->_condiciones = 'where ';
+            }
+
+            $this->_condiciones .= (
+                $operadorLogico . ' ' . $campo . ' '
+                . $operadorNegacion . ' in (' . $marcadores . ') '
+            );
+        }
+
+        if (is_string($valores)) {
+            $this->_parametros = array_merge($this->_parametros, $parametros);
+        } elseif (is_array($valores)) {
+            $this->_parametros = array_merge($this->_parametros, $valores);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador between en la consulta SQL.
+     *
+     * @param string $campo   campo
+     * @param array  $valores valores
+     * @param string $tipo    tipo
+     * 
+     * @return $this
+     */
+    private function _baseDondeEntre($campo, $valores, $tipo)
+    {
+        $esquemaLogico = match ($tipo) {
+            'DONDE' => ['', 'and'],
+            'O_DONDE' => ['', 'or'],
+            'DONDE_NO' => ['', 'and', 'not'],
+            'O_DONDE_NO' => ['', 'or', 'not'],
+            default => ''
+        };
+
+        $operadorNegacion = in_array($tipo, ['DONDE_NO', 'O_DONDE_NO'])
+            ? $esquemaLogico[2] : '';
+
+        if (isset($this->condicionesAgrupadas)) {
+            $operadorLogico = empty($this->condicionesAgrupadas)
+                ? $esquemaLogico[0] : $esquemaLogico[1];
+
+            $this->condicionesAgrupadas .= (
+                $operadorLogico . ' ' . $campo . ' '
+                . $operadorNegacion . ' between ? and ? '
+            );
+        } else {
+            $operadorLogico = empty($this->_condiciones)
+                ? $esquemaLogico[0] : $esquemaLogico[1];
+
+            if (empty($this->_condiciones)) {
+                $this->_condiciones = 'where ';
+            }
+
+            $this->_condiciones .= (
+                $operadorLogico . ' ' . $campo . ' '
+                . $operadorNegacion . ' between ? and ? '
+            );
+        }
+
+        $this->_parametros = array_merge($this->_parametros, $valores);
+
+        return $this;
+    }
+
+    /**
+     * Establece una condición con cláusula
+     * where y operador null en la consulta SQL.
+     *
+     * @param string $campo campo
+     * @param string $tipo  tipo
+     * 
+     * @return $this
+     */
+    private function _baseDondeNulo($campo, $tipo)
+    {
+        $esquemaLogico = match ($tipo) {
+            'DONDE' => ['', 'and'],
+            'O_DONDE' => ['', 'or'],
+            'DONDE_NO' => ['', 'and', 'not'],
+            'O_DONDE_NO' => ['', 'or', 'not'],
+            default => ''
+        };
+
+        $operadorNegacion = in_array($tipo, ['DONDE_NO', 'O_DONDE_NO'])
+            ? $esquemaLogico[2] : '';
+
+        if (isset($this->condicionesAgrupadas)) {
+            $operadorLogico = empty($this->condicionesAgrupadas)
+                ? $esquemaLogico[0] : $esquemaLogico[1];
+
+            $this->condicionesAgrupadas .= (
+                $operadorLogico . ' ' . $campo . ' is '
+                . $operadorNegacion . ' null '
+            );
+        } else {
+            $operadorLogico = empty($this->_condiciones)
+                ? $esquemaLogico[0] : $esquemaLogico[1];
+
+            if (empty($this->_condiciones)) {
+                $this->_condiciones = 'where ';
+            }
+
+            $this->_condiciones .= (
+                $operadorLogico . ' ' . $campo . ' is '
+                . $operadorNegacion . ' null '
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Establece una condición con cláusula where en la consulta SQL.
+     *
+     * @param mixed  $columna1 columna1
+     * @param mixed  $operador operador
+     * @param mixed  $columna2 columna2
+     * @param string $tipo     tipo
+     * 
+     * @return $this
+     */
+    private function _baseDondeColumna(
+        $columna1, $operador, $columna2, $tipo
+    ) {
+        $esquemaLogico = match ($tipo) {
+            'DONDE' => ['', 'and'],
+            'O_DONDE' => ['', 'or'],
+            default => ''
+        };
+
+        if (is_string($columna1)) {
+            if ($columna2 == null) {
+                $columna2 = $operador;
+                $operador = '=';
+            }
+
+            if (isset($this->condicionesAgrupadas)) {
+                $operadorLogico = empty($this->condicionesAgrupadas)
+                    ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                $this->condicionesAgrupadas .= (
+                    $operadorLogico . ' ' . $columna1 . ' '
+                    . $operador . ' ' . $columna2 . ' '
+                );
+            } else {
+                $operadorLogico = empty($this->_condiciones)
+                    ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                if (empty($this->_condiciones)) {
+                    $this->_condiciones = 'where ';
+                }
+
+                $this->_condiciones .= (
+                    $operadorLogico . ' ' . $columna1
+                    . ' ' . $operador . ' ' . $columna2 . ' '
+                );
+            }
+        } elseif (is_array($columna1) && array_is_list($columna1)) {
+            foreach ($columna1 as $valor) {
+                if (is_array($valor) && array_is_list($valor)) {
+                    if (isset($valor[2])) {
+                        $columna2 = $valor[2];
+                        $operador = $valor[1];
+                    } else {
+                        $columna2 = $valor[1];
+                        $operador = '=';
+                    }
+
+                    if (isset($this->condicionesAgrupadas)) {
+                        $operadorLogico = empty($this->condicionesAgrupadas)
+                            ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                        $this->condicionesAgrupadas .= (
+                            $operadorLogico . ' '
+                                . $valor[0] . ' ' . $operador . ' ' . $columna2 . ' '
+                        );
+                    } else {
+                        $operadorLogico = empty($this->_condiciones)
+                            ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                        if (empty($this->_condiciones)) {
+                            $this->_condiciones = 'where ';
+                        }
+
+                        $this->_condiciones .= (
+                            $operadorLogico . ' '
+                                . $valor[0] . ' ' . $operador . ' ' . $columna2 . ' '
+                        );
+                    }
+                }
+            }
+        } elseif (is_array($columna1) && !array_is_list($columna1)) {
+            foreach ($columna1 as $clave => $valor) {
+                if (isset($this->condicionesAgrupadas)) {
+                    $operadorLogico = empty($this->condicionesAgrupadas)
+                        ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                    $this->condicionesAgrupadas .= (
+                        $operadorLogico . ' '
+                            . $clave . ' = ' . $valor . ' '
+                    );
+                } else {
+                    $operadorLogico = empty($this->_condiciones)
+                        ? $esquemaLogico[0] : $esquemaLogico[1];
+
+                    if (empty($this->_condiciones)) {
+                        $this->_condiciones = 'where ';
+                    }
+
+                    $this->_condiciones .= (
+                        $operadorLogico . ' '
+                            . $clave . ' = ' . $valor . ' '
+                    );
+                }
+            }
+        }
+
+        return $this;
     }
 
     // Fin métodos privados.

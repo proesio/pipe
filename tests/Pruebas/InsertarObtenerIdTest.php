@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -18,8 +18,8 @@ namespace PIPE\Tests\Pruebas;
 use PIPE\PIPE;
 use Modelos\Telefono;
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class InsertarObtenerIdTest extends TestCase
 {
@@ -63,7 +63,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = PIPE::tabla('telefonos');
         $telefono->numero = 1234567890;
@@ -74,7 +74,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = new Telefono();
         $telefono->numero = 1234567890;
@@ -85,7 +85,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = PIPE::tabla('telefonos');
         $telefono->numero = 1234567890;
@@ -96,7 +96,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = new Telefono();
         $telefono->numero = 1234567890;
@@ -107,7 +107,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = PIPE::tabla('telefonos');
         $telefono->numero = 1234567890;
@@ -118,7 +118,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = new Telefono();
         $telefono->numero = 1234567890;
@@ -129,7 +129,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = PIPE::tabla('telefonos');
         $telefono->numero = 1234567890;
@@ -140,7 +140,7 @@ class InsertarObtenerIdTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         $telefono = new Telefono();
         $telefono->numero = 1234567890;
@@ -149,7 +149,7 @@ class InsertarObtenerIdTest extends TestCase
 
     private function baseTestDeInsercionDeRegistroYObtencionDeId()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -170,6 +170,11 @@ class InsertarObtenerIdTest extends TestCase
 
         $telefono->numero = 1234567890;
         $resultado = $telefono->insertarObtenerId();
+
+        if ($this->conexion == 'sqlsrv') {
+            $pdo = PIPE::obtenerPDO();
+            $pdo->exec('set identity_insert telefonos off');
+        }
 
         $this->assertEquals(3, $resultado);
 
@@ -193,12 +198,17 @@ class InsertarObtenerIdTest extends TestCase
         $telefono1->numero = 1234567890;
         $resultado1 = $telefono1->insertarObtenerId();
 
+        if ($this->conexion == 'sqlsrv') {
+            $pdo = PIPE::obtenerPDO();
+            $pdo->exec('set identity_insert telefonos off');
+        }
+
         $this->assertEquals(3, $resultado1);
     }
 
     private function baseTestDeInsercionDeRegistroYObtencionDeIdConCamposPersonalizados()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -222,7 +232,7 @@ class InsertarObtenerIdTest extends TestCase
 
     private function baseTestDeInsercionDeVariosRegistrosYObtencionDeIdConCamposPersonalizados()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         $valorEsperado = 4;
 
@@ -262,8 +272,8 @@ class InsertarObtenerIdTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 2);
+        generarRegistros('telefonos', 2);
     }
 }

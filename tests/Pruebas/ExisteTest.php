@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -44,13 +44,13 @@ class ExisteTest extends TestCase
 
     private function baseTestDeVerificacionDeRegistroExistente()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
         $this->generarRegistros();
 
-        $existe = PIPE::tabla('telefonos')->donde('id = ?', [1])->existe();
+        $existe = PIPE::tabla('telefonos')->dondeCrudo('id = ?', [1])->existe();
 
         $this->assertTrue($existe);
 
@@ -58,15 +58,15 @@ class ExisteTest extends TestCase
 
         $this->generarRegistros();
 
-        $existe = Telefono::donde('id = ?', [1])->existe();
+        $existe = Telefono::dondeCrudo('id = ?', [1])->existe();
 
         $this->assertTrue($existe);
     }
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos');
+        generarRegistros('telefonos');
     }
 }

@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -31,7 +31,7 @@ spl_autoload_register(
         if (strncmp($archivo, $prefijo, $prefijoLongitud) === 0) {
             $ruta = str_replace('\\', '/', $archivo);
             $ruta = substr($ruta, $prefijoLongitud);
-            $ruta = __DIR__.'/'.$ruta.'.php';
+            $ruta = __DIR__ . '/' . $ruta . '.php';
 
             if (file_exists($ruta)) {
                 include_once $ruta;
@@ -62,7 +62,7 @@ function obtenerTiempoEmpleado()
     $tiempoFin = microtimeFloat();
     global $tiempoInicio;
 
-    return 'Tiempo empleado: '.($tiempoFin - $tiempoInicio);
+    return 'Tiempo empleado: ' . ($tiempoFin - $tiempoInicio);
 }
 
 /**
@@ -109,16 +109,13 @@ function debuguear()
 /**
  * Genera los registros de prueba.
  *
- * @param string $conexion conexion
  * @param string $tabla    tabla
  * @param int    $cantidad cantidad
  * 
  * @return void
  */
-function generarRegistros($conexion, $tabla, $cantidad = 1)
+function generarRegistros($tabla, $cantidad = 1)
 {
-    Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL'], $conexion);
-
     $pdo = PIPE::obtenerPDO();
 
     $dateTime = new DateTime(Configuracion::config('ZONA_HORARIA'));
@@ -126,14 +123,25 @@ function generarRegistros($conexion, $tabla, $cantidad = 1)
     for ($i = 1; $i <= $cantidad; $i++) {
         $tiempo = $dateTime->format('Y-m-d H:i:s');
 
+        $campos = '';
+        $valores = '';
+
+        $config = json_encode(
+            [
+                'propiedad' => [
+                    'subpropiedad' => 'Valor' . $i
+                ]
+            ]
+        );
+
         switch ($tabla) {
         case 'telefonos':
             $campos = '(numero, creado_en, actualizado_en)';
-            $valores = "(".mt_rand(1000000000, 9999999999).", '".$tiempo."', '".$tiempo."')";
+            $valores = "(" . mt_rand(1000000000, 9999999999) . ", '" . $tiempo . "', '" . $tiempo . "')";
             break;
         case 'usuarios':
-            $campos = '(telefono_id, nombres, apellidos, creado_en, actualizado_en)';
-            $valores = "($i, 'Nombre{$i}', 'Apellido{$i}', '{$tiempo}', '{$tiempo}')";
+            $campos = '(telefono_id, nombres, apellidos, config, creado_en, actualizado_en)';
+            $valores = "($i, 'Nombre{$i}', 'Apellido{$i}', '{$config}', '{$tiempo}', '{$tiempo}')";
             break;
         case 'roles':
             $campos = '(nombre, creado_en, actualizado_en)';
@@ -149,29 +157,25 @@ function generarRegistros($conexion, $tabla, $cantidad = 1)
             break;
         case 'documentos':
             $campos = '(usuario_id, numero, creado_en, actualizado_en)';
-            $valores = "($i, ".mt_rand(1000000000, 9999999999).", '{$tiempo}', '{$tiempo}')";
+            $valores = "($i, " . mt_rand(1000000000, 9999999999) . ", '{$tiempo}', '{$tiempo}')";
             break;
         }
 
-        $pdo->exec('insert into '.$tabla.' '.$campos.' values '.$valores);
+        $pdo->exec('insert into ' . $tabla . ' ' . $campos . ' values ' . $valores);
     } 
 }
 
 /**
  * Elimina todos los registros en las tablas y reinicia 
  * el contador auto incrementable.
- *
- * @param string $conexion conexion
  * 
  * @return void
  */
-function vaciarTablas($conexion)
+function vaciarTablas()
 {
-    Configuracion::inicializar($GLOBALS['CONFIG_GLOBAL'], $conexion);
-
     $pdo = PIPE::obtenerPDO();
 
-    switch (Configuracion::config('BD_CONTROLADOR')){
+    switch (Configuracion::config('BD_CONTROLADOR')) {
     case 'mysql':
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
         $pdo->exec('truncate table documentos');

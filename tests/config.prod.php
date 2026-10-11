@@ -15,7 +15,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -38,7 +38,7 @@ return [
         'BD_BASEDATOS' => 'pipe',
         'BD_DATOS_DSN' => '',
         'IDIOMA' => 'es',
-        'RUTA_MODELOS' => __DIR__.'/Modelos',
+        'RUTA_MODELOS' => __DIR__ . '/Modelos',
         'ZONA_HORARIA' => 'America/Bogota',
         'COMANDO_INICIAL' => 'set names utf8mb4 collate utf8mb4_unicode_ci',
         'TIPO_RETORNO' => Configuracion::CLASE,
@@ -53,7 +53,7 @@ return [
         'BD_BASEDATOS' => 'pipe',
         'BD_DATOS_DSN' => '',
         'IDIOMA' => 'es',
-        'RUTA_MODELOS' => __DIR__.'/Modelos',
+        'RUTA_MODELOS' => __DIR__ . '/Modelos',
         'ZONA_HORARIA' => 'America/Bogota',
         'COMANDO_INICIAL' => '',
         'TIPO_RETORNO' => Configuracion::CLASE,
@@ -61,9 +61,9 @@ return [
     ],
     'sqlite' => [
         'BD_CONTROLADOR' => 'sqlite',
-        'BD_BASEDATOS' => __DIR__.'/ruta/a/mi/basedatos.sqlite',
+        'BD_BASEDATOS' => __DIR__ . '/ruta/a/mi/basedatos.sqlite',
         'IDIOMA' => 'es',
-        'RUTA_MODELOS' => __DIR__.'/Modelos',
+        'RUTA_MODELOS' => __DIR__ . '/Modelos',
         'ZONA_HORARIA' => 'America/Bogota',
         'COMANDO_INICIAL' => '',
         'TIPO_RETORNO' => Configuracion::CLASE,
@@ -78,7 +78,7 @@ return [
         'BD_BASEDATOS' => 'pipe',
         'BD_DATOS_DSN' => '',
         'IDIOMA' => 'es',
-        'RUTA_MODELOS' => __DIR__.'/Modelos',
+        'RUTA_MODELOS' => __DIR__ . '/Modelos',
         'ZONA_HORARIA' => 'America/Bogota',
         'COMANDO_INICIAL' => '',
         'TIPO_RETORNO' => Configuracion::CLASE,

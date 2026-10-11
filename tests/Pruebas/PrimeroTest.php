@@ -8,7 +8,7 @@
  * @author    Juan Felipe Valencia Murillo  <juanfe0245@gmail.com>
  * @copyright 2018 - presente  Juan Felipe Valencia Murillo
  * @license   https://opensource.org/licenses/MIT  MIT License
- * @version   GIT:  7.2.0
+ * @version   GIT:  8.0.0
  * @link      https://pipe.proes.io
  * @since     Fecha inicio de creación del proyecto  2018-09-13
  */
@@ -18,9 +18,9 @@ namespace PIPE\Tests\Pruebas;
 use PIPE\PIPE;
 use Modelos\Telefono;
 use PIPE\Configuracion;
-use PIPE\Excepciones\ORM;
 use PIPE\ConstructorConsulta;
 use PHPUnit\Framework\TestCase;
+use PIPE\Excepciones\ORMExcepcion;
 
 class PrimeroTest extends TestCase
 {
@@ -112,7 +112,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(PIPE::SQL);
     }
@@ -121,7 +121,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(PIPE::SQL);
     }
@@ -130,7 +130,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(PIPE::SQL);
     }
@@ -139,7 +139,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(PIPE::SQL);
     }
@@ -148,7 +148,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(PIPE::SQL);
     }
@@ -157,7 +157,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(PIPE::SQL);
     }
@@ -166,7 +166,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(PIPE::SQL);
     }
@@ -175,7 +175,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(PIPE::SQL);
     }
@@ -184,7 +184,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(2, PIPE::SQL);
     }
@@ -193,7 +193,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'mysql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(2, PIPE::SQL);
     }
@@ -202,7 +202,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(2, PIPE::SQL);
     }
@@ -211,7 +211,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'pgsql');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(2, PIPE::SQL);
     }
@@ -220,7 +220,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(2, PIPE::SQL);
     }
@@ -229,7 +229,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlite');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(2, PIPE::SQL);
     }
@@ -238,7 +238,7 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         PIPE::tabla('telefonos')->primero(2, PIPE::SQL);
     }
@@ -247,14 +247,14 @@ class PrimeroTest extends TestCase
     {
         Configuracion::inicializar($this->configGlobal, 'sqlsrv');
 
-        $this->expectException(ORM::class);
+        $this->expectException(ORMExcepcion::class);
 
         Telefono::primero(2, PIPE::SQL);
     }
 
     private function baseTestDeObtencionDelPrimerRegistro()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -277,7 +277,7 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionDelPrimerRegistroConTipoRetornoOBJETO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -300,7 +300,7 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionDelPrimerRegistroConTipoRetornoARREGLO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -323,7 +323,7 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionDelPrimerRegistroConTipoRetornoJSON()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -350,7 +350,7 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionDeLosPrimerosTantosRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -373,7 +373,7 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionDeLosPrimerosTantosRegistrosConTipoRetornoOBJETO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -398,7 +398,7 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionDeLosPrimerosTantosRegistrosConTipoRetornoARREGLO()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -423,7 +423,7 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionDeLosPrimerosTantosRegistrosConTipoRetornoJSON()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
@@ -452,11 +452,11 @@ class PrimeroTest extends TestCase
 
     private function baseTestDeObtencionNullCuandoNoSeEncuentranRegistros()
     {
-        Configuracion::inicializar($this->configGlobal, $this->conexion);
+        Configuracion::inicializar($this->configGlobal, $this->conexion, true);
 
         // Prueba de constructor de consulta.
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
         $telefono = PIPE::tabla('telefonos')->primero();
 
@@ -464,7 +464,7 @@ class PrimeroTest extends TestCase
 
         // Prueba de modelo.
 
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
         $telefono = Telefono::primero();
 
@@ -473,8 +473,8 @@ class PrimeroTest extends TestCase
 
     private function generarRegistros()
     {
-        vaciarTablas($this->conexion);
+        vaciarTablas();
 
-        generarRegistros($this->conexion, 'telefonos', 3);
+        generarRegistros('telefonos', 3);
     }
 }
